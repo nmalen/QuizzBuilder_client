@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/catalog_provider.dart';
 import '../providers/quizz_builder_provider.dart';
+import '../providers/language_provider.dart';
 import '../models/category.dart';
 import '../models/theme.dart' as theme_model;
 
@@ -21,7 +23,9 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(category != null ? 'Select Themes • ${category.nameEn}' : 'Select Themes'),
+        title: Consumer<LanguageProvider>(
+          builder: (context, langProvider, _) => Text(category != null ? '${AppLocalizations.of(context)!.selectThemes} • ${langProvider.getLocalizedText(category.nameEn, category.nameFr)}' : AppLocalizations.of(context)!.selectThemes),
+        ),
       ),
       body: Builder(
         builder: (context) {
@@ -36,7 +40,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                 children: [
                   Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
-                  Text('Error loading themes',
+                  Text(AppLocalizations.of(context)!.errorLoadingThemes,
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
                   Text(
@@ -51,7 +55,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                         catalog.loadThemesByCategory(category.id);
                       }
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -65,7 +69,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                 children: [
                   Icon(Icons.inbox, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
-                  Text('No themes available',
+                  Text(AppLocalizations.of(context)!.noThemes,
                       style: Theme.of(context).textTheme.titleMedium),
                 ],
               ),
@@ -128,7 +132,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                                 Navigator.of(context).popUntil((route) => route.isFirst);
                               },
                         icon: const Icon(Icons.check),
-                        label: const Text('Done'),
+                        label: Text(AppLocalizations.of(context)!.done),
                       ),
                     ],
                   ),
@@ -173,11 +177,18 @@ class _ThemeSelectTile extends StatelessWidget {
         value: selected,
         onChanged: onChanged,
         controlAffinity: ListTileControlAffinity.leading,
-        title: Text(
-          theme.nameEn,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+        title: Consumer<LanguageProvider>(
+          builder: (context, langProvider, _) {
+            return Text(
+              langProvider.getLocalizedText(
+                theme.nameEn,
+                theme.nameFr,
               ),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            );
+          },
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

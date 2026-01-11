@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/catalog_provider.dart';
 import '../providers/quizz_builder_provider.dart';
+import '../providers/language_provider.dart';
 import '../models/category.dart';
 import 'quizz_builder_themes_screen.dart';
 
@@ -27,7 +29,7 @@ class _QuizzBuilderScreenState extends State<QuizzBuilderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Build Your Quiz'),
+        title: Text(AppLocalizations.of(context)!.buildQuiz),
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, catalogProvider, child) {
@@ -42,7 +44,7 @@ class _QuizzBuilderScreenState extends State<QuizzBuilderScreen> {
                 children: [
                   Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
-                  Text('Error loading categories',
+                  Text(AppLocalizations.of(context)!.errorLoadingCategories,
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
                   Text(
@@ -55,7 +57,7 @@ class _QuizzBuilderScreenState extends State<QuizzBuilderScreen> {
                     onPressed: () {
                       catalogProvider.loadCategories();
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -69,7 +71,7 @@ class _QuizzBuilderScreenState extends State<QuizzBuilderScreen> {
                 children: [
                   Icon(Icons.inbox, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
-                  Text('No categories available',
+                  Text(AppLocalizations.of(context)!.noCategories,
                       style: Theme.of(context).textTheme.titleMedium),
                 ],
               ),
@@ -152,24 +154,31 @@ class _CategoryCard extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      category.nameEn,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+                child: Consumer<LanguageProvider>(
+                  builder: (context, langProvider, _) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          langProvider.getLocalizedText(
+                            category.nameEn,
+                            category.nameFr,
                           ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${category.themesCount} theme${category.themesCount != 1 ? 's' : ''}',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: Colors.grey),
-                    ),
-                  ],
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${category.themesCount} theme${category.themesCount != 1 ? 's' : ''}',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: Colors.grey),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
               Icon(Icons.arrow_forward_ios, color: Colors.grey[400], size: 20),

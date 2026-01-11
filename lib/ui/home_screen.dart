@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/catalog_provider.dart';
-import '../providers/quizz_builder_provider.dart';
 import 'game_mode_screen.dart';
-import 'quizz_builder_screen.dart';
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,7 +18,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Load stats on home entry
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CatalogProvider>(context, listen: false).loadStatistics();
     });
@@ -31,9 +31,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QuizzBuilder'),
+        title: Text(AppLocalizations.of(context)!.appTitle),
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SettingsScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
@@ -41,19 +50,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Logout'),
-                    content: const Text('Are you sure you want to logout?'),
+                    title: Text(AppLocalizations.of(context)!.logout),
+                    content: Text(AppLocalizations.of(context)!.logoutConfirm),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel'),
+                        child: Text(AppLocalizations.of(context)!.cancel),
                       ),
                       TextButton(
                         onPressed: () {
                           authProvider.logout();
                           Navigator.pop(context);
                         },
-                        child: const Text('Logout'),
+                        child: Text(AppLocalizations.of(context)!.logout),
                       ),
                     ],
                   );
@@ -66,7 +75,6 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Welcome section
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -82,78 +90,48 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  Icon(
-                    Icons.person,
-                    size: 80,
-                    color: Colors.white,
-                  ),
+                  const Icon(Icons.person, size: 80, color: Colors.white),
                   const SizedBox(height: 16),
                   Text(
-                    'Welcome, ${user?.displayName}!',
+                    AppLocalizations.of(context)!.welcomeMessage(user?.displayName ?? 'User'),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Ready to test your knowledge?',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.white70,
-                    ),
+                    AppLocalizations.of(context)!.readyToTest,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 32),
 
-            // Main action buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  // Play Quiz Button
                   _ActionButton(
                     icon: Icons.quiz,
-                    title: 'Play Quiz',
-                    subtitle: 'Select categories, themes, and challenge yourself',
+                    title: AppLocalizations.of(context)!.playQuiz,
+                    subtitle: AppLocalizations.of(context)!.playQuizSubtitle,
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => const GameModeScreen(),
-                        ),
+                        MaterialPageRoute(builder: (_) => const GameModeScreen()),
                       );
                     },
                   ),
                   const SizedBox(height: 16),
-
-                  // Build Quiz Button
-                  _ActionButton(
-                    icon: Icons.build,
-                    title: 'Build Quiz',
-                    subtitle: 'Compose your own quiz from themes',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const QuizzBuilderScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Buy Themes Button
                   _ActionButton(
                     icon: Icons.shopping_cart,
-                    title: 'Store',
-                    subtitle: 'Unlock premium themes and categories',
+                    title: AppLocalizations.of(context)!.store,
+                    subtitle: AppLocalizations.of(context)!.storeSubtitle,
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Store feature coming soon!'),
-                        ),
+                        SnackBar(content: Text(AppLocalizations.of(context)!.storeFeatureComing)),
                       );
                     },
                   ),
@@ -162,57 +140,51 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Quick stats section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Available content',
+                    AppLocalizations.of(context)!.availableContent,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
-                  Consumer<QuizzBuilderProvider>(
-                    builder: (context, builder, _) {
-                      final hasSelections = builder.selectedCount > 0;
-                      return Text(
-                        hasSelections
-                            ? 'Selected: ${builder.selectedCategoriesCount} categor${builder.selectedCategoriesCount == 1 ? 'y' : 'ies'} • ${builder.selectedCount} theme${builder.selectedCount == 1 ? '' : 's'} • ${builder.selectedQuestionsCount} question${builder.selectedQuestionsCount == 1 ? '' : 's'}'
-                            : 'No selection yet. Go to Build Quiz to create one.',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey,
-                        ),
-                      );
-                    },
-                  ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _StatCard(
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withValues(alpha: 0.15),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _StatItem(
                           icon: Icons.school,
-                          label: 'Categories',
+                          label: AppLocalizations.of(context)!.categories,
                           value: _formatStatValue(catalogProvider.stats?.totalCategories, catalogProvider.isStatsLoading),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
+                        Container(height: 40, width: 1, color: Colors.grey.shade300),
+                        _StatItem(
                           icon: Icons.bookmark,
-                          label: 'Themes',
+                          label: AppLocalizations.of(context)!.themes,
                           value: _formatStatValue(catalogProvider.stats?.totalThemes, catalogProvider.isStatsLoading),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
+                        Container(height: 40, width: 1, color: Colors.grey.shade300),
+                        _StatItem(
                           icon: Icons.help_center,
-                          label: 'Questions',
+                          label: AppLocalizations.of(context)!.questions,
                           value: _formatStatValue(catalogProvider.stats?.totalQuestions, catalogProvider.isStatsLoading),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -249,27 +221,27 @@ class _ActionButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Theme.of(context).primaryColor,
-            width: 2,
-          ),
-        ),
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Row(
           children: [
             Container(
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                shape: BoxShape.circle,
               ),
-              padding: const EdgeInsets.all(12),
-              child: Icon(
-                icon,
-                size: 32,
-                color: Theme.of(context).primaryColor,
-              ),
+              child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -278,27 +250,17 @@ class _ActionButton extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: Theme.of(context).primaryColor,
-              size: 20,
-            ),
+            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
           ],
         ),
       ),
@@ -306,12 +268,12 @@ class _ActionButton extends StatelessWidget {
   }
 }
 
-class _StatCard extends StatelessWidget {
+class _StatItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
 
-  const _StatCard({
+  const _StatItem({
     required this.icon,
     required this.label,
     required this.value,
@@ -319,40 +281,27 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey[100],
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 28,
-            color: Theme.of(context).primaryColor,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Colors.grey,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Theme.of(context).primaryColor, size: 28),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Colors.grey[600],
+              ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }

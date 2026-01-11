@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/catalog_provider.dart';
+import '../providers/language_provider.dart';
 import 'themes_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
@@ -26,7 +28,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Select Category (${widget.gameMode})'),
+        title: Text(AppLocalizations.of(context)!.selectCategory),
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, catalogProvider, child) {
@@ -48,7 +50,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Error loading categories',
+                    AppLocalizations.of(context)!.errorLoadingCategories,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
@@ -62,7 +64,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     onPressed: () {
                       catalogProvider.loadCategories();
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -81,7 +83,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No categories available',
+                    AppLocalizations.of(context)!.noCategories,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
@@ -163,23 +165,30 @@ class _CategoryCard extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      category.nameEn,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${category.themesCount} theme${category.themesCount != 1 ? 's' : ''}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
+                child: Consumer<LanguageProvider>(
+                  builder: (context, langProvider, _) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          langProvider.getLocalizedText(
+                            category.nameEn,
+                            category.nameFr,
+                          ),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${category.themesCount} theme${category.themesCount != 1 ? 's' : ''}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
               Icon(

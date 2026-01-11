@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/category.dart';
 import '../providers/catalog_provider.dart';
+import '../providers/language_provider.dart';
 
 class ThemesScreen extends StatefulWidget {
   final String gameMode;
@@ -22,7 +24,9 @@ class _ThemesScreenState extends State<ThemesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.category.nameEn} Themes'),
+        title: Consumer<LanguageProvider>(
+          builder: (context, langProvider, _) => Text('${langProvider.getLocalizedText(widget.category.nameEn, widget.category.nameFr)} ${AppLocalizations.of(context)!.themes}'),
+        ),
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, catalogProvider, child) {
@@ -44,7 +48,7 @@ class _ThemesScreenState extends State<ThemesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Error loading themes',
+                    AppLocalizations.of(context)!.errorLoadingThemes,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 8),
@@ -58,7 +62,7 @@ class _ThemesScreenState extends State<ThemesScreen> {
                     onPressed: () {
                       catalogProvider.loadThemesByCategory(widget.category.id);
                     },
-                    child: const Text('Retry'),
+                    child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
               ),
@@ -77,7 +81,7 @@ class _ThemesScreenState extends State<ThemesScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No themes available',
+                    AppLocalizations.of(context)!.noThemes,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
@@ -97,7 +101,7 @@ class _ThemesScreenState extends State<ThemesScreen> {
                   // TODO: Navigate to quiz screen with selected theme
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Selected: ${theme.nameEn}'),
+                      content: Text('Selected: ${Provider.of<LanguageProvider>(context, listen: false).getLocalizedText(theme.nameEn, theme.nameFr)}'),
                     ),
                   );
                 },
@@ -148,23 +152,30 @@ class _ThemeCard extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          theme.nameEn,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${theme.questionsCount} questions',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
+                    child: Consumer<LanguageProvider>(
+                      builder: (context, langProvider, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              langProvider.getLocalizedText(
+                                theme.nameEn,
+                                theme.nameFr,
+                              ),
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${theme.questionsCount} questions',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                   Container(

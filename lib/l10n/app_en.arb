@@ -1,0 +1,120 @@
+{
+  "appTitle": "QuizzBuilder",
+  "welcomeMessage": "Welcome, {userName}!",
+  "@welcomeMessage": {
+    "description": "Welcome message on home screen",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "readyToTest": "Ready to test your knowledge?",
+  "playQuiz": "Play Quiz",
+  "playQuizSubtitle": "Select categories, themes, and challenge yourself",
+  "buildQuiz": "Build Quiz",
+  "buildQuizSubtitle": "Compose your own quiz from themes",
+  "store": "Store",
+  "storeSubtitle": "Unlock premium themes and categories",
+  "availableContent": "Available content",
+  "selectedContent": "Selected: {categories} categor{categoryPlural} • {themes} theme{themePlural} • {questions} question{questionPlural}",
+  "@selectedContent": {
+    "description": "Display of selected content stats",
+    "placeholders": {
+      "categories": {
+        "type": "int",
+        "example": "1"
+      },
+      "categoryPlural": {
+        "type": "String",
+        "example": "y"
+      },
+      "themes": {
+        "type": "int",
+        "example": "3"
+      },
+      "themePlural": {
+        "type": "String",
+        "example": "s"
+      },
+      "questions": {
+        "type": "int",
+        "example": "45"
+      },
+      "questionPlural": {
+        "type": "String",
+        "example": "s"
+      }
+    }
+  },
+  "noSelection": "No selection yet. Go to Build Quiz to create one.",
+  "categories": "Categories",
+  "themes": "Themes",
+  "questions": "Questions",
+  "score": "Score",
+  "logout": "Logout",
+  "settings": "Settings",
+  "logoutConfirm": "Are you sure you want to logout?",
+  "cancel": "Cancel",
+  "selectCategory": "Select Category",
+  "selectThemes": "Select Themes",
+  "selectGameMode": "Select Game Mode",
+  "chooseYourChallenge": "Choose Your Challenge",
+  "soloMode": "Solo",
+  "soloModeDesc": "Challenge yourself alone",
+  "multiplayerMode": "Multiplayer",
+  "multiplayerModeDesc": "Coming soon",
+  "themes_count": "{count} theme",
+  "@themes_count": {
+    "description": "Theme count suffix",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "questions_count": "{count} question",
+  "@questions_count": {
+    "description": "Question count suffix",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "language": "Language",
+  "about": "About",
+  "version": "QuizzBuilder v1.0.0",
+  "aboutText": "An interactive quiz platform to test your knowledge.",
+  "storeFeatureComing": "Store feature coming soon!",
+  "errorLoadingCategories": "Error loading categories",
+  "errorLoadingThemes": "Error loading themes",
+  "retry": "Retry",
+  "noCategories": "No categories available",
+  "noThemes": "No themes available",
+  "done": "Done",
+  "selected": "Selected: {name}",
+  "@selected": {
+    "description": "Selected item message",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Math"
+      }
+    }
+  },
+  "welcomeBack": "Welcome Back",
+  "createAccount": "Create Account",
+  "registrationSuccessful": "Registration successful! Please check your email to verify your account.",
+  "login": "Login",
+  "register": "Register",
+  "email": "Email",
+  "username": "Username",
+  "password": "Password",
+  "confirmPassword": "Confirm Password",
+  "switchToLogin": "Already have an account? Login",
+  "switchToRegister": "Don't have an account? Register"
+}

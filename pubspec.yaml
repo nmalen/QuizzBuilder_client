@@ -69,3 +69,7 @@ flutter:
 
   # Locales
   generate: true
+
+# Localization configuration
+flutter_intl:
+  enabled: true

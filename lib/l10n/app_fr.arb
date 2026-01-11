@@ -1,0 +1,120 @@
+{
+  "appTitle": "QuizzBuilder",
+  "welcomeMessage": "Bienvenue, {userName}!",
+  "@welcomeMessage": {
+    "description": "Welcome message on home screen",
+    "placeholders": {
+      "userName": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "readyToTest": "Prêt à tester vos connaissances?",
+  "playQuiz": "Jouer au Quiz",
+  "playQuizSubtitle": "Sélectionnez des catégories, des thèmes et défiez-vous",
+  "buildQuiz": "Construire un Quiz",
+  "buildQuizSubtitle": "Composez votre propre quiz à partir de thèmes",
+  "store": "Boutique",
+  "storeSubtitle": "Déverrouiller les thèmes et catégories premium",
+  "availableContent": "Contenu disponible",
+  "selectedContent": "Sélectionné: {categories} catégor{categoryPlural} • {themes} thème{themePlural} • {questions} question{questionPlural}",
+  "@selectedContent": {
+    "description": "Display of selected content stats",
+    "placeholders": {
+      "categories": {
+        "type": "int",
+        "example": "1"
+      },
+      "categoryPlural": {
+        "type": "String",
+        "example": "ie"
+      },
+      "themes": {
+        "type": "int",
+        "example": "3"
+      },
+      "themePlural": {
+        "type": "String",
+        "example": "s"
+      },
+      "questions": {
+        "type": "int",
+        "example": "45"
+      },
+      "questionPlural": {
+        "type": "String",
+        "example": "s"
+      }
+    }
+  },
+  "noSelection": "Aucune sélection pour l'instant. Allez à Construire un Quiz pour en créer une.",
+  "categories": "Catégories",
+  "themes": "Thèmes",
+  "questions": "Questions",
+  "score": "Score",
+  "logout": "Déconnexion",
+  "settings": "Paramètres",
+  "logoutConfirm": "Êtes-vous sûr de vouloir vous déconnecter?",
+  "cancel": "Annuler",
+  "selectCategory": "Sélectionner une catégorie",
+  "selectThemes": "Sélectionner les thèmes",
+  "selectGameMode": "Sélectionner le mode de jeu",
+  "chooseYourChallenge": "Choisissez votre défi",
+  "soloMode": "Solo",
+  "soloModeDesc": "Défiez-vous seul",
+  "multiplayerMode": "Multijoueur",
+  "multiplayerModeDesc": "Bientôt disponible",
+  "themes_count": "{count} thème",
+  "@themes_count": {
+    "description": "Theme count suffix",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "questions_count": "{count} question",
+  "@questions_count": {
+    "description": "Question count suffix",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "language": "Langue",
+  "about": "À propos",
+  "version": "QuizzBuilder v1.0.0",
+  "aboutText": "Une plateforme de quiz interactive pour tester vos connaissances.",
+  "storeFeatureComing": "La fonctionnalité de boutique arrive bientôt!",
+  "errorLoadingCategories": "Erreur lors du chargement des catégories",
+  "errorLoadingThemes": "Erreur lors du chargement des thèmes",
+  "retry": "Réessayer",
+  "noCategories": "Aucune catégorie disponible",
+  "noThemes": "Aucun thème disponible",
+  "done": "Terminé",
+  "selected": "Sélectionné: {name}",
+  "@selected": {
+    "description": "Selected item message",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Mathématiques"
+      }
+    }
+  },
+  "welcomeBack": "Bienvenue",
+  "createAccount": "Créer un compte",
+  "registrationSuccessful": "Inscription réussie! Veuillez vérifier votre email pour confirmer votre compte.",
+  "login": "Connexion",
+  "register": "S'inscrire",
+  "email": "Email",
+  "username": "Nom d'utilisateur",
+  "password": "Mot de passe",
+  "confirmPassword": "Confirmer le mot de passe",
+  "switchToLogin": "Vous avez déjà un compte? Connectez-vous",
+  "switchToRegister": "Vous n'avez pas de compte? S'inscrire"
+}

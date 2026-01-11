@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
+import '../providers/quizz_builder_provider.dart';
 import 'categories_screen.dart';
 
-class GameModeScreen extends StatelessWidget {
+class GameModeScreen extends StatefulWidget {
   const GameModeScreen({super.key});
 
   @override
+  State<GameModeScreen> createState() => _GameModeScreenState();
+}
+
+class _GameModeScreenState extends State<GameModeScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Select Game Mode'),
+        title: Text(AppLocalizations.of(context)!.selectGameMode),
       ),
       body: Center(
         child: Padding(
@@ -17,7 +31,7 @@ class GameModeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Choose Your Challenge',
+                AppLocalizations.of(context)!.chooseYourChallenge,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -27,8 +41,8 @@ class GameModeScreen extends StatelessWidget {
               // Solo Mode Button
               _GameModeCard(
                 icon: Icons.person,
-                title: 'Solo Mode',
-                description: 'Play at your own pace and challenge yourself',
+                title: AppLocalizations.of(context)!.soloMode,
+                description: AppLocalizations.of(context)!.soloModeDesc,
                 color: Colors.blue,
                 onTap: () {
                   Navigator.push(
@@ -44,14 +58,46 @@ class GameModeScreen extends StatelessWidget {
               // Multiplayer Mode Button
               _GameModeCard(
                 icon: Icons.people,
-                title: 'Multiplayer Mode',
-                description: 'Compete with friends in real-time battles',
+                title: AppLocalizations.of(context)!.multiplayerMode,
+                description: AppLocalizations.of(context)!.multiplayerModeDesc,
                 color: Colors.purple,
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Multiplayer coming soon!'),
                     ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 28),
+
+              // Selected content stats section
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  AppLocalizations.of(context)!.availableContent,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Consumer<QuizzBuilderProvider>(
+                builder: (context, builder, _) {
+                  final hasSelections = builder.selectedCount > 0;
+                  return Text(
+                    hasSelections
+                        ? AppLocalizations.of(context)!.selectedContent(
+                          builder.selectedCategoriesCount,
+                          builder.selectedCategoriesCount == 1 ? 'y' : 'ies',
+                          builder.selectedCount,
+                          builder.selectedCount == 1 ? '' : 's',
+                          builder.selectedQuestionsCount,
+                          builder.selectedQuestionsCount == 1 ? '' : 's',
+                        )
+                        : AppLocalizations.of(context)!.noSelection,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey,
+                        ),
                   );
                 },
               ),

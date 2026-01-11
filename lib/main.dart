@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'l10n/app_localizations.dart';
 import 'providers/auth_provider.dart';
 import 'providers/catalog_provider.dart';
 import 'providers/quizz_builder_provider.dart';
+import 'providers/language_provider.dart';
 import 'services/auth_service.dart';
 import 'ui/splash_screen.dart';
 import 'ui/auth_screen.dart';
@@ -12,13 +14,19 @@ import 'ui/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize AuthService
+  // Initialize AuthService and LanguageProvider
   final authService = AuthService();
   await authService.initialize();
+  
+  final languageProvider = LanguageProvider();
+  await languageProvider.initialize();
   
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(
+          value: languageProvider,
+        ),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(authService: authService),
         ),
@@ -53,22 +61,25 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'QuizzBuilder',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('fr'),
-      ],
-      home: const _AppRouter(),
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        return MaterialApp(
+          title: 'QuizzBuilder',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            useMaterial3: true,
+          ),
+          locale: languageProvider.locale,
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const _AppRouter(),
+        );
+      },
     );
   }
 }

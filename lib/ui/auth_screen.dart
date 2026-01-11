@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -66,9 +67,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful! Please check your email to verify your account.'),
-            duration: Duration(seconds: 4),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.registrationSuccessful),
+            duration: const Duration(seconds: 4),
           ),
         );
         
@@ -157,7 +158,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'QuizzBuilder',
+                        AppLocalizations.of(context)!.appTitle,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           color: Colors.white,
@@ -166,7 +167,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        _isLogin ? 'Welcome Back' : 'Create Account',
+                        _isLogin ? AppLocalizations.of(context)!.welcomeBack : AppLocalizations.of(context)!.createAccount,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           color: Colors.white70,
@@ -206,7 +207,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               validator: _validateIdentifier,
                               enabled: !authProvider.isLoading,
                               decoration: InputDecoration(
-                                hintText: 'Email or username',
+                                hintText: '${AppLocalizations.of(context)!.email} ${AppLocalizations.of(context)!.username}',
                                 hintStyle: TextStyle(color: Colors.white70),
                                 prefixIcon: const Icon(Icons.email, color: Colors.white70),
                                 filled: true,
@@ -239,7 +240,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 validator: _validateUsername,
                                 enabled: !authProvider.isLoading,
                                 decoration: InputDecoration(
-                                  hintText: 'Username',
+                                  hintText: AppLocalizations.of(context)!.username,
                                   hintStyle: TextStyle(color: Colors.white70),
                                   prefixIcon: const Icon(Icons.person, color: Colors.white70),
                                   filled: true,
@@ -273,7 +274,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               validator: _validatePassword,
                               enabled: !authProvider.isLoading,
                               decoration: InputDecoration(
-                                hintText: 'Password',
+                                hintText: AppLocalizations.of(context)!.password,
                                 hintStyle: TextStyle(color: Colors.white70),
                                 prefixIcon: const Icon(Icons.lock, color: Colors.white70),
                                 suffixIcon: IconButton(
@@ -316,7 +317,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 validator: _validatePasswordMatch,
                                 enabled: !authProvider.isLoading,
                                 decoration: InputDecoration(
-                                  hintText: 'Confirm Password',
+                                  hintText: AppLocalizations.of(context)!.confirmPassword,
                                   hintStyle: TextStyle(color: Colors.white70),
                                   prefixIcon: const Icon(Icons.lock, color: Colors.white70),
                                   suffixIcon: IconButton(
@@ -371,7 +372,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                         ),
                                       )
                                     : Text(
-                                        _isLogin ? 'Login' : 'Register',
+                                        _isLogin ? AppLocalizations.of(context)!.login : AppLocalizations.of(context)!.register,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -391,8 +392,8 @@ class _AuthScreenState extends State<AuthScreen> {
                         children: [
                           Text(
                             _isLogin
-                                ? "Don't have an account? "
-                                : 'Already have an account? ',
+                                ? AppLocalizations.of(context)!.switchToRegister
+                                : AppLocalizations.of(context)!.switchToLogin,
                             style: const TextStyle(color: Colors.white70),
                           ),
                           GestureDetector(
@@ -413,7 +414,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                         : context.read<AuthProvider>();
                                   },
                             child: Text(
-                              _isLogin ? 'Register' : 'Login',
+                              _isLogin ? AppLocalizations.of(context)!.register : AppLocalizations.of(context)!.login,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
