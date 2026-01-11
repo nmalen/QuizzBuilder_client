@@ -4,7 +4,7 @@ part 'theme.g.dart';
 
 @JsonSerializable()
 class Theme {
-  final String id;
+  final int id;
   final String? category;
   @JsonKey(name: 'name_en')
   final String nameEn;

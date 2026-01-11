@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/catalog_provider.dart';
+import 'providers/quizz_builder_provider.dart';
 import 'services/auth_service.dart';
 import 'ui/splash_screen.dart';
 import 'ui/auth_screen.dart';
+import 'ui/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +21,12 @@ void main() async {
       providers: [
         ChangeNotifierProvider(
           create: (_) => AuthProvider(authService: authService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CatalogProvider(authService: authService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => QuizzBuilderProvider(),
         ),
       ],
       child: const MyApp(),
@@ -85,75 +94,4 @@ class _AppRouter extends StatelessWidget {
   }
 }
 
-// Placeholder screens
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('QuizzBuilder'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              Provider.of<AuthProvider>(context, listen: false).logout();
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Welcome, ${Provider.of<AuthProvider>(context).user?.displayName}!',
-              style: const TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 16),
-            const Text('Home Screen - Choose a category below'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class CategoriesScreen extends StatelessWidget {
-  const CategoriesScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Categories')),
-      body: const Center(child: Text('Categories Screen')),
-    );
-  }
-}
-
-class ThemesScreen extends StatelessWidget {
-  final String categoryId;
-  const ThemesScreen({super.key, required this.categoryId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Themes')),
-      body: Center(child: Text('Themes Screen - Category: $categoryId')),
-    );
-  }
-}
-
-class QuizScreen extends StatelessWidget {
-  final String themeId;
-  const QuizScreen({super.key, required this.themeId});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Quiz')),
-      body: Center(child: Text('Quiz Screen - Theme: $themeId')),
-    );
-  }
-}

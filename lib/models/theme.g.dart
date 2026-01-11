@@ -7,7 +7,7 @@ part of 'theme.dart';
 // **************************************************************************
 
 Theme _$ThemeFromJson(Map<String, dynamic> json) => Theme(
-  id: json['id'] as String,
+  id: (json['id'] as num).toInt(),
   category: json['category'] as String?,
   nameEn: json['name_en'] as String,
   nameFr: json['name_fr'] as String,
