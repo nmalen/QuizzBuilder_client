@@ -4,7 +4,7 @@ part 'user.g.dart';
 
 @JsonSerializable()
 class User {
-  final String id;
+  final int id;
   final String username;
   final String email;
   @JsonKey(name: 'first_name')
@@ -12,21 +12,21 @@ class User {
   @JsonKey(name: 'last_name')
   final String? lastName;
   @JsonKey(name: 'is_active')
-  final bool isActive;
+  final bool? isActive;
   @JsonKey(name: 'email_verified')
-  final bool emailVerified;
+  final bool? emailVerified;
   @JsonKey(name: 'created_at')
-  final String createdAt;
+  final String? createdAt;
 
   User({
     required this.id,
     required this.username,
     required this.email,
-    required this.firstName,
-    required this.lastName,
-    required this.isActive,
-    required this.emailVerified,
-    required this.createdAt,
+    this.firstName,
+    this.lastName,
+    this.isActive,
+    this.emailVerified,
+    this.createdAt,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

@@ -1,18 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:go_router/go_router.dart';
-import 'config/api_config.dart';
+import 'package:provider/provider.dart';
+import 'providers/auth_provider.dart';
+import 'services/auth_service.dart';
+import 'ui/splash_screen.dart';
+import 'ui/auth_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize AuthService
+  final authService = AuthService();
+  await authService.initialize();
+  
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(authService: authService),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize auth provider on app start
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AuthProvider>(context, listen: false).initialize();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return MaterialApp(
       title: 'QuizzBuilder',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -27,62 +59,69 @@ class MyApp extends StatelessWidget {
         Locale('en'),
         Locale('fr'),
       ],
-      routerConfig: _router,
+      home: const _AppRouter(),
     );
   }
 }
 
-final GoRouter _router = GoRouter(
-  initialLocation: '/',
-  routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const HomeScreen(),
-    ),
-    GoRoute(
-      path: '/categories',
-      builder: (context, state) => const CategoriesScreen(),
-    ),
-    GoRoute(
-      path: '/themes/:categoryId',
-      builder: (context, state) {
-        final categoryId = state.pathParameters['categoryId']!;
-        return ThemesScreen(categoryId: categoryId);
+class _AppRouter extends StatelessWidget {
+  const _AppRouter();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        if (authProvider.isLoading) {
+          return const SplashScreen();
+        }
+
+        if (authProvider.isLoggedIn) {
+          return const HomeScreen();
+        }
+
+        return const AuthScreen();
       },
-    ),
-    GoRoute(
-      path: '/quiz/:themeId',
-      builder: (context, state) {
-        final themeId = state.pathParameters['themeId']!;
-        return QuizScreen(themeId: themeId);
-      },
-    ),
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginScreen(),
-    ),
-    GoRoute(
-      path: '/register',
-      builder: (context, state) => const RegisterScreen(),
-    ),
-  ],
-);
+    );
+  }
+}
 
 // Placeholder screens
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('QuizzBuilder')),
-      body: const Center(child: Text('Home Screen')),
+      appBar: AppBar(
+        title: const Text('QuizzBuilder'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              Provider.of<AuthProvider>(context, listen: false).logout();
+            },
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Welcome, ${Provider.of<AuthProvider>(context).user?.displayName}!',
+              style: const TextStyle(fontSize: 18),
+            ),
+            const SizedBox(height: 16),
+            const Text('Home Screen - Choose a category below'),
+          ],
+        ),
+      ),
     );
   }
 }
 
 class CategoriesScreen extends StatelessWidget {
-  const CategoriesScreen({Key? key}) : super(key: key);
+  const CategoriesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +134,7 @@ class CategoriesScreen extends StatelessWidget {
 
 class ThemesScreen extends StatelessWidget {
   final String categoryId;
-  const ThemesScreen({Key? key, required this.categoryId}) : super(key: key);
+  const ThemesScreen({super.key, required this.categoryId});
 
   @override
   Widget build(BuildContext context) {
@@ -108,37 +147,13 @@ class ThemesScreen extends StatelessWidget {
 
 class QuizScreen extends StatelessWidget {
   final String themeId;
-  const QuizScreen({Key? key, required this.themeId}) : super(key: key);
+  const QuizScreen({super.key, required this.themeId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Quiz')),
       body: Center(child: Text('Quiz Screen - Theme: $themeId')),
-    );
-  }
-}
-
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: const Center(child: Text('Login Screen')),
-    );
-  }
-}
-
-class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
-      body: const Center(child: Text('Register Screen')),
     );
   }
 }
