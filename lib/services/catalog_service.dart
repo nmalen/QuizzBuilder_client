@@ -4,6 +4,7 @@ import '../config/api_config.dart';
 import '../models/category.dart';
 import '../models/theme.dart';
 import '../models/stats.dart';
+import '../models/question.dart';
 import 'auth_service.dart';
 
 class CatalogService {
@@ -85,6 +86,22 @@ class CatalogService {
         return data.map((item) => Theme.fromJson(item as Map<String, dynamic>)).toList();
       } else {
         throw Exception('Failed to load themes: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error: ${e.toString()}');
+    }
+  }
+
+  /// Fetch questions for a specific theme
+  Future<List<Question>> getQuestionsByTheme(int themeId) async {
+    try {
+      final response = await _authorizedGet('$baseUrl${ApiConfig.questionsEndpoint}?theme=$themeId');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((item) => Question.fromJson(item as Map<String, dynamic>)).toList();
+      } else {
+        throw Exception('Failed to load questions: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Error: ${e.toString()}');

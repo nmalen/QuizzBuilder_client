@@ -145,9 +145,34 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.availableContent,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.availableContent,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      IconButton(
+                        tooltip: 'Refresh',
+                        onPressed: catalogProvider.isStatsLoading
+                            ? null
+                            : () {
+                                catalogProvider.loadStatistics();
+                              },
+                        icon: catalogProvider.isStatsLoading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              )
+                            : const Icon(Icons.refresh),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   Container(

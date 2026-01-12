@@ -7,12 +7,13 @@ part of 'stats.dart';
 // **************************************************************************
 
 CatalogStats _$CatalogStatsFromJson(Map<String, dynamic> json) => CatalogStats(
-      totalQuestions: json['total_questions'] as int,
-      totalThemes: json['total_themes'] as int,
-      totalCategories: json['total_categories'] as int,
-    );
+  totalQuestions: (json['total_questions'] as num).toInt(),
+  totalThemes: (json['total_themes'] as num).toInt(),
+  totalCategories: (json['total_categories'] as num).toInt(),
+);
 
-Map<String, dynamic> _$CatalogStatsToJson(CatalogStats instance) => <String, dynamic>{
+Map<String, dynamic> _$CatalogStatsToJson(CatalogStats instance) =>
+    <String, dynamic>{
       'total_questions': instance.totalQuestions,
       'total_themes': instance.totalThemes,
       'total_categories': instance.totalCategories,

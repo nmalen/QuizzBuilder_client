@@ -97,6 +97,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get multiplayerModeDesc => 'Bientôt disponible';
 
   @override
+  String get selectedCategory => 'Catégorie sélectionnée';
+
+  @override
+  String get noThemesSelected => 'Aucun thème sélectionné';
+
+  @override
+  String get quizSummary => 'Résumé du quiz';
+
+  @override
+  String get changeSelection => 'Modifier la sélection';
+
+  @override
+  String get startQuiz => 'Commencer le quiz';
+
+  @override
+  String get question => 'Question';
+
+  @override
+  String get theme => 'Thème';
+
+  @override
   String themes_count(int count) {
     return '$count thème';
   }

@@ -97,6 +97,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get multiplayerModeDesc => 'Coming soon';
 
   @override
+  String get selectedCategory => 'Selected Category';
+
+  @override
+  String get noThemesSelected => 'No themes selected';
+
+  @override
+  String get quizSummary => 'Quiz Summary';
+
+  @override
+  String get changeSelection => 'Change Selection';
+
+  @override
+  String get startQuiz => 'Start Quiz';
+
+  @override
+  String get question => 'Question';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
   String themes_count(int count) {
     return '$count theme';
   }

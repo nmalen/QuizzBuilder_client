@@ -3,15 +3,20 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/catalog_provider.dart';
 import '../providers/quizz_builder_provider.dart';
-import '../providers/language_provider.dart';
-import '../models/category.dart';
+// Removed unused imports after multi-category support
 import '../models/theme.dart' as theme_model;
+import '../providers/language_provider.dart';
+import 'game_screen_solo.dart';
+import 'setup_multiplayer_screen.dart';
 
 class QuizzBuilderThemesScreen extends StatefulWidget {
-  const QuizzBuilderThemesScreen({super.key});
+  final String gameMode;
+
+  const QuizzBuilderThemesScreen({super.key, required this.gameMode});
 
   @override
-  State<QuizzBuilderThemesScreen> createState() => _QuizzBuilderThemesScreenState();
+  State<QuizzBuilderThemesScreen> createState() =>
+      _QuizzBuilderThemesScreenState();
 }
 
 class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
@@ -19,12 +24,25 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
   Widget build(BuildContext context) {
     final builder = Provider.of<QuizzBuilderProvider>(context);
     final catalog = Provider.of<CatalogProvider>(context);
-    final Category? category = builder.selectedCategory;
+
+    // Ensure themes for selected categories are loaded
+    if (!catalog.isLoading &&
+        catalog.themes.isEmpty &&
+        builder.selectedCategoryIds.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Provider.of<CatalogProvider>(
+          context,
+          listen: false,
+        ).loadThemesByCategories(builder.selectedCategoryIds.toList());
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Consumer<LanguageProvider>(
-          builder: (context, langProvider, _) => Text(category != null ? '${AppLocalizations.of(context)!.selectThemes} • ${langProvider.getLocalizedText(category.nameEn, category.nameFr)}' : AppLocalizations.of(context)!.selectThemes),
+        title: Text(
+          builder.selectedCategoriesCount > 1
+              ? '${AppLocalizations.of(context)!.selectThemes} • ${builder.selectedCategoriesCount} categories'
+              : AppLocalizations.of(context)!.selectThemes,
         ),
       ),
       body: Builder(
@@ -40,8 +58,10 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                 children: [
                   Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
-                  Text(AppLocalizations.of(context)!.errorLoadingThemes,
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    AppLocalizations.of(context)!.errorLoadingThemes,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     catalog.error ?? 'Unknown error',
@@ -50,11 +70,13 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: () {
-                      if (category != null) {
-                        catalog.loadThemesByCategory(category.id);
-                      }
-                    },
+                    onPressed: builder.selectedCategoryIds.isEmpty
+                        ? null
+                        : () {
+                            catalog.loadThemesByCategories(
+                              builder.selectedCategoryIds.toList(),
+                            );
+                          },
                     child: Text(AppLocalizations.of(context)!.retry),
                   ),
                 ],
@@ -69,8 +91,10 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                 children: [
                   Icon(Icons.inbox, size: 64, color: Colors.grey),
                   const SizedBox(height: 16),
-                  Text(AppLocalizations.of(context)!.noThemes,
-                      style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    AppLocalizations.of(context)!.noThemes,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ],
               ),
             );
@@ -89,7 +113,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                       theme: theme,
                       selected: selected,
                       onChanged: (value) {
-                        builder.toggleTheme(theme.id, theme.questionsCount);
+                        builder.toggleTheme(theme);
                       },
                     );
                   },
@@ -104,7 +128,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                       color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, -2),
-                    )
+                    ),
                   ],
                 ),
                 child: SafeArea(
@@ -121,15 +145,35 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                         onPressed: builder.selectedCount == 0
                             ? null
                             : () {
-                                // For now, just confirm and go back to Home
+                                // Commit selections and navigate to appropriate game screen
                                 builder.commitSelections();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                        'Selected ${builder.selectedCount} theme${builder.selectedCount == 1 ? '' : 's'} for your quiz'),
+                                      'Selected ${builder.selectedCount} theme${builder.selectedCount == 1 ? '' : 's'} for your quiz',
+                                    ),
                                   ),
                                 );
-                                Navigator.of(context).popUntil((route) => route.isFirst);
+                                
+                                // Navigate to the appropriate game screen based on gameMode
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+
+                                if (widget.gameMode == 'solo') {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const GameScreenSolo(),
+                                    ),
+                                  );
+                                } else if (widget.gameMode == 'multiplayer') {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const SetupMultiplayerScreen(),
+                                    ),
+                                  );
+                                }
                               },
                         icon: const Icon(Icons.check),
                         label: Text(AppLocalizations.of(context)!.done),
@@ -137,7 +181,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                     ],
                   ),
                 ),
-              )
+              ),
             ],
           );
         },
@@ -180,13 +224,10 @@ class _ThemeSelectTile extends StatelessWidget {
         title: Consumer<LanguageProvider>(
           builder: (context, langProvider, _) {
             return Text(
-              langProvider.getLocalizedText(
-                theme.nameEn,
-                theme.nameFr,
-              ),
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              langProvider.getLocalizedText(theme.nameEn, theme.nameFr),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             );
           },
         ),
@@ -196,14 +237,18 @@ class _ThemeSelectTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '${theme.questionsCount} question${theme.questionsCount == 1 ? '' : 's'}',
-              style:
-                  Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
             const SizedBox(height: 6),
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.isFree
                         ? Colors.green.withValues(alpha: 0.1)

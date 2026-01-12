@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
-import '../providers/quizz_builder_provider.dart';
-import 'categories_screen.dart';
+import 'selected_themes_screen.dart';
 
 class GameModeScreen extends StatefulWidget {
   const GameModeScreen({super.key});
@@ -48,7 +46,7 @@ class _GameModeScreenState extends State<GameModeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const CategoriesScreen(gameMode: 'solo'),
+                      builder: (_) => const SelectedThemesScreen(gameMode: 'solo'),
                     ),
                   );
                 },
@@ -62,42 +60,11 @@ class _GameModeScreenState extends State<GameModeScreen> {
                 description: AppLocalizations.of(context)!.multiplayerModeDesc,
                 color: Colors.purple,
                 onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Multiplayer coming soon!'),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SelectedThemesScreen(gameMode: 'multiplayer'),
                     ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 28),
-
-              // Selected content stats section
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  AppLocalizations.of(context)!.availableContent,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Consumer<QuizzBuilderProvider>(
-                builder: (context, builder, _) {
-                  final hasSelections = builder.selectedCount > 0;
-                  return Text(
-                    hasSelections
-                        ? AppLocalizations.of(context)!.selectedContent(
-                          builder.selectedCategoriesCount,
-                          builder.selectedCategoriesCount == 1 ? 'y' : 'ies',
-                          builder.selectedCount,
-                          builder.selectedCount == 1 ? '' : 's',
-                          builder.selectedQuestionsCount,
-                          builder.selectedQuestionsCount == 1 ? '' : 's',
-                        )
-                        : AppLocalizations.of(context)!.noSelection,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey,
-                        ),
                   );
                 },
               ),

@@ -263,6 +263,48 @@ abstract class AppLocalizations {
   /// **'Coming soon'**
   String get multiplayerModeDesc;
 
+  /// No description provided for @selectedCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Category'**
+  String get selectedCategory;
+
+  /// No description provided for @noThemesSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No themes selected'**
+  String get noThemesSelected;
+
+  /// No description provided for @quizSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz Summary'**
+  String get quizSummary;
+
+  /// No description provided for @changeSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Selection'**
+  String get changeSelection;
+
+  /// No description provided for @startQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Quiz'**
+  String get startQuiz;
+
+  /// No description provided for @question.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get question;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
   /// Theme count suffix
   ///
   /// In en, this message translates to:

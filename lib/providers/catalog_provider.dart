@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/theme.dart' as theme_model;
 import '../models/stats.dart';
+import '../models/question.dart';
 import '../services/catalog_service.dart';
 import '../services/auth_service.dart';
 
 class CatalogProvider extends ChangeNotifier {
   final CatalogService _catalogService;
-  
+
   List<Category> _categories = [];
   List<theme_model.Theme> _themes = [];
   Category? _selectedCategory;
@@ -19,7 +20,7 @@ class CatalogProvider extends ChangeNotifier {
   CatalogStats? _stats;
 
   CatalogProvider({required AuthService authService})
-      : _catalogService = CatalogService(authService: authService);
+    : _catalogService = CatalogService(authService: authService);
 
   // Getters
   List<Category> get categories => _categories;
@@ -68,6 +69,35 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Load themes for multiple categories and aggregate results
+  Future<void> loadThemesByCategories(List<int> categoryIds) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final Set<int> seen = {};
+      final List<theme_model.Theme> all = [];
+      for (final id in categoryIds) {
+        final items = await _catalogService.getThemesByCategory(id);
+        for (final t in items) {
+          if (!seen.contains(t.id)) {
+            seen.add(t.id);
+            all.add(t);
+          }
+        }
+      }
+      _themes = all;
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+      _themes = [];
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
   /// Select a category
   void selectCategory(Category category) {
     _selectedCategory = category;
@@ -104,5 +134,15 @@ class CatalogProvider extends ChangeNotifier {
 
     _isStatsLoading = false;
     notifyListeners();
+  }
+
+  /// Load questions for a specific theme
+  Future<List<Question>> loadQuestionsByTheme(int themeId) async {
+    try {
+      final questions = await _catalogService.getQuestionsByTheme(themeId);
+      return questions;
+    } catch (e) {
+      throw Exception('Failed to load questions: $e');
+    }
   }
 }

@@ -56,6 +56,8 @@ class _MyAppState extends State<MyApp> {
     // Initialize auth provider on app start
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AuthProvider>(context, listen: false).initialize();
+      // Restore previous quiz selections (categories/themes)
+      Provider.of<QuizzBuilderProvider>(context, listen: false).initialize();
     });
   }
 

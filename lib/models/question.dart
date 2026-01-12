@@ -4,8 +4,9 @@ part 'question.g.dart';
 
 @JsonSerializable()
 class Question {
-  final String id;
-  final String theme;
+  final int id;
+  @JsonKey(name: 'theme')
+  final int theme;
   @JsonKey(name: 'question_en')
   final String questionEn;
   @JsonKey(name: 'question_fr')
