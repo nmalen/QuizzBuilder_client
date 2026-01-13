@@ -7,15 +7,22 @@ import '../models/question.dart';
 
 class GameScreenMultiplayer extends StatefulWidget {
   final int playerCount;
+  final int questionCount;
+  final String difficulty;
 
-  const GameScreenMultiplayer({super.key, required this.playerCount});
+  const GameScreenMultiplayer({
+    super.key,
+    required this.playerCount,
+    this.questionCount = 10,
+    this.difficulty = 'easy',
+  });
 
   @override
   State<GameScreenMultiplayer> createState() => _GameScreenMultiplayerState();
 }
 
 class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
-  static const int _totalQuestions = 4;
+  // Remove static const _totalQuestions, use questions.length
   int currentQuestionIndex = 0;
   int currentPlayerIndex = 0;
   bool answered = false;
@@ -43,8 +50,12 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
         allQuestions.addAll(themeQuestions);
       }
 
+      // Filter by difficulty
+      final filtered = allQuestions.where((q) => q.difficulty == widget.difficulty).toList();
+      filtered.shuffle();
+      final limitedQuestions = filtered.take(widget.questionCount).toList();
       setState(() {
-        questions = allQuestions;
+        questions = limitedQuestions;
         isLoading = false;
       });
     } catch (e) {
@@ -120,10 +131,10 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.check_circle, size: 80, color: Colors.green),
+              const Icon(Icons.emoji_events, size: 80, color: Colors.amber),
               const SizedBox(height: 24),
               Text(
-                winners.length > 1 ? 'It\'s a Tie!' : 'Player ${winners.first} Wins!',
+                winners.length > 1 ? 'It\'s a Tie!' : 'Player(s) ${winners.join(", ")} Win!' ,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
@@ -135,9 +146,16 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                     ),
               ),
               const SizedBox(height: 24),
+              Text('Final Scores:', style: Theme.of(context).textTheme.titleMedium),
+              ...scores.asMap().entries.map((entry) {
+                final idx = entry.key;
+                final score = entry.value;
+                return Text('Player ${idx + 1}: $score');
+              }),
+              const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Finish'),
+                child: const Text('Back to Home'),
               ),
             ],
           ),
@@ -178,7 +196,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
 
               // Question progress
               Text(
-                'Question ${currentQuestionIndex + 1} / $_totalQuestions',
+                'Question ${currentQuestionIndex + 1} / ${questions.length}',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -289,20 +307,9 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                         currentPlayerIndex == widget.playerCount - 1;
 
                     if (isLastTurn) {
-                      final int maxScore = scores.reduce((a, b) => a > b ? a : b);
-                      final List<int> winners = [];
-                      for (int i = 0; i < scores.length; i++) {
-                        if (scores[i] == maxScore) {
-                          winners.add(i + 1);
-                        }
-                      }
-                      final String message = winners.length > 1
-                          ? 'Tie between players ${winners.join(', ')} with $maxScore points'
-                          : 'Player ${winners.first} wins with $maxScore points';
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(message)),
-                      );
-                      Navigator.of(context).pop();
+                      setState(() {
+                        currentQuestionIndex++;
+                      });
                       return;
                     }
 

@@ -7,8 +7,9 @@ import '../models/question.dart';
 
 class GameScreenSolo extends StatefulWidget {
   final int questionCount;
+  final String difficulty;
 
-  const GameScreenSolo({super.key, this.questionCount = 10});
+  const GameScreenSolo({super.key, this.questionCount = 10, this.difficulty = 'easy'});
 
   @override
   State<GameScreenSolo> createState() => _GameScreenSoloState();
@@ -40,9 +41,10 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         allQuestions.addAll(themeQuestions);
       }
 
-      // Shuffle and limit to the requested number of questions
-      allQuestions.shuffle();
-      final limitedQuestions = allQuestions.take(widget.questionCount).toList();
+      // Filter by difficulty
+      final filtered = allQuestions.where((q) => q.difficulty == widget.difficulty).toList();
+      filtered.shuffle();
+      final limitedQuestions = filtered.take(widget.questionCount).toList();
 
       setState(() {
         questions = limitedQuestions;
@@ -73,7 +75,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
+              const SizedBox(height: 6),
               Text('Error loading questions: $error'),
               const SizedBox(height: 24),
               ElevatedButton(
@@ -154,8 +156,25 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 16),
+              // const SizedBox(height: 48),
               // Header with progress
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    'Score: $score',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Colors.green[800],
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -165,23 +184,9 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      'Score: $score',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.green[800],
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  ),
                 ],
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
               // Question content
               Container(

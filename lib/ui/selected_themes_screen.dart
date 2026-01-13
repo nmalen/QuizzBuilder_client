@@ -209,7 +209,7 @@ class SelectedThemesScreen extends StatelessWidget {
                   // Action Buttons
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder: (_) => CategoriesScreen(gameMode: gameMode),

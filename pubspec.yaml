@@ -50,6 +50,9 @@ dependencies:
   equatable: ^2.0.5
   logger: ^2.0.0
 
+  # Email & Links
+  url_launcher: ^6.2.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

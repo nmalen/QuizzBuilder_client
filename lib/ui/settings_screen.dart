@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/language_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -72,6 +73,39 @@ class SettingsScreen extends StatelessWidget {
                     AppLocalizations.of(context)!.aboutText,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Icon(Icons.email, size: 18, color: Colors.grey),
+                      const SizedBox(width: 8),
+                      InkWell(
+                        onTap: () async {
+                          final Uri emailLaunchUri = Uri(
+                            scheme: 'mailto',
+                            path: 'admin@ndsh-software.fr',
+                          );
+                          if (await canLaunchUrl(emailLaunchUri)) {
+                            await launchUrl(emailLaunchUri);
+                          }
+                        },
+                        child: Text(
+                          'admin@ndsh-software.fr',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.blue,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '© ndsh-software',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],

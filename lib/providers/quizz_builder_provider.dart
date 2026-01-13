@@ -5,6 +5,33 @@ import '../models/category.dart';
 import '../models/theme.dart' as theme_model;
 
 class QuizzBuilderProvider extends ChangeNotifier {
+    // Entitled (unlocked) paid theme IDs
+    final Set<int> _entitledThemeIds = {};
+    Set<int> get entitledThemeIds => _entitledThemeIds;
+
+    // Fetch entitlements from backend (replace with real HTTP call)
+    Future<void> fetchEntitlements(String? authToken) async {
+      // TODO: Replace with real HTTP call using your auth header logic as needed
+      // Example using http package:
+      // final response = await http.get(Uri.parse('https://your.api/api/v1/entitlements/'), headers: {'Authorization': 'Bearer $authToken'});
+      // if (response.statusCode == 200) {
+      //   final data = jsonDecode(response.body);
+      //   _entitledThemeIds.clear();
+      //   for (final item in data) {
+      //     _entitledThemeIds.add(item['theme']);
+      //   }
+      //   notifyListeners();
+      // }
+      // For now, simulate: _entitledThemeIds = {1, 2, 3};
+      // Remove this simulation in production:
+      _entitledThemeIds.clear();
+      _entitledThemeIds.addAll([1, 2, 3]);
+      notifyListeners();
+    }
+
+    bool isThemeEntitled(theme_model.Theme theme) {
+      return theme.isFree || _entitledThemeIds.contains(theme.id);
+    }
   // Categories (multi-select)
   final Set<int> _selectedCategoryIds = {};
   final Map<int, Category> _selectedCategoriesMeta = {};
@@ -42,6 +69,17 @@ class QuizzBuilderProvider extends ChangeNotifier {
     if (_selectedCategoryIds.contains(category.id)) {
       _selectedCategoryIds.remove(category.id);
       _selectedCategoriesMeta.remove(category.id);
+
+      // Unselect all themes belonging to this category
+      final themeIdsToRemove = _selectedThemesMeta.entries
+          .where((entry) => entry.value.category == category.nameEn || entry.value.category == category.nameFr)
+          .map((entry) => entry.key)
+          .toList();
+      for (final themeId in themeIdsToRemove) {
+        _selectedThemeIds.remove(themeId);
+        _selectedThemeQuestionCounts.remove(themeId);
+        _selectedThemesMeta.remove(themeId);
+      }
     } else {
       _selectedCategoryIds.add(category.id);
       _selectedCategoriesMeta[category.id] = category;

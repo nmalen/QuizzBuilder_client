@@ -11,6 +11,7 @@ class SetupSoloScreen extends StatefulWidget {
 
 class _SetupSoloScreenState extends State<SetupSoloScreen> {
   int _questionCount = 10;
+  String _difficulty = 'easy';
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +56,48 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
               },
             ),
             const SizedBox(height: 24),
+            Text(
+              'Select question level',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            ToggleButtons(
+              isSelected: [
+                _difficulty == 'easy',
+                _difficulty == 'medium',
+                _difficulty == 'hard',
+              ],
+              onPressed: (index) {
+                setState(() {
+                  _difficulty = ['easy', 'medium', 'hard'][index];
+                });
+              },
+              borderRadius: BorderRadius.circular(8),
+              children: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('Easy'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('Medium'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('Hard'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => GameScreenSolo(questionCount: _questionCount),
+                    builder: (_) => GameScreenSolo(
+                      questionCount: _questionCount,
+                      difficulty: _difficulty,
+                    ),
                   ),
                 );
               },

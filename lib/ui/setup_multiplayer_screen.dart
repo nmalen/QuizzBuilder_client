@@ -12,6 +12,8 @@ class SetupMultiplayerScreen extends StatefulWidget {
 
 class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
   int _playerCount = 2;
+  int _questionCount = 10;
+  String _difficulty = 'easy';
 
   @override
   Widget build(BuildContext context) {
@@ -56,20 +58,82 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
               },
             ),
             const SizedBox(height: 24),
+            Text(
+              'Select number of questions (5-20)',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Questions'),
+                Text('$_questionCount'),
+              ],
+            ),
+            Slider(
+              value: _questionCount.toDouble(),
+              min: 5,
+              max: 20,
+              divisions: 15,
+              label: '$_questionCount',
+              onChanged: (value) {
+                setState(() {
+                  _questionCount = value.round();
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Select question level',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            ToggleButtons(
+              isSelected: [
+                _difficulty == 'easy',
+                _difficulty == 'medium',
+                _difficulty == 'hard',
+              ],
+              onPressed: (index) {
+                setState(() {
+                  _difficulty = ['easy', 'medium', 'hard'][index];
+                });
+              },
+              borderRadius: BorderRadius.circular(8),
+              children: const [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('Easy'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('Medium'),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: Text('Hard'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 if (_playerCount == 1) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const GameScreenSolo(questionCount: 10),
+                      builder: (_) => GameScreenSolo(questionCount: _questionCount, difficulty: _difficulty),
                     ),
                   );
                 } else {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => GameScreenMultiplayer(playerCount: _playerCount),
+                      builder: (_) => GameScreenMultiplayer(
+                        playerCount: _playerCount,
+                        questionCount: _questionCount,
+                        difficulty: _difficulty,
+                      ),
                     ),
                   );
                 }

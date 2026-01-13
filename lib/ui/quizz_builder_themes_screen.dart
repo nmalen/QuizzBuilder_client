@@ -8,6 +8,7 @@ import '../models/theme.dart' as theme_model;
 import '../providers/language_provider.dart';
 import 'game_screen_solo.dart';
 import 'setup_multiplayer_screen.dart';
+import 'selected_themes_screen.dart';
 
 class QuizzBuilderThemesScreen extends StatefulWidget {
   final String gameMode;
@@ -109,12 +110,16 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                   itemBuilder: (context, index) {
                     final theme = catalog.themes[index];
                     final selected = builder.isSelected(theme.id);
+                    final canSelect = builder.isThemeEntitled(theme);
                     return _ThemeSelectTile(
                       theme: theme,
                       selected: selected,
-                      onChanged: (value) {
-                        builder.toggleTheme(theme);
-                      },
+                      onChanged: canSelect
+                          ? (value) {
+                              builder.toggleTheme(theme);
+                            }
+                          : null,
+                      enabled: canSelect,
                     );
                   },
                 ),
@@ -145,35 +150,15 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                         onPressed: builder.selectedCount == 0
                             ? null
                             : () {
-                                // Commit selections and navigate to appropriate game screen
                                 builder.commitSelections();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Selected ${builder.selectedCount} theme${builder.selectedCount == 1 ? '' : 's'} for your quiz',
-                                    ),
+                                Navigator.of(context).pop();
+                                Navigator.of(context).pop();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => SelectedThemesScreen(gameMode: widget.gameMode),
                                   ),
                                 );
-                                
-                                // Navigate to the appropriate game screen based on gameMode
-                                Navigator.of(context).pop();
-                                Navigator.of(context).pop();
-
-                                if (widget.gameMode == 'solo') {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const GameScreenSolo(),
-                                    ),
-                                  );
-                                } else if (widget.gameMode == 'multiplayer') {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const SetupMultiplayerScreen(),
-                                    ),
-                                  );
-                                }
                               },
                         icon: const Icon(Icons.check),
                         label: Text(AppLocalizations.of(context)!.done),
@@ -193,12 +178,14 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
 class _ThemeSelectTile extends StatelessWidget {
   final theme_model.Theme theme;
   final bool selected;
-  final ValueChanged<bool?> onChanged;
+  final ValueChanged<bool?>? onChanged;
+  final bool enabled;
 
   const _ThemeSelectTile({
     required this.theme,
     required this.selected,
     required this.onChanged,
+    this.enabled = true,
   });
 
   @override
@@ -219,7 +206,7 @@ class _ThemeSelectTile extends StatelessWidget {
       ),
       child: CheckboxListTile(
         value: selected,
-        onChanged: onChanged,
+        onChanged: enabled ? onChanged : null,
         controlAffinity: ListTileControlAffinity.leading,
         title: Consumer<LanguageProvider>(
           builder: (context, langProvider, _) {
@@ -227,7 +214,7 @@ class _ThemeSelectTile extends StatelessWidget {
               langProvider.getLocalizedText(theme.nameEn, theme.nameFr),
               style: Theme.of(
                 context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: enabled ? null : Colors.grey),
             );
           },
         ),
@@ -258,12 +245,17 @@ class _ThemeSelectTile extends StatelessWidget {
                   child: Text(
                     theme.isFree ? 'FREE' : 'PREMIUM',
                     style: TextStyle(
-                      color: theme.isFree ? Colors.green : Colors.amber[800],
+                      color: theme.isFree ? Colors.green : enabled ? Colors.amber[800] : Colors.grey,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
                   ),
                 ),
+                if (!enabled)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Icon(Icons.lock, color: Colors.grey, size: 18),
+                  ),
               ],
             ),
           ],

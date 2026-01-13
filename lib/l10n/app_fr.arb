@@ -96,6 +96,7 @@
   "noCategories": "Aucune catégorie disponible",
   "noThemes": "Aucun thème disponible",
   "done": "Terminé",
+  "next": "Suivant",
   "selected": "Sélectionné: {name}",
   "@selected": {
     "description": "Selected item message",

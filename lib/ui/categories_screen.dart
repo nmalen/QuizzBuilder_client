@@ -141,7 +141,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                                   ),
                                 );
                               },
-                        child: Text(AppLocalizations.of(context)!.done),
+                        child: Text(AppLocalizations.of(context)!.next),
                       ),
                     ],
                   ),
@@ -202,10 +202,7 @@ class _CategoryCard extends StatelessWidget {
             context,
           ).textTheme.bodySmall?.copyWith(color: Colors.grey),
         ),
-        secondary: Icon(
-          isSelected ? Icons.check_circle : Icons.circle_outlined,
-          color: isSelected ? Colors.green : Colors.grey[400],
-        ),
+        // Removed secondary icon to avoid double checkmark
       ),
     );
   }
