@@ -11,6 +11,7 @@ class SetupSoloScreen extends StatefulWidget {
 
 class _SetupSoloScreenState extends State<SetupSoloScreen> {
   int _questionCount = 10;
+  String _gameMode = 'standard';
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +56,40 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
               },
             ),
             const SizedBox(height: 24),
+            Text(
+              AppLocalizations.of(context)!.selectGameMode,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: RadioListTile<String>(
+                    value: 'standard',
+                    groupValue: _gameMode,
+                    onChanged: (value) {
+                      setState(() {
+                        _gameMode = value!;
+                      });
+                    },
+                    title: Text(AppLocalizations.of(context)!.standardMode),
+                  ),
+                ),
+                Expanded(
+                  child: RadioListTile<String>(
+                    value: 'survival',
+                    groupValue: _gameMode,
+                    onChanged: (value) {
+                      setState(() {
+                        _gameMode = value!;
+                      });
+                    },
+                    title: Text(AppLocalizations.of(context)!.survivalMode),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -62,6 +97,7 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                   MaterialPageRoute(
                     builder: (_) => GameScreenSolo(
                       questionCount: _questionCount,
+                      gameMode: _gameMode,
                     ),
                   ),
                 );

@@ -1,4 +1,6 @@
 {
+  "standardMode": "Standard",
+  "survivalMode": "Survie",
   "easy": "Facile",
   "medium": "Moyen",
   "hard": "Difficile",

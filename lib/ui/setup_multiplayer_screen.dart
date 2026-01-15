@@ -13,6 +13,7 @@ class SetupMultiplayerScreen extends StatefulWidget {
 class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
   int _playerCount = 2;
   int _questionCount = 10;
+  String _gameMode = 'standard';
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +83,7 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
               },
             ),
             const SizedBox(height: 24),
+            // Only standard mode is available for multiplayer
             ElevatedButton(
               onPressed: () {
                 if (_playerCount == 1) {
@@ -90,7 +92,7 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
                     MaterialPageRoute(
                       builder: (_) => GameScreenSolo(
                         questionCount: _questionCount,
-                        // difficulties removed, now handled in selected_themes_screen
+                        gameMode: _gameMode,
                       ),
                     ),
                   );
@@ -101,7 +103,6 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
                       builder: (_) => GameScreenMultiplayer(
                         playerCount: _playerCount,
                         questionCount: _questionCount,
-                        // difficulties removed, now handled in selected_themes_screen
                       ),
                     ),
                   );

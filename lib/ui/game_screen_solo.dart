@@ -8,14 +8,21 @@ import '../models/question.dart';
 class GameScreenSolo extends StatefulWidget {
   final int questionCount;
   final List<String> difficulties;
+  final String gameMode;
 
-  const GameScreenSolo({super.key, this.questionCount = 10, this.difficulties = const ['easy']});
+  const GameScreenSolo({
+    super.key,
+    this.questionCount = 10,
+    this.difficulties = const ['easy'],
+    this.gameMode = 'standard',
+  });
 
   @override
   State<GameScreenSolo> createState() => _GameScreenSoloState();
 }
 
 class _GameScreenSoloState extends State<GameScreenSolo> {
+  late String gameMode;
   int currentQuestionIndex = 0;
   int score = 0;
   bool answered = false;
@@ -23,10 +30,12 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
   List<Question> questions = [];
   bool isLoading = true;
   String? error;
+  bool survivalFailed = false;
 
   @override
   void initState() {
     super.initState();
+    gameMode = widget.gameMode;
     _loadQuestions();
   }
 
@@ -44,10 +53,14 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
       // Filter by selected difficulties
       final filtered = allQuestions.where((q) => widget.difficulties.contains(q.difficulty)).toList();
       filtered.shuffle();
-      final limitedQuestions = filtered.take(widget.questionCount).toList();
-
+      List<Question> usedQuestions;
+      if (gameMode == 'survival') {
+        usedQuestions = filtered;
+      } else {
+        usedQuestions = filtered.take(widget.questionCount).toList();
+      }
       setState(() {
-        questions = limitedQuestions;
+        questions = usedQuestions;
         isLoading = false;
       });
     } catch (e) {
@@ -109,24 +122,30 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
       );
     }
 
-    if (currentQuestionIndex >= questions.length) {
+    if (currentQuestionIndex >= questions.length || survivalFailed) {
       return Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.soloMode)),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.check_circle, size: 80, color: Colors.green),
+              Icon(
+                survivalFailed ? Icons.cancel : Icons.check_circle,
+                size: 80,
+                color: survivalFailed ? Colors.red : Colors.green,
+              ),
               const SizedBox(height: 24),
               Text(
-                'Quiz Complete!',
+                gameMode == 'survival'
+                    ? (survivalFailed ? 'Game Over!' : 'Survival Complete!')
+                    : 'Quiz Complete!',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Text(
-                'Final Score: $score/${questions.length}',
+                'Final Score: $score',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.green,
+                      color: survivalFailed ? Colors.red : Colors.green,
                       fontWeight: FontWeight.bold,
                     ),
               ),
@@ -275,6 +294,11 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                 ElevatedButton(
                   onPressed: () {
                     setState(() {
+                      if (gameMode == 'survival' && (selectedAnswerIndex == null || selectedAnswerIndex! + 1 != currentQuestion.correctAnswer)) {
+                        survivalFailed = true;
+                        // End game immediately
+                        return;
+                      }
                       currentQuestionIndex++;
                       answered = false;
                       selectedAnswerIndex = null;
@@ -285,7 +309,9 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                     backgroundColor: Colors.orange,
                   ),
                   child: Text(
-                    currentQuestionIndex < questions.length - 1 ? 'Next' : 'Finish',
+                    (gameMode == 'survival')
+                        ? (selectedAnswerIndex == null || selectedAnswerIndex! + 1 != currentQuestion.correctAnswer ? 'Finish' : 'Next')
+                        : (currentQuestionIndex < questions.length - 1 ? 'Next' : 'Finish'),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,

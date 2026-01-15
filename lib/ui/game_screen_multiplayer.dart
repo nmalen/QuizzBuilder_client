@@ -22,13 +22,12 @@ class GameScreenMultiplayer extends StatefulWidget {
 }
 
 class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
-  // Remove static const _totalQuestions, use questions.length
-  int currentQuestionIndex = 0;
   int currentPlayerIndex = 0;
+  int currentQuestionIndex = 0;
   bool answered = false;
   int? selectedAnswerIndex;
   late List<int> scores;
-  List<Question> questions = [];
+  List<List<Question>> playerQuestions = [];
   bool isLoading = true;
   String? error;
 
@@ -53,9 +52,26 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
       // Filter by selected difficulties
       final filtered = allQuestions.where((q) => widget.difficulties.contains(q.difficulty)).toList();
       filtered.shuffle();
-      final limitedQuestions = filtered.take(widget.questionCount).toList();
+
+      // Assign unique questions to each player
+      int totalNeeded = widget.playerCount * widget.questionCount;
+      if (filtered.length < totalNeeded) {
+        setState(() {
+          error = 'Not enough unique questions for all players.';
+          isLoading = false;
+        });
+        return;
+      }
+
+      List<List<Question>> perPlayer = [];
+      int idx = 0;
+      for (int p = 0; p < widget.playerCount; p++) {
+        perPlayer.add(filtered.sublist(idx, idx + widget.questionCount));
+        idx += widget.questionCount;
+      }
+
       setState(() {
-        questions = limitedQuestions;
+        playerQuestions = perPlayer;
         isLoading = false;
       });
     } catch (e) {
@@ -96,7 +112,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
       );
     }
 
-    if (questions.isEmpty) {
+    if (playerQuestions.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text(AppLocalizations.of(context)!.multiplayerMode)),
         body: Center(
@@ -117,7 +133,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
       );
     }
 
-    if (currentQuestionIndex >= questions.length) {
+    if (currentQuestionIndex >= widget.questionCount) {
       final int maxScore = scores.reduce((a, b) => a > b ? a : b);
       final List<int> winners = [];
       for (int i = 0; i < scores.length; i++) {
@@ -134,12 +150,12 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
               const Icon(Icons.emoji_events, size: 80, color: Colors.amber),
               const SizedBox(height: 24),
               Text(
-                winners.length > 1 ? 'It\'s a Tie!' : 'Player(s) ${winners.join(", ")} Win!' ,
+                winners.length > 1 ? 'It\'s a Tie!' : 'Player(s) \\${winners.join(", ")} Win!' ,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Text(
-                'Winning Score: $maxScore/${questions.length}',
+                'Winning Score: $maxScore/${widget.questionCount}',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       color: Colors.green,
                       fontWeight: FontWeight.bold,
@@ -164,7 +180,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
     }
 
     final languageCode = Localizations.localeOf(context).languageCode;
-    final currentQuestion = questions[currentQuestionIndex];
+    final currentQuestion = playerQuestions[currentPlayerIndex][currentQuestionIndex];
     final answers = currentQuestion.getAnswers(languageCode);
 
     return Scaffold(
@@ -196,7 +212,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
 
               // Question progress
               Text(
-                'Question ${currentQuestionIndex + 1} / ${questions.length}',
+                'Question ${currentQuestionIndex + 1} / ${widget.questionCount}',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -303,16 +319,6 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
               if (answered)
                 ElevatedButton(
                   onPressed: () {
-                    final bool isLastTurn = currentQuestionIndex == questions.length - 1 &&
-                        currentPlayerIndex == widget.playerCount - 1;
-
-                    if (isLastTurn) {
-                      setState(() {
-                        currentQuestionIndex++;
-                      });
-                      return;
-                    }
-
                     setState(() {
                       if (currentPlayerIndex < widget.playerCount - 1) {
                         currentPlayerIndex++;
@@ -329,7 +335,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                     backgroundColor: Colors.orange,
                   ),
                   child: Text(
-                    currentQuestionIndex == questions.length - 1 && currentPlayerIndex == widget.playerCount - 1
+                    currentQuestionIndex == widget.questionCount - 1 && currentPlayerIndex == widget.playerCount - 1
                       ? 'Finish'
                       : 'Continue',
                     style: const TextStyle(

@@ -95,6 +95,18 @@ abstract class AppLocalizations {
     Locale('fr')
   ];
 
+  /// No description provided for @standardMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get standardMode;
+
+  /// No description provided for @survivalMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Survival'**
+  String get survivalMode;
+
   /// No description provided for @easy.
   ///
   /// In en, this message translates to:

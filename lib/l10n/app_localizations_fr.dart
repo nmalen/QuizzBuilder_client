@@ -9,6 +9,12 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get standardMode => 'Standard';
+
+  @override
+  String get survivalMode => 'Survie';
+
+  @override
   String get easy => 'Facile';
 
   @override
