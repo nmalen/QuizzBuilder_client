@@ -7,6 +7,8 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.10.4 <4.0.0'
 
+
+
 dependencies:
   flutter:
     sdk: flutter
@@ -61,17 +63,15 @@ dev_dependencies:
   build_runner: ^2.4.0
   json_serializable: ^6.7.0
 
+
 flutter:
   uses-material-design: true
-
+  generate: true
   # App Assets
   assets:
     - assets/images/
     - assets/icons/
     - assets/animations/
-
-  # Locales
-  generate: true
 
 # Localization configuration
 flutter_intl:

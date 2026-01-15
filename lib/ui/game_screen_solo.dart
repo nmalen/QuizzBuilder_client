@@ -7,9 +7,9 @@ import '../models/question.dart';
 
 class GameScreenSolo extends StatefulWidget {
   final int questionCount;
-  final String difficulty;
+  final List<String> difficulties;
 
-  const GameScreenSolo({super.key, this.questionCount = 10, this.difficulty = 'easy'});
+  const GameScreenSolo({super.key, this.questionCount = 10, this.difficulties = const ['easy']});
 
   @override
   State<GameScreenSolo> createState() => _GameScreenSoloState();
@@ -41,8 +41,8 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         allQuestions.addAll(themeQuestions);
       }
 
-      // Filter by difficulty
-      final filtered = allQuestions.where((q) => q.difficulty == widget.difficulty).toList();
+      // Filter by selected difficulties
+      final filtered = allQuestions.where((q) => widget.difficulties.contains(q.difficulty)).toList();
       filtered.shuffle();
       final limitedQuestions = filtered.take(widget.questionCount).toList();
 
@@ -266,7 +266,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
 
               const SizedBox(height: 24),
 

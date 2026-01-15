@@ -6,8 +6,6 @@ import '../providers/quizz_builder_provider.dart';
 // Removed unused imports after multi-category support
 import '../models/theme.dart' as theme_model;
 import '../providers/language_provider.dart';
-import 'game_screen_solo.dart';
-import 'setup_multiplayer_screen.dart';
 import 'selected_themes_screen.dart';
 
 class QuizzBuilderThemesScreen extends StatefulWidget {

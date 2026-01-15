@@ -6,9 +6,16 @@ import 'app_localizations.dart';
 
 /// The translations for English (`en`).
 class AppLocalizationsEn extends AppLocalizations {
-    @override
-    String get next => 'Next';
   AppLocalizationsEn([String locale = 'en']) : super(locale);
+
+  @override
+  String get easy => 'Easy';
+
+  @override
+  String get medium => 'Medium';
+
+  @override
+  String get hard => 'Hard';
 
   @override
   String get appTitle => 'QuizzBuilder';
@@ -99,27 +106,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get multiplayerModeDesc => 'Coming soon';
 
   @override
-  String get selectedCategory => 'Selected Category';
-
-  @override
-  String get noThemesSelected => 'No themes selected';
-
-  @override
-  String get quizSummary => 'Quiz Summary';
-
-  @override
-  String get changeSelection => 'Change Selection';
-
-  @override
-  String get startQuiz => 'Start Quiz';
-
-  @override
-  String get question => 'Question';
-
-  @override
-  String get theme => 'Theme';
-
-  @override
   String themes_count(int count) {
     return '$count theme';
   }
@@ -163,6 +149,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get done => 'Done';
 
   @override
+  String get next => 'Next';
+
+  @override
   String selected(String name) {
     return 'Selected: $name';
   }
@@ -199,4 +188,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get switchToRegister => 'Don\'t have an account? Register';
+
+  @override
+  String get setupSoloGame => 'Setup solo game';
+
+  @override
+  String get setupMultiplayerGame => 'Setup multiplayer game';
+
+  @override
+  String get selectNumberOfQuestions => 'Select number of questions (5-20)';
+
+  @override
+  String get selectNumberOfPlayers => 'Select number of players (1-4)';
+
+  @override
+  String get selectQuestionsLevels => 'Select questions level(s)';
+
+  @override
+  String get players => 'Players';
+
+  @override
+  String get startGame => 'Start Game';
+
+  @override
+  String get continueText => 'Continue';
+
+  @override
+  String get noThemesSelected => 'No themes selected.';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get quizSummary => 'Quiz Summary';
+
+  @override
+  String get question => 'Question';
+
+  @override
+  String get changeSelection => 'Change selection';
+
+  @override
+  String get startQuiz => 'Start Quiz';
 }

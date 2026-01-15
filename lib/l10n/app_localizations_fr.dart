@@ -6,9 +6,16 @@ import 'app_localizations.dart';
 
 /// The translations for French (`fr`).
 class AppLocalizationsFr extends AppLocalizations {
-    @override
-    String get next => 'Suivant';
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
+
+  @override
+  String get easy => 'Facile';
+
+  @override
+  String get medium => 'Moyen';
+
+  @override
+  String get hard => 'Difficile';
 
   @override
   String get appTitle => 'QuizzBuilder';
@@ -22,7 +29,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get readyToTest => 'Prêt à tester vos connaissances?';
 
   @override
-  String get playQuiz => 'Jouer';
+  String get playQuiz => 'Jouer au Quiz';
 
   @override
   String get playQuizSubtitle => 'Sélectionnez des catégories, des thèmes et défiez-vous';
@@ -99,27 +106,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get multiplayerModeDesc => 'Bientôt disponible';
 
   @override
-  String get selectedCategory => 'Catégorie sélectionnée';
-
-  @override
-  String get noThemesSelected => 'Aucun thème sélectionné';
-
-  @override
-  String get quizSummary => 'Résumé du quiz';
-
-  @override
-  String get changeSelection => 'Modifier la sélection';
-
-  @override
-  String get startQuiz => 'Commencer le quiz';
-
-  @override
-  String get question => 'Question';
-
-  @override
-  String get theme => 'Thème';
-
-  @override
   String themes_count(int count) {
     return '$count thème';
   }
@@ -163,6 +149,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get done => 'Terminé';
 
   @override
+  String get next => 'Suivant';
+
+  @override
   String selected(String name) {
     return 'Sélectionné: $name';
   }
@@ -199,4 +188,46 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get switchToRegister => 'Vous n\'avez pas de compte? S\'inscrire';
+
+  @override
+  String get setupSoloGame => 'Configurer une partie solo';
+
+  @override
+  String get setupMultiplayerGame => 'Configurer une partie multijoueur';
+
+  @override
+  String get selectNumberOfQuestions => 'Sélectionnez le nombre de questions (5-20)';
+
+  @override
+  String get selectNumberOfPlayers => 'Sélectionnez le nombre de joueurs (1-4)';
+
+  @override
+  String get selectQuestionsLevels => 'Sélectionnez le(s) niveau(x) de question(s)';
+
+  @override
+  String get players => 'Joueurs';
+
+  @override
+  String get startGame => 'Démarrer la partie';
+
+  @override
+  String get continueText => 'Continuer';
+
+  @override
+  String get noThemesSelected => 'Aucun thème sélectionné.';
+
+  @override
+  String get theme => 'Thème';
+
+  @override
+  String get quizSummary => 'Résumé du quiz';
+
+  @override
+  String get question => 'Question';
+
+  @override
+  String get changeSelection => 'Changer la sélection';
+
+  @override
+  String get startQuiz => 'Démarrer le quiz';
 }

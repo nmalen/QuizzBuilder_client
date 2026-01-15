@@ -8,13 +8,13 @@ import '../models/question.dart';
 class GameScreenMultiplayer extends StatefulWidget {
   final int playerCount;
   final int questionCount;
-  final String difficulty;
+  final List<String> difficulties;
 
   const GameScreenMultiplayer({
     super.key,
     required this.playerCount,
     this.questionCount = 10,
-    this.difficulty = 'easy',
+    this.difficulties = const ['easy'],
   });
 
   @override
@@ -50,8 +50,8 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
         allQuestions.addAll(themeQuestions);
       }
 
-      // Filter by difficulty
-      final filtered = allQuestions.where((q) => q.difficulty == widget.difficulty).toList();
+      // Filter by selected difficulties
+      final filtered = allQuestions.where((q) => widget.difficulties.contains(q.difficulty)).toList();
       filtered.shuffle();
       final limitedQuestions = filtered.take(widget.questionCount).toList();
       setState(() {
@@ -295,7 +295,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
 
               const SizedBox(height: 24),
 

@@ -13,7 +13,6 @@ class SetupMultiplayerScreen extends StatefulWidget {
 class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
   int _playerCount = 2;
   int _questionCount = 10;
-  String _difficulty = 'easy';
 
   @override
   Widget build(BuildContext context) {
@@ -27,21 +26,21 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Setup multiplayer game',
+              AppLocalizations.of(context)!.setupMultiplayerGame,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 16),
             Text(
-              'Select number of players (1-4)',
+              AppLocalizations.of(context)!.selectNumberOfPlayers,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Players'),
+                Text(AppLocalizations.of(context)!.players),
                 Text('$_playerCount'),
               ],
             ),
@@ -59,14 +58,14 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Select number of questions (5-20)',
+              AppLocalizations.of(context)!.selectNumberOfQuestions,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Questions'),
+                Text(AppLocalizations.of(context)!.questions),
                 Text('$_questionCount'),
               ],
             ),
@@ -83,46 +82,16 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
               },
             ),
             const SizedBox(height: 24),
-            Text(
-              'Select question level',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            ToggleButtons(
-              isSelected: [
-                _difficulty == 'easy',
-                _difficulty == 'medium',
-                _difficulty == 'hard',
-              ],
-              onPressed: (index) {
-                setState(() {
-                  _difficulty = ['easy', 'medium', 'hard'][index];
-                });
-              },
-              borderRadius: BorderRadius.circular(8),
-              children: const [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Easy'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Medium'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Hard'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 if (_playerCount == 1) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => GameScreenSolo(questionCount: _questionCount, difficulty: _difficulty),
+                      builder: (_) => GameScreenSolo(
+                        questionCount: _questionCount,
+                        // difficulties removed, now handled in selected_themes_screen
+                      ),
                     ),
                   );
                 } else {
@@ -132,7 +101,7 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
                       builder: (_) => GameScreenMultiplayer(
                         playerCount: _playerCount,
                         questionCount: _questionCount,
-                        difficulty: _difficulty,
+                        // difficulties removed, now handled in selected_themes_screen
                       ),
                     ),
                   );
@@ -141,9 +110,9 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text(
-                'Continue',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              child: Text(
+                AppLocalizations.of(context)!.continueText,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],

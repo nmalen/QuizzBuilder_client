@@ -1,4 +1,7 @@
 {
+  "easy": "Easy",
+  "medium": "Medium",
+  "hard": "Hard",
   "appTitle": "QuizzBuilder",
   "welcomeMessage": "Welcome, {userName}!",
   "@welcomeMessage": {
@@ -117,5 +120,19 @@
   "password": "Password",
   "confirmPassword": "Confirm Password",
   "switchToLogin": "Already have an account? Login",
-  "switchToRegister": "Don't have an account? Register"
+  "switchToRegister": "Don't have an account? Register",
+  "setupSoloGame": "Setup solo game",
+  "setupMultiplayerGame": "Setup multiplayer game",
+  "selectNumberOfQuestions": "Select number of questions (5-20)",
+  "selectNumberOfPlayers": "Select number of players (1-4)",
+  "selectQuestionsLevels": "Select questions level(s)",
+  "players": "Players",
+  "startGame": "Start Game",
+  "continueText": "Continue",
+  "noThemesSelected": "No themes selected.",
+  "theme": "Theme",
+  "quizSummary": "Quiz Summary",
+  "question": "Question",
+  "changeSelection": "Change selection",
+  "startQuiz": "Start Quiz"
 }

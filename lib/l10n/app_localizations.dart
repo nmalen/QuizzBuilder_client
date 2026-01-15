@@ -95,6 +95,24 @@ abstract class AppLocalizations {
     Locale('fr')
   ];
 
+  /// No description provided for @easy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get easy;
+
+  /// No description provided for @medium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get medium;
+
+  /// No description provided for @hard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get hard;
+
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
@@ -263,48 +281,6 @@ abstract class AppLocalizations {
   /// **'Coming soon'**
   String get multiplayerModeDesc;
 
-  /// No description provided for @selectedCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'Selected Category'**
-  String get selectedCategory;
-
-  /// No description provided for @noThemesSelected.
-  ///
-  /// In en, this message translates to:
-  /// **'No themes selected'**
-  String get noThemesSelected;
-
-  /// No description provided for @quizSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'Quiz Summary'**
-  String get quizSummary;
-
-  /// No description provided for @changeSelection.
-  ///
-  /// In en, this message translates to:
-  /// **'Change Selection'**
-  String get changeSelection;
-
-  /// No description provided for @startQuiz.
-  ///
-  /// In en, this message translates to:
-  /// **'Start Quiz'**
-  String get startQuiz;
-
-  /// No description provided for @question.
-  ///
-  /// In en, this message translates to:
-  /// **'Question'**
-  String get question;
-
-  /// No description provided for @theme.
-  ///
-  /// In en, this message translates to:
-  /// **'Theme'**
-  String get theme;
-
   /// Theme count suffix
   ///
   /// In en, this message translates to:
@@ -460,6 +436,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Don\'t have an account? Register'**
   String get switchToRegister;
+
+  /// No description provided for @setupSoloGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup solo game'**
+  String get setupSoloGame;
+
+  /// No description provided for @setupMultiplayerGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Setup multiplayer game'**
+  String get setupMultiplayerGame;
+
+  /// No description provided for @selectNumberOfQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Select number of questions (5-20)'**
+  String get selectNumberOfQuestions;
+
+  /// No description provided for @selectNumberOfPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Select number of players (1-4)'**
+  String get selectNumberOfPlayers;
+
+  /// No description provided for @selectQuestionsLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'Select questions level(s)'**
+  String get selectQuestionsLevels;
+
+  /// No description provided for @players.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get players;
+
+  /// No description provided for @startGame.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Game'**
+  String get startGame;
+
+  /// No description provided for @continueText.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueText;
+
+  /// No description provided for @noThemesSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No themes selected.'**
+  String get noThemesSelected;
+
+  /// No description provided for @theme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @quizSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz Summary'**
+  String get quizSummary;
+
+  /// No description provided for @question.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get question;
+
+  /// No description provided for @changeSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Change selection'**
+  String get changeSelection;
+
+  /// No description provided for @startQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Quiz'**
+  String get startQuiz;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -11,7 +11,6 @@ class SetupSoloScreen extends StatefulWidget {
 
 class _SetupSoloScreenState extends State<SetupSoloScreen> {
   int _questionCount = 10;
-  String _difficulty = 'easy';
 
   @override
   Widget build(BuildContext context) {
@@ -25,21 +24,21 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Setup solo game',
+              AppLocalizations.of(context)!.setupSoloGame,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
             ),
             const SizedBox(height: 16),
             Text(
-              'Select number of questions (5-20)',
+              AppLocalizations.of(context)!.selectNumberOfQuestions,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Questions'),
+                Text(AppLocalizations.of(context)!.questions),
                 Text('$_questionCount'),
               ],
             ),
@@ -56,39 +55,6 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
               },
             ),
             const SizedBox(height: 24),
-            Text(
-              'Select question level',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            ToggleButtons(
-              isSelected: [
-                _difficulty == 'easy',
-                _difficulty == 'medium',
-                _difficulty == 'hard',
-              ],
-              onPressed: (index) {
-                setState(() {
-                  _difficulty = ['easy', 'medium', 'hard'][index];
-                });
-              },
-              borderRadius: BorderRadius.circular(8),
-              children: const [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Easy'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Medium'),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text('Hard'),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -96,7 +62,6 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                   MaterialPageRoute(
                     builder: (_) => GameScreenSolo(
                       questionCount: _questionCount,
-                      difficulty: _difficulty,
                     ),
                   ),
                 );
@@ -104,9 +69,9 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text(
-                'Start Game',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              child: Text(
+                AppLocalizations.of(context)!.startGame,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],
