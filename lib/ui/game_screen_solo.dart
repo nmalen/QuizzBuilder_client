@@ -171,45 +171,42 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // const SizedBox(height: 48),
               // Header with progress
               Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Text(
-                    'Score: $score',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.green[800],
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        'Score: $score',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Colors.green[800],
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ),
+                    Image.asset(
+                      'assets/images/QuizzbuilderCat.png',
+                      width: 180,
+                      height: 120,
+                      fit: BoxFit.fitHeight,
+                      alignment: Alignment.topCenter,
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 18),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Question ${currentQuestionIndex + 1}/${questions.length}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-
               // Question content
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(6),
@@ -221,14 +218,28 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                     ),
                   ],
                 ),
-                child: Text(
-                  currentQuestion.getQuestion(languageCode),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                  textAlign: TextAlign.center,
-                  maxLines: 6,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Question ${currentQuestionIndex + 1}/${questions.length}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      currentQuestion.getQuestion(languageCode),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                      textAlign: TextAlign.center,
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 32),

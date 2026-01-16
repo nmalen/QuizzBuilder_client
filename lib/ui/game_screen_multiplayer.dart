@@ -234,23 +234,43 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                     ),
                   ],
                 ),
-                child: Column(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Player ${currentPlayerIndex + 1}\'s Turn',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                    // Cat image
+                    Padding(
+                      padding: const EdgeInsets.only(right: 16.0, top: 0.0),
+                      child: Image.asset(
+                        'assets/images/QuizzbuilderCat.png',
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.contain,
+                      ),
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      currentQuestion.getQuestion(languageCode),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+                    // Question content
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Player  24{currentPlayerIndex + 1}\'s Turn',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey[600],
+                                ),
                           ),
-                      textAlign: TextAlign.center,
-                      maxLines: 6,
-                      overflow: TextOverflow.ellipsis,
+                          const SizedBox(height: 12),
+                          Text(
+                            currentQuestion.getQuestion(languageCode),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                            textAlign: TextAlign.center,
+                            maxLines: 6,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

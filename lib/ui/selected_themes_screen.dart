@@ -18,7 +18,7 @@ class SelectedThemesScreen extends StatefulWidget {
 }
 
 class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
-  List<String> _selectedDifficulties = ['easy', 'medium', 'hard'];
+  final List<String> _selectedDifficulties = ['easy', 'medium', 'hard'];
   Map<int, int> _filteredQuestionsCount = {};
   int _totalFilteredQuestions = 0;
   bool _loadingCounts = false;
