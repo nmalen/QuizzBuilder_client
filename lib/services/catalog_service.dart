@@ -1,3 +1,4 @@
+// (empty)
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config/api_config.dart';
@@ -8,6 +9,23 @@ import '../models/question.dart';
 import 'auth_service.dart';
 
 class CatalogService {
+    /// Report a question error (flag for verification)
+    Future<void> reportQuestionError(int questionId) async {
+      final url = '${baseUrl}/questions/flag/';
+      final headers = await authService.getAuthHeaders();
+      final body = jsonEncode({'question_id': questionId});
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          ...headers,
+          'Content-Type': 'application/json',
+        },
+        body: body,
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Failed to report question error: ${response.statusCode}');
+      }
+    }
   final String baseUrl = ApiConfig.devBaseUrl;
   final AuthService authService;
 

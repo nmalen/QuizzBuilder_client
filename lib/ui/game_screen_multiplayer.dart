@@ -333,6 +333,32 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                     ),
                   ),
                 ),
+              if (answered)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12.0),
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.flag, color: Colors.red),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade100,
+                      foregroundColor: Colors.red.shade900,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    onPressed: () async {
+                      final catalog = Provider.of<CatalogProvider>(context, listen: false);
+                      try {
+                        await catalog.reportQuestionError(playerQuestions[currentPlayerIndex][currentQuestionIndex].id);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Question flagged for verification.')),
+                        );
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Failed to report error: $e')),
+                        );
+                      }
+                    },
+                    label: const Text('Signaler une erreur'),
+                  ),
+                ),
               const SizedBox(height: 24),
             ],
           ),

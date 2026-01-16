@@ -15,104 +15,120 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.settings),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(24),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.language,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _LanguageOption(
-                    language: 'English',
-                    code: 'en',
-                    isSelected: languageProvider.languageCode == 'en',
-                    onTap: () {
-                      languageProvider.setLanguage('en');
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  _LanguageOption(
-                    language: 'Français',
-                    code: 'fr',
-                    isSelected: languageProvider.languageCode == 'fr',
-                    onTap: () {
-                      languageProvider.setLanguage('fr');
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.about,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    AppLocalizations.of(context)!.version,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    AppLocalizations.of(context)!.aboutText,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      const Icon(Icons.email, size: 18, color: Colors.grey),
-                      const SizedBox(width: 8),
-                      InkWell(
-                        onTap: () async {
-                          final Uri emailLaunchUri = Uri(
-                            scheme: 'mailto',
-                            path: 'admin@ndsh-software.fr',
-                          );
-                          if (await canLaunchUrl(emailLaunchUri)) {
-                            await launchUrl(emailLaunchUri);
-                          }
-                        },
-                        child: Text(
-                          'admin@ndsh-software.fr',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.language,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        _LanguageOption(
+                          language: 'English',
+                          code: 'en',
+                          isSelected: languageProvider.languageCode == 'en',
+                          onTap: () {
+                            languageProvider.setLanguage('en');
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        _LanguageOption(
+                          language: 'Français',
+                          code: 'fr',
+                          isSelected: languageProvider.languageCode == 'fr',
+                          onTap: () {
+                            languageProvider.setLanguage('fr');
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '© ndsh-software',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.grey[600],
-                      fontWeight: FontWeight.bold,
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.about,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          AppLocalizations.of(context)!.version,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          AppLocalizations.of(context)!.aboutText,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            const Icon(Icons.email, size: 18, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () async {
+                                final Uri emailLaunchUri = Uri(
+                                  scheme: 'mailto',
+                                  path: 'admin@ndsh-software.fr',
+                                );
+                                if (await canLaunchUrl(emailLaunchUri)) {
+                                  await launchUrl(emailLaunchUri);
+                                }
+                              },
+                              child: Text(
+                                'admin@ndsh-software.fr',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '© ndsh-software',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 32),
+            child: Center(
+              child: Image.asset(
+                'assets/images/Logo_NDSH.png',
+                height: 64,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

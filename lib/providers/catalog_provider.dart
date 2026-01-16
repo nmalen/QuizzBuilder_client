@@ -7,6 +7,9 @@ import '../services/catalog_service.dart';
 import '../services/auth_service.dart';
 
 class CatalogProvider extends ChangeNotifier {
+    Future<void> reportQuestionError(int questionId) async {
+      await _catalogService.reportQuestionError(questionId);
+    }
   final CatalogService _catalogService;
 
   List<Category> _categories = [];

@@ -39,31 +39,33 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                   ),
             ),
             const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context)!.selectNumberOfQuestions,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(AppLocalizations.of(context)!.questions),
-                Text('$_questionCount'),
-              ],
-            ),
-            Slider(
-              value: _questionCount.toDouble(),
-              min: 5,
-              max: 20,
-              divisions: 15,
-              label: '$_questionCount',
-              onChanged: (value) {
-                setState(() {
-                  _questionCount = value.round();
-                });
-              },
-            ),
-            const SizedBox(height: 24),
+            if (_gameMode != 'survival') ...[
+              Text(
+                AppLocalizations.of(context)!.selectNumberOfQuestions,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(AppLocalizations.of(context)!.questions),
+                  Text('$_questionCount'),
+                ],
+              ),
+              Slider(
+                value: _questionCount.toDouble(),
+                min: 5,
+                max: 20,
+                divisions: 15,
+                label: '$_questionCount',
+                onChanged: (value) {
+                  setState(() {
+                    _questionCount = value.round();
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+            ],
             Text(
               AppLocalizations.of(context)!.selectGameMode,
               style: Theme.of(context).textTheme.bodyMedium,
