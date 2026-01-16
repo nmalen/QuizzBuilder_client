@@ -51,28 +51,28 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
 
       // Filter by selected difficulties
       final filtered = allQuestions.where((q) => widget.difficulties.contains(q.difficulty)).toList();
-      filtered.shuffle();
 
-      // Assign unique questions to each player
-      int totalNeeded = widget.playerCount * widget.questionCount;
-      if (filtered.length < totalNeeded) {
+      // Validation: Ensure enough unique questions for all players
+      final int requiredQuestions = widget.playerCount * widget.questionCount;
+      if (filtered.length < requiredQuestions) {
         setState(() {
-          error = 'Not enough unique questions for all players.';
+          error = 'Not enough unique questions available for $requiredQuestions total questions ($widget.playerCount players × ${widget.questionCount} questions each). Please select fewer players, reduce questions per player, or add more questions.';
           isLoading = false;
         });
         return;
       }
 
-      List<List<Question>> perPlayer = [];
-      int idx = 0;
-      for (int p = 0; p < widget.playerCount; p++) {
-        perPlayer.add(filtered.sublist(idx, idx + widget.questionCount));
-        idx += widget.questionCount;
+      // Assign a unique set of questions to each player
+      List<List<Question>> playerSets = [];
+      List<Question> pool = List<Question>.from(filtered);
+      pool.shuffle();
+      for (int i = 0; i < widget.playerCount; i++) {
+        playerSets.add(pool.skip(i * widget.questionCount).take(widget.questionCount).toList());
       }
-
       setState(() {
-        playerQuestions = perPlayer;
+        playerQuestions = playerSets;
         isLoading = false;
+        error = null;
       });
     } catch (e) {
       setState(() {
@@ -99,13 +99,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
-              Text('Error loading questions: $error'),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Go Back'),
-              ),
+              const SizedBox(height: 4),
             ],
           ),
         ),
@@ -150,7 +144,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
               const Icon(Icons.emoji_events, size: 80, color: Colors.amber),
               const SizedBox(height: 24),
               Text(
-                winners.length > 1 ? 'It\'s a Tie!' : 'Player(s) \\${winners.join(", ")} Win!' ,
+                winners.length > 1 ? 'It\'s a Tie!' : 'Player(s) ${winners.join(", ")} Win!' ,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
@@ -186,7 +180,6 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.multiplayerMode),
-        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -194,7 +187,6 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 16),
               // Player scoreboard
               Wrap(
                 spacing: 12,
@@ -208,21 +200,20 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                   );
                 }),
               ),
-              const SizedBox(height: 24),
-
-              // Question progress
-              Text(
-                'Question ${currentQuestionIndex + 1} / ${widget.questionCount}',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                textAlign: TextAlign.center,
+              // Cat image
+              Center(
+                child: Image.asset(
+                  'assets/images/QuizzbuilderCat.png',
+                  width: 180,
+                  height: 120,
+                  fit: BoxFit.fitHeight,
+                  alignment: Alignment.topCenter,
+                ),
               ),
-              const SizedBox(height: 24),
-
+              const SizedBox(height: 4),
               // Question content
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(6),
@@ -234,55 +225,35 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                     ),
                   ],
                 ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Cat image
-                    Padding(
-                      padding: const EdgeInsets.only(right: 16.0, top: 0.0),
-                      child: Image.asset(
-                        'assets/images/QuizzbuilderCat.png',
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.contain,
-                      ),
+                    Text(
+                      'Question ${currentQuestionIndex + 1} / ${widget.questionCount}',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                      textAlign: TextAlign.center,
                     ),
-                    // Question content
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Player  24{currentPlayerIndex + 1}\'s Turn',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
-                                ),
+                    const SizedBox(height: 12),
+                    Text(
+                      currentQuestion.getQuestion(languageCode),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            currentQuestion.getQuestion(languageCode),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                            textAlign: TextAlign.center,
-                            maxLines: 6,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 6,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 32),
-
               // Answer options
               ...answers.asMap().entries.map((entry) {
                 int index = entry.key;
                 String answer = entry.value;
-
-                // Highlight logic
                 Color? bgColor;
                 if (answered) {
                   if (index + 1 == currentQuestion.correctAnswer) {
@@ -295,7 +266,6 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                 } else {
                   bgColor = Colors.blue;
                 }
-
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: ElevatedButton(
@@ -332,9 +302,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                   ),
                 );
               }),
-
               const SizedBox(height: 24),
-
               // Next/Finish button
               if (answered)
                 ElevatedButton(
@@ -356,8 +324,8 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                   ),
                   child: Text(
                     currentQuestionIndex == widget.questionCount - 1 && currentPlayerIndex == widget.playerCount - 1
-                      ? 'Finish'
-                      : 'Continue',
+                        ? 'Finish'
+                        : 'Continue',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -380,40 +348,40 @@ class _PlayerScore extends StatelessWidget {
   final bool isActive;
 
   const _PlayerScore({
+    Key? key,
     required this.playerNumber,
     required this.score,
     required this.isActive,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       decoration: BoxDecoration(
-        color: isActive ? Colors.orange.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1),
+        color: isActive ? Colors.orange : Colors.grey[200],
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isActive ? Colors.orange : Colors.grey[300]!,
+          color: isActive ? Colors.deepOrange : Colors.grey[400]!,
           width: isActive ? 2 : 1,
         ),
       ),
-      child: Row(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'P$playerNumber',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: isActive ? Colors.orange[800] : Colors.grey[600],
-                ),
+            'Player $playerNumber',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isActive ? Colors.white : Colors.black87,
+            ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(height: 4),
           Text(
-            '$score',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: isActive ? Colors.orange : Colors.grey,
-                  fontWeight: FontWeight.bold,
-                ),
+            'Score: $score',
+            style: TextStyle(
+              color: isActive ? Colors.white : Colors.black54,
+            ),
           ),
         ],
       ),

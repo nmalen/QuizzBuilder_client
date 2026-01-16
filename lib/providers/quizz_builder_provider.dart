@@ -5,6 +5,54 @@ import '../models/category.dart';
 import '../models/theme.dart' as theme_model;
 
 class QuizzBuilderProvider extends ChangeNotifier {
+      Set<int>? _lastSyncedCategoryIds;
+    // Track themes manually unselected by the user (session only)
+    final Set<int> _manuallyUnselectedThemeIds = {};
+  /// Sync selected themes with selected categories (auto-select all themes for selected categories, unselect others)
+  void syncThemesWithSelectedCategories(List<theme_model.Theme> allThemes) {
+        // Clear manual unselections if categories changed
+        final currentCategoryIds = this.selectedCategoryIds;
+        if (_lastSyncedCategoryIds == null || !_lastSyncedCategoryIds!.containsAll(currentCategoryIds) || !_lastSyncedCategoryIds!.containsAll(currentCategoryIds)) {
+          _manuallyUnselectedThemeIds.clear();
+        }
+        _lastSyncedCategoryIds = Set<int>.from(currentCategoryIds);
+    final selectedCategoryIds = this.selectedCategoryIds;
+    debugPrint('SYNC THEMES:');
+    debugPrint('Selected category IDs: ' + selectedCategoryIds.join(', '));
+    debugPrint('All themes:');
+    for (final theme in allThemes) {
+      debugPrint('  Theme id=${theme.id}, nameEn=${theme.nameEn}, nameFr=${theme.nameFr}, category=${theme.category}');
+    }
+    // Add all themes for selected categories
+    for (final theme in allThemes) {
+      final catId = int.tryParse(theme.category?.toString() ?? '');
+      if (catId != null && selectedCategoryIds.contains(catId) && !isSelected(theme.id) && isThemeEntitled(theme) && theme.isActive && !_manuallyUnselectedThemeIds.contains(theme.id)) {
+        debugPrint('  SELECT theme id=${theme.id} (${theme.nameEn}) for category=$catId');
+        _selectedThemeIds.add(theme.id);
+        _selectedThemeQuestionCounts[theme.id] = theme.questionsCount;
+        _selectedThemesMeta[theme.id] = theme;
+      }
+    }
+    // Remove themes from unselected categories
+    final toRemove = <int>[];
+    for (final themeId in _selectedThemeIds) {
+      final theme = _selectedThemesMeta[themeId];
+      final catId = int.tryParse(theme?.category?.toString() ?? '');
+      if (theme != null && (catId == null || !selectedCategoryIds.contains(catId))) {
+        debugPrint('  UNSELECT theme id=${theme.id} (${theme.nameEn}) for category=$catId');
+        toRemove.add(themeId);
+      }
+    }
+    for (final themeId in toRemove) {
+      _selectedThemeIds.remove(themeId);
+      _selectedThemeQuestionCounts.remove(themeId);
+      _selectedThemesMeta.remove(themeId);
+    }
+    debugPrint('Selected theme IDs after sync: ' + _selectedThemeIds.join(', '));
+    _saveToPrefs();
+    notifyListeners();
+  }
+      Map<int, theme_model.Theme> get selectedThemesMeta => _selectedThemesMeta;
     // Entitled (unlocked) paid theme IDs
     final Set<int> _entitledThemeIds = {};
     Set<int> get entitledThemeIds => _entitledThemeIds;
@@ -50,9 +98,10 @@ class QuizzBuilderProvider extends ChangeNotifier {
   int get selectedCategoriesCount => _selectedCategoryIds.length;
 
   Set<int> get selectedThemeIds => _selectedThemeIds;
-  List<theme_model.Theme> get selectedThemes => _selectedThemeIds
+    List<theme_model.Theme> get selectedThemes => _selectedThemeIds
       .map((id) => _selectedThemesMeta[id])
       .whereType<theme_model.Theme>()
+      .where((t) => t.isActive)
       .toList(growable: false);
   int get selectedCount => _selectedThemeIds.length;
   int get selectedQuestionsCount =>
@@ -101,17 +150,21 @@ class QuizzBuilderProvider extends ChangeNotifier {
   // Theme selection
   void toggleTheme(theme_model.Theme theme) {
     final themeId = theme.id;
+    if (!theme.isActive) return;
     if (_selectedThemeIds.contains(themeId)) {
       _selectedThemeIds.remove(themeId);
       _selectedThemeQuestionCounts.remove(themeId);
       _selectedThemesMeta.remove(themeId);
+      _manuallyUnselectedThemeIds.add(themeId);
     } else {
       _selectedThemeIds.add(themeId);
       _selectedThemeQuestionCounts[themeId] = theme.questionsCount;
       _selectedThemesMeta[themeId] = theme;
+      _manuallyUnselectedThemeIds.remove(themeId);
     }
     _saveToPrefs();
     notifyListeners();
+    Set<int>? _lastSyncedCategoryIds;
   }
 
   bool isSelected(int themeId) => _selectedThemeIds.contains(themeId);

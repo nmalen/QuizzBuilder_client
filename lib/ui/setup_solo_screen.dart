@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import 'game_screen_solo.dart';
 
+
 class SetupSoloScreen extends StatefulWidget {
-  const SetupSoloScreen({super.key});
+  final List<String> selectedDifficulties;
+  const SetupSoloScreen({super.key, this.selectedDifficulties = const ['easy', 'medium', 'hard']});
 
   @override
   State<SetupSoloScreen> createState() => _SetupSoloScreenState();
@@ -12,6 +14,12 @@ class SetupSoloScreen extends StatefulWidget {
 class _SetupSoloScreenState extends State<SetupSoloScreen> {
   int _questionCount = 10;
   String _gameMode = 'standard';
+  late List<String> _selectedDifficulties;
+  @override
+  void initState() {
+    super.initState();
+    _selectedDifficulties = List<String>.from(widget.selectedDifficulties);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +106,7 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                     builder: (_) => GameScreenSolo(
                       questionCount: _questionCount,
                       gameMode: _gameMode,
+                      difficulties: List<String>.from(_selectedDifficulties),
                     ),
                   ),
                 );

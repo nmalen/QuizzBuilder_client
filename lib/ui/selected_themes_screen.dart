@@ -24,10 +24,14 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   bool _loadingCounts = false;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _updateFilteredCounts();
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateFilteredCounts();
+    });
   }
+
+  // Removed _updateFilteredCounts from didChangeDependencies to prevent infinite loop
 
   Future<void> _updateFilteredCounts() async {
     setState(() {
@@ -35,14 +39,23 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
     });
     final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
     final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
-    final selectedThemes = builder.selectedThemes;
+    final selectedThemes = builder.selectedThemes.where((t) => t.isActive).toList();
     Map<int, int> themeCounts = {};
     int total = 0;
     for (final theme in selectedThemes) {
-      final questions = await catalogProvider.loadQuestionsByTheme(theme.id);
-      final filtered = questions.where((q) => _selectedDifficulties.contains(q.difficulty)).toList();
-      themeCounts[theme.id] = filtered.length;
-      total += filtered.length;
+      if (!builder.isThemeEntitled(theme)) {
+        themeCounts[theme.id] = 0;
+        continue;
+      }
+      try {
+        final questions = await catalogProvider.loadQuestionsByTheme(theme.id);
+        final filtered = questions.where((q) => _selectedDifficulties.contains(q.difficulty)).toList();
+        themeCounts[theme.id] = filtered.length;
+        total += filtered.length;
+      } catch (e) {
+        debugPrint('Failed to load questions for theme id=${theme.id}: $e');
+        themeCounts[theme.id] = 0;
+      }
     }
     setState(() {
       _filteredQuestionsCount = themeCounts;
@@ -327,7 +340,9 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const SetupSoloScreen(),
+                                  builder: (_) => SetupSoloScreen(
+                                    selectedDifficulties: List<String>.from(_selectedDifficulties),
+                                  ),
                                 ),
                               );
                             }

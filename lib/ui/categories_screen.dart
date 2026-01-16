@@ -125,14 +125,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       TextButton(
                         onPressed: builder.selectedCategoriesCount == 0
                             ? null
-                            : () {
-                                // Load aggregated themes and navigate
-                                final ids = builder.selectedCategoryIds
-                                    .toList();
-                                Provider.of<CatalogProvider>(
-                                  context,
-                                  listen: false,
-                                ).loadThemesByCategories(ids);
+                            : () async {
+                                final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
+                                await catalogProvider.loadThemesByCategories(builder.selectedCategoryIds.toList());
+                                // Wait for themes to be loaded before syncing
+                                builder.syncThemesWithSelectedCategories(List.of(catalogProvider.themes));
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

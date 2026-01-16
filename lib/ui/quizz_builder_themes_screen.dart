@@ -24,6 +24,8 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
     final builder = Provider.of<QuizzBuilderProvider>(context);
     final catalog = Provider.of<CatalogProvider>(context);
 
+    // Auto-select themes for selected categories only once after themes are loaded
+    // Auto-selection logic moved to categories_screen.dart before navigation
     // Ensure themes for selected categories are loaded
     if (!catalog.isLoading &&
         catalog.themes.isEmpty &&
@@ -55,7 +57,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
                   const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(context)!.errorLoadingThemes,
@@ -84,36 +86,26 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
           }
 
           if (catalog.themes.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.inbox, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  Text(
-                    AppLocalizations.of(context)!.noThemes,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
-              ),
-            );
+            return const Center(child: Text('No themes available'));
           }
 
+          final activeThemes = catalog.themes.where((t) => t.isActive).toList();
           return Column(
             children: [
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: catalog.themes.length,
+                  itemCount: activeThemes.length,
                   itemBuilder: (context, index) {
-                    final theme = catalog.themes[index];
+                    final theme = activeThemes[index];
                     final selected = builder.isSelected(theme.id);
                     final canSelect = builder.isThemeEntitled(theme);
                     return _ThemeSelectTile(
                       theme: theme,
-                      selected: selected,
+                      selected: selected && canSelect,
                       onChanged: canSelect
                           ? (value) {
+                              debugPrint('USER ${value == true ? 'CHECKED' : 'UNCHECKED'} theme id=${theme.id} (${theme.nameEn}), category=${theme.category}');
                               builder.toggleTheme(theme);
                             }
                           : null,
@@ -128,7 +120,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 8,
                       offset: const Offset(0, -2),
                     ),

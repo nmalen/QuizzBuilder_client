@@ -58,7 +58,8 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _themes = await _catalogService.getThemesByCategory(categoryId);
+      final allThemes = await _catalogService.getThemesByCategory(categoryId);
+      _themes = allThemes.where((t) => t.isActive).toList();
       _error = null;
     } catch (e) {
       _error = e.toString();
@@ -81,7 +82,7 @@ class CatalogProvider extends ChangeNotifier {
       for (final id in categoryIds) {
         final items = await _catalogService.getThemesByCategory(id);
         for (final t in items) {
-          if (!seen.contains(t.id)) {
+          if (!seen.contains(t.id) && t.isActive) {
             seen.add(t.id);
             all.add(t);
           }
