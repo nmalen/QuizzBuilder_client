@@ -51,6 +51,11 @@ class AuthService {
     required String password2,
   }) async {
     try {
+      print('[REGISTER] Request:');
+      print('URL: $baseUrl${ApiConfig.authRegisterEndpoint}');
+      print('Headers: \\n${ApiConfig.defaultHeaders}');
+      print('Body: {email: $email, username: $username, password1: $password1, password2: $password2}');
+
       final response = await http.post(
         Uri.parse('$baseUrl${ApiConfig.authRegisterEndpoint}'),
         headers: ApiConfig.defaultHeaders,
@@ -65,8 +70,12 @@ class AuthService {
         onTimeout: () => throw Exception('Connection timeout'),
       );
 
+      print('[REGISTER] Response status: \\n${response.statusCode}');
+      print('[REGISTER] Response body: \\n${response.body}');
+
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
+        print('[REGISTER] Registration success: $responseData');
         return {
           'success': true,
           'message': 'Registration successful. Please verify your email.',
@@ -74,13 +83,23 @@ class AuthService {
         };
       } else {
         final errorData = jsonDecode(response.body);
+        print('[REGISTER] Registration failed: $errorData');
+        String message = errorData['detail'] ?? 'Registration failed';
+        // Handle user already exists error
+        if (errorData.containsKey('username') && errorData['username'] is List &&
+            (errorData['username'] as List).any((e) => e.toString().toLowerCase().contains('already exists')))
+          message = 'This username is already taken.';
+        if (errorData.containsKey('email') && errorData['email'] is List &&
+            (errorData['email'] as List).any((e) => e.toString().toLowerCase().contains('already exists')))
+          message = 'An account with this email already exists.';
         return {
           'success': false,
-          'message': errorData['detail'] ?? 'Registration failed',
+          'message': message,
           'errors': errorData,
         };
       }
     } catch (e) {
+      print('[REGISTER] Exception: $e');
       return {
         'success': false,
         'message': 'Error: ${e.toString()}',

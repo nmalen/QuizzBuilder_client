@@ -65,21 +65,32 @@ class _AuthScreenState extends State<AuthScreen> {
         password2: _password2Controller.text,
       );
 
-      if (success && mounted) {
+      if (mounted) {
+        String message;
+        if (success) {
+          message = AppLocalizations.of(context)?.registrationSuccessful ??
+            'Registration successful! Please check your email and click the link to validate your registration.';
+        } else {
+          // Show error from provider or fallback
+          message = context.read<AuthProvider>().error ?? 'Registration failed. Please try again.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.registrationSuccessful),
-            duration: const Duration(seconds: 4),
+            content: Text(message),
+            duration: const Duration(seconds: 6),
           ),
         );
-        
-        // Switch to login form
-        setState(() {
-          _isLogin = true;
-          _usernameController.clear();
-          _password2Controller.clear();
-          _passwordController.clear();
-        });
+
+        if (success) {
+          // Wait for SnackBar to show, then navigate
+          await Future.delayed(const Duration(milliseconds: 500));
+          if (mounted) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (context) => AuthScreen()),
+              (route) => false,
+            );
+          }
+        }
       }
     }
   }

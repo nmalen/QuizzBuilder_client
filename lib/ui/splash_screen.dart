@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import 'auth_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -27,8 +28,11 @@ class _SplashScreenState extends State<SplashScreen> {
       // Navigate to home screen
       Navigator.of(context).pushReplacementNamed('/home');
     } else {
-      // Navigate to auth screen
-      Navigator.of(context).pushReplacementNamed('/auth');
+      // Navigate to auth screen (directly push AuthScreen)
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => AuthScreen()),
+        (route) => false,
+      );
     }
   }
 
