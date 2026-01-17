@@ -6,7 +6,7 @@ import '../config/api_config.dart';
 import '../models/user.dart';
 
 class AuthService {
-  final String baseUrl = ApiConfig.devBaseUrl;
+  final String baseUrl = ApiConfig.baseUrl;
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   late SharedPreferences _prefs;
 

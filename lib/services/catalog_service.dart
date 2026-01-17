@@ -26,7 +26,7 @@ class CatalogService {
         throw Exception('Failed to report question error: ${response.statusCode}');
       }
     }
-  final String baseUrl = ApiConfig.devBaseUrl;
+  final String baseUrl = ApiConfig.baseUrl;
   final AuthService authService;
 
   CatalogService({required this.authService});
