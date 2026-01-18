@@ -1,4 +1,5 @@
 // (empty)
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config/api_config.dart';
@@ -7,6 +8,7 @@ import '../models/theme.dart';
 import '../models/stats.dart';
 import '../models/question.dart';
 import 'auth_service.dart';
+import '../db/local_db.dart';
 
 class CatalogService {
     /// Report a question error (flag for verification)
@@ -57,34 +59,75 @@ class CatalogService {
     return response;
   }
 
-  /// Fetch all categories
+
+  /// Fetch all categories with local caching
   Future<List<Category>> getCategories() async {
     try {
       final response = await _authorizedGet('$baseUrl${ApiConfig.categoriesEndpoint}');
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data.map((item) => Category.fromJson(item as Map<String, dynamic>)).toList();
+        final categories = data.map((item) => Category.fromJson(item as Map<String, dynamic>)).toList();
+        // Cache to local DB
+        await LocalDb.insertCategories(categories);
+        return categories;
       } else {
+        // On error, try local cache
+        final cached = await LocalDb.getCategories();
+        if (cached.isNotEmpty) return cached;
         throw Exception('Failed to load categories: ${response.statusCode}');
       }
     } catch (e) {
+      // On error, try local cache
+      final cached = await LocalDb.getCategories();
+      if (cached.isNotEmpty) return cached;
       throw Exception('Error: ${e.toString()}');
     }
   }
 
-  /// Fetch themes for a specific category
+
+  /// Fetch themes for a specific category with local caching
   Future<List<Theme>> getThemesByCategory(int categoryId) async {
     try {
       final response = await _authorizedGet('$baseUrl${ApiConfig.themesEndpoint}?category=$categoryId');
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return data.map((item) => Theme.fromJson(item as Map<String, dynamic>)).toList();
+        final themes = data.map((item) => Theme.fromJson(item as Map<String, dynamic>)).toList();
+        // Cache to local DB
+        await LocalDb.insertThemes(themes);
+        return themes;
       } else {
+        // On error, try local cache
+        final cached = await LocalDb.getThemesByCategory(categoryId);
+        if (cached.isNotEmpty) return cached;
         throw Exception('Failed to load themes: ${response.statusCode}');
       }
     } catch (e) {
+      // On error, try local cache
+      final cached = await LocalDb.getThemesByCategory(categoryId);
+      if (cached.isNotEmpty) return cached;
+      throw Exception('Error: ${e.toString()}');
+    }
+  }
+  /// Fetch questions for a theme with local caching
+  Future<List<Question>> getQuestionsByTheme(int themeId) async {
+    try {
+      final response = await _authorizedGet('$baseUrl${ApiConfig.questionsEndpoint}?theme=$themeId');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        final questions = data.map((item) => Question.fromJson(item as Map<String, dynamic>)).toList();
+        // Cache to local DB
+        await LocalDb.insertQuestions(questions);
+        return questions;
+      } else {
+        // On error, try local cache
+        final cached = await LocalDb.getQuestionsByTheme(themeId);
+        if (cached.isNotEmpty) return cached;
+        throw Exception('Failed to load questions: ${response.statusCode}');
+      }
+    } catch (e) {
+      // On error, try local cache
+      final cached = await LocalDb.getQuestionsByTheme(themeId);
+      if (cached.isNotEmpty) return cached;
       throw Exception('Error: ${e.toString()}');
     }
   }
@@ -104,22 +147,6 @@ class CatalogService {
         return data.map((item) => Theme.fromJson(item as Map<String, dynamic>)).toList();
       } else {
         throw Exception('Failed to load themes: ${response.statusCode}');
-      }
-    } catch (e) {
-      throw Exception('Error: ${e.toString()}');
-    }
-  }
-
-  /// Fetch questions for a specific theme
-  Future<List<Question>> getQuestionsByTheme(int themeId) async {
-    try {
-      final response = await _authorizedGet('$baseUrl${ApiConfig.questionsEndpoint}?theme=$themeId');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        return data.map((item) => Question.fromJson(item as Map<String, dynamic>)).toList();
-      } else {
-        throw Exception('Failed to load questions: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Error: ${e.toString()}');
