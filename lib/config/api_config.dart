@@ -1,10 +1,7 @@
 /// API Configuration for QuizzBuilder
 class ApiConfig {
-  // Production API
+  // Production API (used for all environments)
   static const String baseUrl = 'https://booksnotify.com/quizzbuilder/api/v1';
-  
-  // Development API
-  static const String devBaseUrl = 'http://127.0.0.1:8000/api/v1';
   
   // Endpoints
   static const String categoriesEndpoint = '/categories/';

@@ -87,11 +87,13 @@ class AuthService {
         String message = errorData['detail'] ?? 'Registration failed';
         // Handle user already exists error
         if (errorData.containsKey('username') && errorData['username'] is List &&
-            (errorData['username'] as List).any((e) => e.toString().toLowerCase().contains('already exists')))
+            (errorData['username'] as List).any((e) => e.toString().toLowerCase().contains('already exists'))) {
           message = 'This username is already taken.';
+        }
         if (errorData.containsKey('email') && errorData['email'] is List &&
-            (errorData['email'] as List).any((e) => e.toString().toLowerCase().contains('already exists')))
+            (errorData['email'] as List).any((e) => e.toString().toLowerCase().contains('already exists'))) {
           message = 'An account with this email already exists.';
+        }
         return {
           'success': false,
           'message': message,

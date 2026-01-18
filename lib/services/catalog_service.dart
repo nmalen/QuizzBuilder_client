@@ -11,7 +11,7 @@ import 'auth_service.dart';
 class CatalogService {
     /// Report a question error (flag for verification)
     Future<void> reportQuestionError(int questionId) async {
-      final url = '${baseUrl}/questions/flag/';
+      final url = '$baseUrl/questions/flag/';
       final headers = await authService.getAuthHeaders();
       final body = jsonEncode({'question_id': questionId});
       final response = await http.post(

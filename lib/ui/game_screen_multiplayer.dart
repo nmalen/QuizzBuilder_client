@@ -374,11 +374,11 @@ class _PlayerScore extends StatelessWidget {
   final bool isActive;
 
   const _PlayerScore({
-    Key? key,
+    super.key,
     required this.playerNumber,
     required this.score,
     required this.isActive,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

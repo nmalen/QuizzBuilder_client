@@ -18,7 +18,7 @@ class QuizzBuilderProvider extends ChangeNotifier {
         _lastSyncedCategoryIds = Set<int>.from(currentCategoryIds);
     final selectedCategoryIds = this.selectedCategoryIds;
     debugPrint('SYNC THEMES:');
-    debugPrint('Selected category IDs: ' + selectedCategoryIds.join(', '));
+    debugPrint('Selected category IDs: ${selectedCategoryIds.join(', ')}');
     debugPrint('All themes:');
     for (final theme in allThemes) {
       debugPrint('  Theme id=${theme.id}, nameEn=${theme.nameEn}, nameFr=${theme.nameFr}, category=${theme.category}');
@@ -48,7 +48,7 @@ class QuizzBuilderProvider extends ChangeNotifier {
       _selectedThemeQuestionCounts.remove(themeId);
       _selectedThemesMeta.remove(themeId);
     }
-    debugPrint('Selected theme IDs after sync: ' + _selectedThemeIds.join(', '));
+    debugPrint('Selected theme IDs after sync: ${_selectedThemeIds.join(', ')}');
     _saveToPrefs();
     notifyListeners();
   }
@@ -164,7 +164,7 @@ class QuizzBuilderProvider extends ChangeNotifier {
     }
     _saveToPrefs();
     notifyListeners();
-    Set<int>? _lastSyncedCategoryIds;
+    Set<int>? lastSyncedCategoryIds;
   }
 
   bool isSelected(int themeId) => _selectedThemeIds.contains(themeId);
