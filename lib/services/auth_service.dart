@@ -76,23 +76,46 @@ class AuthService {
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
         print('[REGISTER] Registration success: $responseData');
+        // Use backend message if available
+        String backendMsg = '';
+        if (responseData is Map && responseData.containsKey('detail')) {
+          backendMsg = responseData['detail'].toString();
+        }
         return {
           'success': true,
-          'message': 'Registration successful. Please verify your email.',
-          'user': responseData['user'],
+          'message': backendMsg.isNotEmpty ? backendMsg : 'Registration successful. Please verify your email.',
         };
       } else {
         final errorData = jsonDecode(response.body);
         print('[REGISTER] Registration failed: $errorData');
-        String message = errorData['detail'] ?? 'Registration failed';
-        // Handle user already exists error
-        if (errorData.containsKey('username') && errorData['username'] is List &&
-            (errorData['username'] as List).any((e) => e.toString().toLowerCase().contains('already exists'))) {
-          message = 'This username is already taken.';
-        }
-        if (errorData.containsKey('email') && errorData['email'] is List &&
-            (errorData['email'] as List).any((e) => e.toString().toLowerCase().contains('already exists'))) {
-          message = 'An account with this email already exists.';
+        String message = 'Registration failed';
+        // Try to extract a specific error message for email already used
+        if (errorData is Map && errorData.containsKey('error')) {
+          final err = errorData['error'];
+          if (err is Map && err.containsKey('details')) {
+            final details = err['details'];
+            if (details is Map && details.containsKey('email')) {
+              final emailErrors = details['email'];
+              if (emailErrors is List && emailErrors.any((e) => e.toString().toLowerCase().contains('already registered'))) {
+                message = 'An account with this email already exists.';
+              } else {
+                message = emailErrors.join(' ');
+              }
+            } else if (details is Map && details.containsKey('username')) {
+              final usernameErrors = details['username'];
+              if (usernameErrors is List && usernameErrors.any((e) => e.toString().toLowerCase().contains('already exists'))) {
+                message = 'This username is already taken.';
+              } else {
+                message = usernameErrors.join(' ');
+              }
+            } else if (err.containsKey('message')) {
+              message = err['message'].toString();
+            }
+          } else if (err.containsKey('message')) {
+            message = err['message'].toString();
+          }
+        } else if (errorData.containsKey('detail')) {
+          message = errorData['detail'].toString();
         }
         return {
           'success': false,

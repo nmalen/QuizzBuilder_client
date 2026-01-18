@@ -6,6 +6,9 @@ import 'app_localizations.dart';
 
 /// The translations for English (`en`).
 class AppLocalizationsEn extends AppLocalizations {
+    /// Error message when email is already used
+    @override
+    String get emailAlreadyExists => 'An account with this email already exists.';
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
@@ -169,7 +172,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccount => 'Create Account';
 
   @override
-  String get registrationSuccessful => 'Registration successful! Please check your email to verify your account.';
+    String get registrationSuccessful => 'Registration successful! An email will be sent to you to activate your account. Please check your inbox and click the link to validate your registration.';
+
+  @override
+  String get ok => 'OK';
 
   @override
   String get login => 'Login';

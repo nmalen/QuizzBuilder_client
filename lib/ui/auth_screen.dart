@@ -2,36 +2,115 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
+import '../providers/language_provider.dart';
+
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+  final String? infoMessage;
+  const AuthScreen({Key? key, this.infoMessage}) : super(key: key);
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  bool _isLogin = true;
-  final _formKey = GlobalKey<FormState>();
-  
-  // Common fields
+  bool _infoShown = false;
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
   late TextEditingController _emailController;
   late TextEditingController _passwordController;
-  
-  // Register-only fields
   late TextEditingController _usernameController;
   late TextEditingController _password2Controller;
-
   bool _obscurePassword = true;
   bool _obscurePassword2 = true;
+  bool _isLogin = true;
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
+    print('[AuthScreen] initState');
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _usernameController = TextEditingController();
     _password2Controller = TextEditingController();
+
+    // Check if there's a pending success message from registration
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final authProvider = context.read<AuthProvider>();
+      final successMsg = authProvider.successMessage;
+      if (successMsg != null && successMsg.isNotEmpty) {
+        print('[AuthScreen] found successMessage in provider: $successMsg');
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (ctx) => AlertDialog(
+            title: Text(
+              AppLocalizations.of(context)?.appTitle ?? 'Success',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 48,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    AppLocalizations.of(context)?.registrationSuccessful ??
+                        'Registration successful! An email will be sent to you to activate your account. Please check your inbox and click the link to validate your registration.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  authProvider.clearSuccessMessage();
+                  Navigator.of(ctx).pop();
+                },
+                child: Text(AppLocalizations.of(context)?.ok ?? 'OK'),
+              ),
+            ],
+          ),
+        );
+      }
+    });
+
+    // Affiche le message d'information dès l'arrivée sur l'écran (après la première frame)
+    if (!_infoShown && widget.infoMessage != null && widget.infoMessage!.isNotEmpty) {
+      _infoShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        _showSnack(widget.infoMessage!);
+      });
+    }
+  }
+
+  void _showSnack(String message) {
+    print('[AuthScreen] _showSnack called with: $message');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      print('[AuthScreen] showing alert dialog');
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Success'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   @override
@@ -44,6 +123,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _handleSubmit() async {
+    print('[AuthScreen] _handleSubmit invoked, _isLogin=$_isLogin');
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -58,6 +138,7 @@ class _AuthScreenState extends State<AuthScreen> {
         Navigator.of(context).pushReplacementNamed('/home');
       }
     } else {
+      print('[AuthScreen] calling authProvider.register');
       final success = await authProvider.register(
         email: _emailController.text.trim(),
         username: _usernameController.text.trim(),
@@ -65,31 +146,45 @@ class _AuthScreenState extends State<AuthScreen> {
         password2: _password2Controller.text,
       );
 
+      print('[AuthScreen] AFTER await: success=$success, mounted=$mounted');
+      if (mounted) {
+        print('[AuthScreen] mounted is true AFTER rebuild');
+      } else {
+        print('[AuthScreen] *** mounted is FALSE after await - widget was disposed! ***');
+      }
+      
       if (mounted) {
         String message;
         if (success) {
-          message = AppLocalizations.of(context)?.registrationSuccessful ??
-            'Registration successful! Please check your email and click the link to validate your registration.';
-        } else {
-          // Show error from provider or fallback
-          message = context.read<AuthProvider>().error ?? 'Registration failed. Please try again.';
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            duration: const Duration(seconds: 6),
-          ),
-        );
-
-        if (success) {
-          // Wait for SnackBar to show, then navigate
-          await Future.delayed(const Duration(milliseconds: 500));
+          print('[AuthScreen] success branch ENTERED');
+          // Use lastMessage from provider if available, else fallback to localized string
+          debugPrint('[AuthScreen] registration success, preparing message');
+          final backendMsg = context.read<AuthProvider>().lastMessage;
+          message = (backendMsg != null && backendMsg.isNotEmpty)
+              ? backendMsg
+              : (AppLocalizations.of(context)?.registrationSuccessful ??
+                  'Registration successful! Please check your email and click the link to validate your registration.');
+          // Switch to login mode and show snackbar without leaving the screen
           if (mounted) {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (context) => AuthScreen()),
-              (route) => false,
-            );
+            debugPrint('[AuthScreen] toggling to login and resetting form');
+            setState(() {
+              _isLogin = true;
+              _formKey.currentState?.reset();
+              _passwordController.clear();
+              _password2Controller.clear();
+            });
+            debugPrint('[AuthScreen] calling _showSnack with success message: "$message"');
+            _showSnack(message);
           }
+        } else {
+          final error = context.read<AuthProvider>().error;
+          if (error != null && error.toLowerCase().contains('email')) {
+            message = AppLocalizations.of(context)?.emailAlreadyExists ?? 'An account with this email already exists.';
+          } else {
+            message = error ?? 'Registration failed. Please try again.';
+          }
+          debugPrint('[AuthScreen] registration failed, calling _showSnack with error: "$message"');
+          _showSnack(message);
         }
       }
     }
@@ -138,29 +233,78 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
-          return SingleChildScrollView(
-            child: Container(
-              height: MediaQuery.of(context).size.height,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context).primaryColor,
-                    Theme.of(context).primaryColor.withValues(alpha: 0.7),
-                  ],
-                ),
+    // ...existing code...
+    return ScaffoldMessenger(
+      key: _scaffoldMessengerKey,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).primaryColor,
+          elevation: 0,
+          actions: [
+            Consumer<LanguageProvider>(
+              builder: (context, languageProvider, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: DropdownButton<String>(
+                    value: languageProvider.languageCode,
+                    dropdownColor: Theme.of(context).primaryColor,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    underline: SizedBox.shrink(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        languageProvider.setLanguage(newValue);
+                      }
+                    },
+                    items: <String>['en', 'fr'].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Row(
+                          children: [
+                            Icon(
+                              languageProvider.languageCode == value ? Icons.check_circle : Icons.language,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              value.toUpperCase(),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+        body: Consumer<AuthProvider>(
+          builder: (context, authProvider, child) {
+          return Container(
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Theme.of(context).primaryColor,
+                  Theme.of(context).primaryColor.withValues(alpha: 0.7),
+                ],
               ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
+            ),
+            child: SafeArea(
+              child: Stack(
+                children: [
+                  // Main content centered
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
                       // Logo & Title
                       Icon(
                         Icons.quiz,
@@ -240,7 +384,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                   borderSide: const BorderSide(color: Colors.red),
                                 ),
                               ),
-                              style: const TextStyle(color: Colors.white),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.2,
+                                ),
                             ),
                             const SizedBox(height: 16),
 
@@ -273,7 +422,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                     borderSide: const BorderSide(color: Colors.red),
                                   ),
                                 ),
-                                style: const TextStyle(color: Colors.white),
+                                 style: const TextStyle(
+                                   color: Colors.white,
+                                   fontSize: 18,
+                                   fontWeight: FontWeight.w600,
+                                   letterSpacing: 0.2,
+                                 ),
                               ),
                               const SizedBox(height: 16),
                             ],
@@ -316,7 +470,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                   borderSide: const BorderSide(color: Colors.red),
                                 ),
                               ),
-                              style: const TextStyle(color: Colors.white),
+                               style: const TextStyle(
+                                 color: Colors.white,
+                                 fontSize: 18,
+                                 fontWeight: FontWeight.w600,
+                                 letterSpacing: 0.2,
+                               ),
                             ),
                             const SizedBox(height: 16),
 
@@ -359,7 +518,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                     borderSide: const BorderSide(color: Colors.red),
                                   ),
                                 ),
-                                style: const TextStyle(color: Colors.white),
+                                 style: const TextStyle(
+                                   color: Colors.white,
+                                   fontSize: 18,
+                                   fontWeight: FontWeight.w600,
+                                   letterSpacing: 0.2,
+                                 ),
                               ),
                               const SizedBox(height: 24),
                             ],
@@ -397,51 +561,76 @@ class _AuthScreenState extends State<AuthScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Toggle Login/Register
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _isLogin
-                                ? AppLocalizations.of(context)!.switchToRegister
-                                : AppLocalizations.of(context)!.switchToLogin,
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                          GestureDetector(
-                            onTap: authProvider.isLoading
-                                ? null
-                                : () {
-                                    setState(() {
-                                      _isLogin = !_isLogin;
-                                      _formKey.currentState?.reset();
-                                      _emailController.clear();
-                                      _passwordController.clear();
-                                      _usernameController.clear();
-                                      _password2Controller.clear();
-                                    });
-                                    // Clear error
-                                    authProvider.error == null
-                                        ? null
-                                        : context.read<AuthProvider>();
-                                  },
-                            child: Text(
-                              _isLogin ? AppLocalizations.of(context)!.register : AppLocalizations.of(context)!.login,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                decoration: TextDecoration.underline,
+                          // Toggle Login/Register
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                _isLogin
+                                    ? AppLocalizations.of(context)!.switchToRegister
+                                    : AppLocalizations.of(context)!.switchToLogin,
+                                style: const TextStyle(color: Colors.white70),
                               ),
-                            ),
+                              GestureDetector(
+                                onTap: authProvider.isLoading
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          _isLogin = !_isLogin;
+                                          _formKey.currentState?.reset();
+                                          _emailController.clear();
+                                          _passwordController.clear();
+                                          _usernameController.clear();
+                                          _password2Controller.clear();
+                                        });
+                                        // Clear error
+                                        authProvider.error == null
+                                            ? null
+                                            : context.read<AuthProvider>();
+                                      },
+                                child: Text(
+                                  _isLogin ? AppLocalizations.of(context)!.register : AppLocalizations.of(context)!.login,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                          const SizedBox(height: 80),
                     ],
+                  ),
                   ),
                 ),
               ),
+                  // NDSH Logo absolutely at the bottom center
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 24,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 400), // Increase this value for more space
+                        Center(
+                          child: Image.asset(
+                            'assets/images/Logo_NDSH_white.png',
+                            height: 120,
+                            width: 120,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
-        },
+          },
+        ),
       ),
     );
   }

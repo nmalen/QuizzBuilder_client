@@ -62,6 +62,8 @@ import 'app_localizations_fr.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
+    /// Error message when email is already used
+    String get emailAlreadyExists;
   AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
@@ -400,6 +402,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Registration successful! Please check your email to verify your account.'**
   String get registrationSuccessful;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
 
   /// No description provided for @login.
   ///

@@ -8,6 +8,8 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool _isLoading = false;
   String? _error;
+  String? _lastMessage;
+  String? _successMessage;
 
   AuthProvider({required AuthService authService}) : _authService = authService;
 
@@ -16,6 +18,13 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String? get lastMessage => _lastMessage;
+  String? get successMessage => _successMessage;
+
+  void clearSuccessMessage() {
+    _successMessage = null;
+    notifyListeners();
+  }
 
   /// Initialize auth state from stored data
   Future<void> initialize() async {
@@ -60,8 +69,12 @@ class AuthProvider extends ChangeNotifier {
 
     if (result['success']) {
       _error = null;
+      _lastMessage = result['message'];
+      _successMessage = result['message'];
     } else {
       _error = result['message'];
+      _lastMessage = null;
+      _successMessage = null;
     }
 
     notifyListeners();

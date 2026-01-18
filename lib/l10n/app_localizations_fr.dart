@@ -8,6 +8,10 @@ import 'app_localizations.dart';
 class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
+  /// Message d'erreur quand l'email est déjà utilisé
+  @override
+  String get emailAlreadyExists => 'Un compte avec cet email existe déjà.';
+
   @override
   String get standardMode => 'Standard';
 
@@ -169,7 +173,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get createAccount => 'Créer un compte';
 
   @override
-  String get registrationSuccessful => 'Inscription réussie! Veuillez vérifier votre email pour confirmer votre compte.';
+    String get registrationSuccessful => 'Inscription réussie ! Un email va vous être envoyé pour activer votre compte. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour valider votre inscription.';
+
+  @override
+  String get ok => 'OK';
 
   @override
   String get login => 'Connexion';
