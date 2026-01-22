@@ -374,7 +374,6 @@ class _PlayerScore extends StatelessWidget {
   final bool isActive;
 
   const _PlayerScore({
-    super.key,
     required this.playerNumber,
     required this.score,
     required this.isActive,

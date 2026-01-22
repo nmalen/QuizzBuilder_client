@@ -1,7 +1,11 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+
 import '../config/api_config.dart';
 import '../models/user.dart';
 
@@ -138,6 +142,9 @@ class AuthService {
     required String password,
   }) async {
     try {
+      print('[LOGIN] Attempting login to: $baseUrl${ApiConfig.authLoginEndpoint}');
+      print('[LOGIN] Identifier: $identifier');
+      
       final response = await http.post(
         Uri.parse('$baseUrl${ApiConfig.authLoginEndpoint}'),
         headers: ApiConfig.defaultHeaders,
@@ -149,8 +156,14 @@ class AuthService {
         }),
       ).timeout(
         ApiConfig.connectionTimeout,
-        onTimeout: () => throw Exception('Connection timeout'),
+        onTimeout: () {
+          print('[LOGIN] Connection timeout after ${ApiConfig.connectionTimeout.inSeconds}s');
+          throw TimeoutException('Connection timeout - server not responding');
+        },
       );
+
+      print('[LOGIN] Response status: ${response.statusCode}');
+      print('[LOGIN] Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
@@ -168,6 +181,7 @@ class AuthService {
           await _prefs.setString(_userKey, jsonEncode(userData));
         }
 
+        print('[LOGIN] Login successful for user: ${user?.email}');
         return {
           'success': true,
           'message': 'Login successful',
@@ -175,11 +189,13 @@ class AuthService {
           'access_token': accessToken,
         };
       } else if (response.statusCode == 401) {
+        print('[LOGIN] Authentication failed - invalid credentials');
         return {
           'success': false,
           'message': 'Invalid email or password',
         };
       } else {
+        print('[LOGIN] Login failed with status ${response.statusCode}');
         final errorData = jsonDecode(response.body);
         return {
           'success': false,
@@ -187,7 +203,32 @@ class AuthService {
           'raw': errorData,
         };
       }
+    } on TimeoutException catch (e) {
+      print('[LOGIN] Timeout error: $e');
+      return {
+        'success': false,
+        'message': 'Connection timeout. Please check your internet connection and try again.',
+      };
+    } on SocketException catch (e) {
+      print('[LOGIN] Network error: $e');
+      return {
+        'success': false,
+        'message': 'Cannot reach server. Please check your internet connection.',
+      };
+    } on HandshakeException catch (e) {
+      print('[LOGIN] SSL/TLS error: $e');
+      return {
+        'success': false,
+        'message': 'Security certificate error. Please check your connection.',
+      };
+    } on FormatException catch (e) {
+      print('[LOGIN] JSON parsing error: $e');
+      return {
+        'success': false,
+        'message': 'Invalid response from server.',
+      };
     } catch (e) {
+      print('[LOGIN] Unexpected error: $e');
       return {
         'success': false,
         'message': 'Error: ${e.toString()}',
