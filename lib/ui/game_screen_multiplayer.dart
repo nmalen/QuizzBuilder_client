@@ -5,6 +5,8 @@ import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
 import '../models/question.dart';
 import 'results_screen.dart';
+import 'home_screen.dart';
+import 'setup_multiplayer_screen.dart';
 
 class GameScreenMultiplayer extends StatefulWidget {
   final int playerCount;
@@ -567,9 +569,15 @@ class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> wi
                   const SizedBox(height: 36),
                   // Action buttons
                   ElevatedButton.icon(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      // Navigate to home screen, clearing the navigation stack
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const HomeScreen()),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
                     icon: const Icon(Icons.home),
-                    label: const Text('Home'),
+                    label: Text(AppLocalizations.of(context)!.home),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor: Colors.green[600],
@@ -577,6 +585,25 @@ class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> wi
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      // Navigate back to multiplayer setup screen
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const SetupMultiplayerScreen()),
+                        (Route<dynamic> route) => false,
+                      );
+                    },
+                    icon: const Icon(Icons.replay),
+                    label: Text(AppLocalizations.of(context)!.playAgain),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      side: BorderSide(color: Colors.blue[600]!),
                     ),
                   ),
                 ],

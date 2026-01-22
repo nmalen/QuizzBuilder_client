@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
-import '../l10n/app_localizations.dart';
+import 'home_screen.dart';
 
 class ResultsScreen extends StatefulWidget {
   final int score;
@@ -334,7 +334,13 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ElevatedButton.icon(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              // Navigate to home screen, clearing the navigation stack
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+                (Route<dynamic> route) => false,
+              );
+            },
             icon: const Icon(Icons.home),
             label: Text(loc.home),
             style: ElevatedButton.styleFrom(
