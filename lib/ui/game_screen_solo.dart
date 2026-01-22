@@ -206,7 +206,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                       currentQuestion.getQuestion(languageCode),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                            fontSize: 18,
                           ),
                       textAlign: TextAlign.center,
                       maxLines: 6,

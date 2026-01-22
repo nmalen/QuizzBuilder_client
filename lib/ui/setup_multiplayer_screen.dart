@@ -19,6 +19,10 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(AppLocalizations.of(context)!.multiplayerMode),
       ),
       body: Padding(

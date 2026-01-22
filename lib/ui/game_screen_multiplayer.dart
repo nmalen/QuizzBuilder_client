@@ -591,9 +591,8 @@ class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> wi
                   OutlinedButton.icon(
                     onPressed: () {
                       // Navigate back to multiplayer setup screen
-                      Navigator.of(context).pushAndRemoveUntil(
+                      Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) => const SetupMultiplayerScreen()),
-                        (Route<dynamic> route) => false,
                       );
                     },
                     icon: const Icon(Icons.replay),
