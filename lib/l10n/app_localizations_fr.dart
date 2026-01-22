@@ -8,10 +8,6 @@ import 'app_localizations.dart';
 class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
-  /// Message d'erreur quand l'email est déjà utilisé
-  @override
-  String get emailAlreadyExists => 'Un compte avec cet email existe déjà.';
-
   @override
   String get standardMode => 'Standard';
 
@@ -173,10 +169,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get createAccount => 'Créer un compte';
 
   @override
-    String get registrationSuccessful => 'Inscription réussie ! Un email va vous être envoyé pour activer votre compte. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour valider votre inscription.';
-
-  @override
-  String get ok => 'OK';
+  String get registrationSuccessful => 'Inscription réussie! Veuillez vérifier votre email pour confirmer votre compte.';
 
   @override
   String get login => 'Connexion';
@@ -243,4 +236,61 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get startQuiz => 'Démarrer le quiz';
+
+  @override
+  String get yourScore => 'Votre score';
+
+  @override
+  String get correct => 'Correct';
+
+  @override
+  String get correctAnswers => 'Réponses correctes';
+
+  @override
+  String get wrongAnswers => 'Mauvaises réponses';
+
+  @override
+  String get timeUsed => 'Temps utilisé';
+
+  @override
+  String get home => 'Accueil';
+
+  @override
+  String get playAgain => 'Rejouer';
+
+  @override
+  String get gameOver => 'Fin du jeu!';
+
+  @override
+  String get survivalComplete => 'Survie réussie!';
+
+  @override
+  String get timesUp => 'Temps écoulé!';
+
+  @override
+  String get quizComplete => 'Quiz terminé!';
+
+  @override
+  String get ok => 'OK';
+
+  @override
+  String get emailAlreadyExists => 'Un compte avec cet email existe déjà.';
+
+  @override
+  String get outstanding => 'Exceptionnel! 🌟';
+
+  @override
+  String get excellent => 'Excellent! ⭐';
+
+  @override
+  String get greatJob => 'Excellent travail! 👍';
+
+  @override
+  String get goodEffort => 'Bon effort! 💪';
+
+  @override
+  String get notBad => 'Pas mal! 📚';
+
+  @override
+  String get keepPracticing => 'Continue à pratiquer! 📖';
 }

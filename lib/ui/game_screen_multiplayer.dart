@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
 import '../models/question.dart';
+import 'results_screen.dart';
 
 class GameScreenMultiplayer extends StatefulWidget {
   final int playerCount;
@@ -128,48 +129,10 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
     }
 
     if (currentQuestionIndex >= widget.questionCount) {
-      final int maxScore = scores.reduce((a, b) => a > b ? a : b);
-      final List<int> winners = [];
-      for (int i = 0; i < scores.length; i++) {
-        if (scores[i] == maxScore) {
-          winners.add(i + 1);
-        }
-      }
-      return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.multiplayerMode)),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.emoji_events, size: 80, color: Colors.amber),
-              const SizedBox(height: 24),
-              Text(
-                winners.length > 1 ? 'It\'s a Tie!' : 'Player(s) ${winners.join(", ")} Win!' ,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Winning Score: $maxScore/${widget.questionCount}',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 24),
-              Text('Final Scores:', style: Theme.of(context).textTheme.titleMedium),
-              ...scores.asMap().entries.map((entry) {
-                final idx = entry.key;
-                final score = entry.value;
-                return Text('Player ${idx + 1}: $score');
-              }),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Back to Home'),
-              ),
-            ],
-          ),
-        ),
+      return _MultiplayerResultsScreen(
+        scores: scores,
+        playerCount: widget.playerCount,
+        questionCount: widget.questionCount,
       );
     }
 
@@ -413,3 +376,216 @@ class _PlayerScore extends StatelessWidget {
     );
   }
 }
+
+class _MultiplayerResultsScreen extends StatefulWidget {
+  final List<int> scores;
+  final int playerCount;
+  final int questionCount;
+
+  const _MultiplayerResultsScreen({
+    required this.scores,
+    required this.playerCount,
+    required this.questionCount,
+  });
+
+  @override
+  State<_MultiplayerResultsScreen> createState() => _MultiplayerResultsScreenState();
+}
+
+class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> with TickerProviderStateMixin {
+  late AnimationController _scaleController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
+    _scaleController.forward();
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final int maxScore = widget.scores.reduce((a, b) => a > b ? a : b);
+    final List<int> winners = [];
+    for (int i = 0; i < widget.scores.length; i++) {
+      if (widget.scores[i] == maxScore) {
+        winners.add(i + 1);
+      }
+    }
+
+    // Sort scores in descending order with player numbers
+    final List<MapEntry<int, int>> sortedScores = [];
+    for (int i = 0; i < widget.scores.length; i++) {
+      sortedScores.add(MapEntry(i + 1, widget.scores[i]));
+    }
+    sortedScores.sort((a, b) => b.value.compareTo(a.value));
+
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Winner icon
+                  AnimatedBuilder(
+                    animation: _scaleAnimation,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: _scaleAnimation.value,
+                        child: Icon(
+                          Icons.emoji_events,
+                          size: 80,
+                          color: Colors.amber[700],
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  // Winner announcement
+                  Text(
+                    winners.length > 1 ? 'It\'s a Tie!' : 'Player ${winners.first} Wins!',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[900],
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 36),
+                  // Winning score
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.amber[50],
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.amber[200]!),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Winning Score',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                color: Colors.amber[900],
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '$maxScore/${widget.questionCount}',
+                          style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.amber[700],
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 36),
+                  // Leaderboard
+                  Text(
+                    'Final Leaderboard',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...sortedScores.asMap().entries.map((entry) {
+                    final position = entry.key;
+                    final playerNumber = entry.value.key;
+                    final score = entry.value.value;
+                    final isWinner = winners.contains(playerNumber);
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isWinner ? Colors.amber[50] : Colors.grey[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isWinner ? Colors.amber[200]! : Colors.grey[200]!,
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: isWinner ? Colors.amber[400] : Colors.grey[300],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '#${position + 1}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: isWinner ? Colors.white : Colors.grey[700],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Text(
+                                  'Player $playerNumber',
+                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: isWinner ? Colors.amber[900] : Colors.grey[900],
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              '$score/${widget.questionCount}',
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: isWinner ? Colors.amber[700] : Colors.grey[700],
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 36),
+                  // Action buttons
+                  ElevatedButton.icon(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.home),
+                    label: const Text('Home'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.green[600],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

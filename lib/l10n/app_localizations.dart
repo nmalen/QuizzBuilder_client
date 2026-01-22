@@ -62,8 +62,6 @@ import 'app_localizations_fr.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-    /// Error message when email is already used
-    String get emailAlreadyExists;
   AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
@@ -403,12 +401,6 @@ abstract class AppLocalizations {
   /// **'Registration successful! Please check your email to verify your account.'**
   String get registrationSuccessful;
 
-  /// No description provided for @ok.
-  ///
-  /// In en, this message translates to:
-  /// **'OK'**
-  String get ok;
-
   /// No description provided for @login.
   ///
   /// In en, this message translates to:
@@ -540,6 +532,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start Quiz'**
   String get startQuiz;
+
+  /// No description provided for @yourScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Score'**
+  String get yourScore;
+
+  /// No description provided for @correct.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct'**
+  String get correct;
+
+  /// No description provided for @correctAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct Answers'**
+  String get correctAnswers;
+
+  /// No description provided for @wrongAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong Answers'**
+  String get wrongAnswers;
+
+  /// No description provided for @timeUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Used'**
+  String get timeUsed;
+
+  /// No description provided for @home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
+
+  /// No description provided for @playAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Again'**
+  String get playAgain;
+
+  /// No description provided for @gameOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Game Over!'**
+  String get gameOver;
+
+  /// No description provided for @survivalComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Survival Complete!'**
+  String get survivalComplete;
+
+  /// No description provided for @timesUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Time\'s Up!'**
+  String get timesUp;
+
+  /// No description provided for @quizComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz Complete!'**
+  String get quizComplete;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
+
+  /// No description provided for @emailAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'An account with this email already exists.'**
+  String get emailAlreadyExists;
+
+  /// No description provided for @outstanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding! 🌟'**
+  String get outstanding;
+
+  /// No description provided for @excellent.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent! ⭐'**
+  String get excellent;
+
+  /// No description provided for @greatJob.
+  ///
+  /// In en, this message translates to:
+  /// **'Great Job! 👍'**
+  String get greatJob;
+
+  /// No description provided for @goodEffort.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Effort! 💪'**
+  String get goodEffort;
+
+  /// No description provided for @notBad.
+  ///
+  /// In en, this message translates to:
+  /// **'Not Bad! 📚'**
+  String get notBad;
+
+  /// No description provided for @keepPracticing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Practicing! 📖'**
+  String get keepPracticing;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

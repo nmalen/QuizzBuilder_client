@@ -20,6 +20,17 @@ class QuizzBuilderThemesScreen extends StatefulWidget {
 
 class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
   @override
+  void initState() {
+    super.initState();
+    // Validate and clean up any selected themes that user no longer has access to
+    // (e.g., themes changed from free to paid by admin after initial selection)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<QuizzBuilderProvider>(context, listen: false)
+          .validateAndCleanupEntitlements();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final builder = Provider.of<QuizzBuilderProvider>(context);
     final catalog = Provider.of<CatalogProvider>(context);
@@ -106,7 +117,16 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                       onChanged: canSelect
                           ? (value) {
                               debugPrint('USER ${value == true ? 'CHECKED' : 'UNCHECKED'} theme id=${theme.id} (${theme.nameEn}), category=${theme.category}');
-                              builder.toggleTheme(theme);
+                              final error = builder.toggleTheme(theme);
+                              if (error != null) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(error),
+                                    backgroundColor: Colors.red[600],
+                                    duration: const Duration(seconds: 3),
+                                  ),
+                                );
+                              }
                             }
                           : null,
                       enabled: canSelect,

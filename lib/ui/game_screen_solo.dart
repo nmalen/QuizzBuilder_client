@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
 import '../models/question.dart';
+import 'results_screen.dart';
 
 class GameScreenSolo extends StatefulWidget {
   final int questionCount;
@@ -123,40 +124,12 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
     }
 
     if (currentQuestionIndex >= questions.length || survivalFailed) {
-      return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.soloMode)),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                survivalFailed ? Icons.cancel : Icons.check_circle,
-                size: 80,
-                color: survivalFailed ? Colors.red : Colors.green,
-              ),
-              const SizedBox(height: 24),
-              Text(
-                gameMode == 'survival'
-                    ? (survivalFailed ? 'Game Over!' : 'Survival Complete!')
-                    : 'Quiz Complete!',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Final Score: $score',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: survivalFailed ? Colors.red : Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Finish'),
-              ),
-            ],
-          ),
-        ),
+      return ResultsScreen(
+        score: score,
+        totalQuestions: questions.length,
+        gameMode: gameMode,
+        survivalFailed: survivalFailed,
+        theme: '',
       );
     }
 
@@ -321,8 +294,8 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                   ),
                   child: Text(
                     (gameMode == 'survival')
-                        ? (selectedAnswerIndex == null || selectedAnswerIndex! + 1 != currentQuestion.correctAnswer ? 'Finish' : 'Next')
-                        : (currentQuestionIndex < questions.length - 1 ? 'Next' : 'Finish'),
+                        ? (selectedAnswerIndex == null || selectedAnswerIndex! + 1 != currentQuestion.correctAnswer ? AppLocalizations.of(context)!.done : AppLocalizations.of(context)!.next)
+                        : (currentQuestionIndex < questions.length - 1 ? AppLocalizations.of(context)!.next : AppLocalizations.of(context)!.done),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,

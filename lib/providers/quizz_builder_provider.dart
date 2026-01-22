@@ -33,13 +33,20 @@ class QuizzBuilderProvider extends ChangeNotifier {
         _selectedThemesMeta[theme.id] = theme;
       }
     }
-    // Remove themes from unselected categories
+    // Remove themes from unselected categories or themes no longer entitled
     final toRemove = <int>[];
     for (final themeId in _selectedThemeIds) {
       final theme = _selectedThemesMeta[themeId];
       final catId = int.tryParse(theme?.category?.toString() ?? '');
+      
+      // Remove if category is no longer selected
       if (theme != null && (catId == null || !selectedCategoryIds.contains(catId))) {
-        debugPrint('  UNSELECT theme id=${theme.id} (${theme.nameEn}) for category=$catId');
+        debugPrint('  UNSELECT theme id=${theme.id} (${theme.nameEn}) for category=$catId (category not selected)');
+        toRemove.add(themeId);
+      }
+      // Remove if user no longer has entitlement (e.g., theme changed from free to paid)
+      else if (theme != null && !isThemeEntitled(theme)) {
+        debugPrint('  UNSELECT theme id=${theme.id} (${theme.nameEn}) (no longer entitled)');
         toRemove.add(themeId);
       }
     }
@@ -80,6 +87,30 @@ class QuizzBuilderProvider extends ChangeNotifier {
     bool isThemeEntitled(theme_model.Theme theme) {
       return theme.isFree || _entitledThemeIds.contains(theme.id);
     }
+
+    /// Validate and clean up selected themes based on current entitlements
+    /// Removes any themes that user no longer has access to (e.g., changed from free to paid)
+    void validateAndCleanupEntitlements() {
+      debugPrint('VALIDATE ENTITLEMENTS:');
+      final toRemove = <int>[];
+      for (final themeId in _selectedThemeIds) {
+        final theme = _selectedThemesMeta[themeId];
+        if (theme != null && !isThemeEntitled(theme)) {
+          debugPrint('  REMOVE theme id=${theme.id} (${theme.nameEn}) - user no longer entitled');
+          toRemove.add(themeId);
+        }
+      }
+      if (toRemove.isNotEmpty) {
+        for (final themeId in toRemove) {
+          _selectedThemeIds.remove(themeId);
+          _selectedThemeQuestionCounts.remove(themeId);
+          _selectedThemesMeta.remove(themeId);
+        }
+        _saveToPrefs();
+        notifyListeners();
+      }
+    }
+
   // Categories (multi-select)
   final Set<int> _selectedCategoryIds = {};
   final Map<int, Category> _selectedCategoriesMeta = {};
@@ -148,15 +179,23 @@ class QuizzBuilderProvider extends ChangeNotifier {
   }
 
   // Theme selection
-  void toggleTheme(theme_model.Theme theme) {
+  /// Toggle theme selection. Returns null if successful, or an error message if theme cannot be selected.
+  String? toggleTheme(theme_model.Theme theme) {
     final themeId = theme.id;
-    if (!theme.isActive) return;
+    if (!theme.isActive) return 'Theme is not active';
+    
     if (_selectedThemeIds.contains(themeId)) {
+      // Unselect the theme
       _selectedThemeIds.remove(themeId);
       _selectedThemeQuestionCounts.remove(themeId);
       _selectedThemesMeta.remove(themeId);
       _manuallyUnselectedThemeIds.add(themeId);
     } else {
+      // Try to select the theme - check entitlement for paid themes
+      if (!isThemeEntitled(theme)) {
+        // User doesn't have access to this paid theme
+        return 'You need to purchase this theme to unlock it';
+      }
       _selectedThemeIds.add(themeId);
       _selectedThemeQuestionCounts[themeId] = theme.questionsCount;
       _selectedThemesMeta[themeId] = theme;
@@ -164,7 +203,7 @@ class QuizzBuilderProvider extends ChangeNotifier {
     }
     _saveToPrefs();
     notifyListeners();
-    Set<int>? lastSyncedCategoryIds;
+    return null; // Success
   }
 
   bool isSelected(int themeId) => _selectedThemeIds.contains(themeId);
