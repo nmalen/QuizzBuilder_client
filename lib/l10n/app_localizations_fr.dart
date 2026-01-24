@@ -277,20 +277,20 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emailAlreadyExists => 'Un compte avec cet email existe déjà.';
 
   @override
-  String get outstanding => 'Exceptionnel! 🌟';
+  String get outstanding => 'Exceptionnel!';
 
   @override
-  String get excellent => 'Excellent! ⭐';
+  String get excellent => 'Excellent!';
 
   @override
-  String get greatJob => 'Excellent travail! 👍';
+  String get greatJob => 'Excellent travail!';
 
   @override
-  String get goodEffort => 'Bon effort! 💪';
+  String get goodEffort => 'Bon effort!';
 
   @override
-  String get notBad => 'Pas mal! 📚';
+  String get notBad => 'Pas mal!';
 
   @override
-  String get keepPracticing => 'Continue à pratiquer! 📖';
+  String get keepPracticing => 'Continue à pratiquer!';
 }

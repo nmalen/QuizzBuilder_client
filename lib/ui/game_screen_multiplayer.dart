@@ -4,7 +4,6 @@ import '../l10n/app_localizations.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
 import '../models/question.dart';
-import 'results_screen.dart';
 import 'home_screen.dart';
 import 'setup_multiplayer_screen.dart';
 
