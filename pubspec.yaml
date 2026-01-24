@@ -1,0 +1,91 @@
+name: QuizzBuilder
+description: "QuizzBuilder - A multilingual quiz game with free and paid themes."
+publish_to: 'none'
+
+# Bump down to 0.1.0 for TestFlight sandbox iteration
+version: 0.1.1+2
+
+environment:
+  sdk: '>=3.10.4 <4.0.0'
+
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI & Material Design
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.0.0
+  
+  # State Management
+  provider: ^6.0.0
+  
+  # HTTP & API
+  http: ^1.1.0
+  
+  # Local Storage
+  sqflite: ^2.3.0
+  path_provider: ^2.1.0
+  shared_preferences: ^2.2.0
+  
+  # JSON Serialization
+  json_annotation: ^4.8.0
+  
+  # Authentication
+  flutter_secure_storage: ^9.0.0
+  
+  # In-App Purchases
+  in_app_purchase: ^3.1.0
+  
+  # Date & Time
+  intl: ^0.20.2
+  
+  # Navigation & Routing
+  go_router: ^13.0.0
+  
+  # Localization
+  flutter_localizations:
+    sdk: flutter
+  
+  # Utilities
+  uuid: ^4.0.0
+  equatable: ^2.0.5
+  logger: ^2.0.0
+
+  # Email & Links
+  url_launcher: ^6.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.0
+  json_serializable: ^6.7.0
+  flutter_launcher_icons: ^0.13.1
+
+
+flutter:
+  uses-material-design: true
+  generate: true
+  # App Assets
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
+
+# Localization configuration
+flutter_intl:
+  enabled: true
+
+# App icon configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+  # Optionally specify different icons per platform:
+  # image_path_android: "assets/icons/icon_android.png"
+  # image_path_ios: "assets/icons/icon_ios.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
