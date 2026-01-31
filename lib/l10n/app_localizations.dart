@@ -197,6 +197,18 @@ abstract class AppLocalizations {
   /// **'Total active content (including unpurchased)'**
   String get quizzBuilderContentSubtitle;
 
+  /// No description provided for @userContent.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get userContent;
+
+  /// No description provided for @userContentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocked content'**
+  String get userContentSubtitle;
+
   /// Display of selected content stats
   ///
   /// In en, this message translates to:

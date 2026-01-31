@@ -152,6 +152,9 @@ class CatalogProvider extends ChangeNotifier {
           totalQuestionsAll: totalQuestionsAll,
           totalThemesAll: totalThemesAll,
           totalCategoriesAll: totalCategoriesAll,
+          totalQuestionsPurchased: stats.totalQuestionsPurchased,
+          totalThemesPurchased: stats.totalThemesPurchased,
+          totalCategoriesPurchased: stats.totalCategoriesPurchased,
         );
       } catch (_) {
         resolvedStats = stats;

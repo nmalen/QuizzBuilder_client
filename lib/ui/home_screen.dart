@@ -188,25 +188,46 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _StatItem(
-                          icon: Icons.school,
-                          label: AppLocalizations.of(context)!.categories,
-                          value: _formatStatValue(catalogProvider.stats?.totalCategories, catalogProvider.isStatsLoading),
+                        Row(
+                          children: [
+                            Icon(Icons.lock_open, color: Theme.of(context).primaryColor, size: 20),
+                            const SizedBox(width: 6),
+                            Text(
+                              AppLocalizations.of(context)!.userContent,
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                        Container(height: 40, width: 1, color: Colors.grey.shade300),
-                        _StatItem(
-                          icon: Icons.bookmark,
-                          label: AppLocalizations.of(context)!.themes,
-                          value: _formatStatValue(catalogProvider.stats?.totalThemes, catalogProvider.isStatsLoading),
+                        const SizedBox(height: 2),
+                        Text(
+                          AppLocalizations.of(context)!.userContentSubtitle,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
                         ),
-                        Container(height: 40, width: 1, color: Colors.grey.shade300),
-                        _StatItem(
-                          icon: Icons.help_center,
-                          label: AppLocalizations.of(context)!.questions,
-                          value: _formatStatValue(catalogProvider.stats?.totalQuestions, catalogProvider.isStatsLoading),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _StatItem(
+                              icon: Icons.school,
+                              label: AppLocalizations.of(context)!.categories,
+                              value: _formatStatValue(catalogProvider.stats?.totalCategoriesPurchased, catalogProvider.isStatsLoading),
+                            ),
+                            Container(height: 40, width: 1, color: Colors.grey.shade300),
+                            _StatItem(
+                              icon: Icons.bookmark,
+                              label: AppLocalizations.of(context)!.themes,
+                              value: _formatStatValue(catalogProvider.stats?.totalThemesPurchased, catalogProvider.isStatsLoading),
+                            ),
+                            Container(height: 40, width: 1, color: Colors.grey.shade300),
+                            _StatItem(
+                              icon: Icons.help_center,
+                              label: AppLocalizations.of(context)!.questions,
+                              value: _formatStatValue(catalogProvider.stats?.totalQuestionsPurchased, catalogProvider.isStatsLoading),
+                            ),
+                          ],
                         ),
                       ],
                     ),

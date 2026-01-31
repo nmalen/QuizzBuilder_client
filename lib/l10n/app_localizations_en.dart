@@ -53,13 +53,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storeSubtitle => 'Unlock premium themes and categories';
 
   @override
-  String get availableContent => 'Available content';
+  String get availableContent => 'Content';
 
   @override
   String get quizzBuilderContent => 'QuizzBuilder';
 
   @override
-  String get quizzBuilderContentSubtitle => 'Total active content (including unpurchased)';
+  String get quizzBuilderContentSubtitle => 'Total content';
+
+  @override
+  String get userContent => 'User';
+
+  @override
+  String get userContentSubtitle => 'Unlocked content';
 
   @override
   String selectedContent(int categories, String categoryPlural, int themes, String themePlural, int questions, String questionPlural) {

@@ -16,6 +16,12 @@ class CatalogStats {
   final int totalThemesAll;
   @JsonKey(name: 'total_categories_all')
   final int totalCategoriesAll;
+  @JsonKey(name: 'total_questions_purchased')
+  final int totalQuestionsPurchased;
+  @JsonKey(name: 'total_themes_purchased')
+  final int totalThemesPurchased;
+  @JsonKey(name: 'total_categories_purchased')
+  final int totalCategoriesPurchased;
 
   CatalogStats({
     required this.totalQuestions,
@@ -24,6 +30,9 @@ class CatalogStats {
     required this.totalQuestionsAll,
     required this.totalThemesAll,
     required this.totalCategoriesAll,
+    required this.totalQuestionsPurchased,
+    required this.totalThemesPurchased,
+    required this.totalCategoriesPurchased,
   });
 
   factory CatalogStats.fromJson(Map<String, dynamic> json) => _$CatalogStatsFromJson(json);

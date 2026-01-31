@@ -25,6 +25,8 @@
   "availableContent": "Available content",
   "quizzBuilderContent": "QuizzBuilder",
   "quizzBuilderContentSubtitle": "Total active content (including unpurchased)",
+  "userContent": "User",
+  "userContentSubtitle": "Unlocked content",
   "selectedContent": "Selected: {categories} categor{categoryPlural} • {themes} theme{themePlural} • {questions} question{questionPlural}",
   "@selectedContent": {
     "description": "Display of selected content stats",

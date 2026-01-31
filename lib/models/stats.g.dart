@@ -19,6 +19,9 @@ CatalogStats _$CatalogStatsFromJson(Map<String, dynamic> json) => CatalogStats(
   totalCategoriesAll: (json['total_categories_all'] as num?)?.toInt() ??
       (json['total_categories'] as num?)?.toInt() ??
       0,
+  totalQuestionsPurchased: (json['total_questions_purchased'] as num?)?.toInt() ?? 0,
+  totalThemesPurchased: (json['total_themes_purchased'] as num?)?.toInt() ?? 0,
+  totalCategoriesPurchased: (json['total_categories_purchased'] as num?)?.toInt() ?? 0,
 );
 
 Map<String, dynamic> _$CatalogStatsToJson(CatalogStats instance) =>
@@ -29,4 +32,7 @@ Map<String, dynamic> _$CatalogStatsToJson(CatalogStats instance) =>
       'total_questions_all': instance.totalQuestionsAll,
       'total_themes_all': instance.totalThemesAll,
       'total_categories_all': instance.totalCategoriesAll,
+      'total_questions_purchased': instance.totalQuestionsPurchased,
+      'total_themes_purchased': instance.totalThemesPurchased,
+      'total_categories_purchased': instance.totalCategoriesPurchased,
     };

@@ -25,6 +25,8 @@
   "availableContent": "Contenu disponible",
   "quizzBuilderContent": "QuizzBuilder",
   "quizzBuilderContentSubtitle": "Contenu actif total (y compris non acheté)",
+  "userContent": "Utilisateur",
+  "userContentSubtitle": "Contenu déverrouillé",
   "selectedContent": "Sélectionné: {categories} catégor{categoryPlural} • {themes} thème{themePlural} • {questions} question{questionPlural}",
   "@selectedContent": {
     "description": "Display of selected content stats",
