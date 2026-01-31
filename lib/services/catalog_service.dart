@@ -156,8 +156,7 @@ class CatalogService {
   /// Fetch catalog statistics (totals)
   Future<CatalogStats> getStatistics() async {
     try {
-      final response = await http
-          .get(Uri.parse('$baseUrl${ApiConfig.statisticsEndpoint}'), headers: ApiConfig.defaultHeaders)
+      final response = await _authorizedGet('$baseUrl${ApiConfig.statisticsEndpoint}')
           .timeout(
             ApiConfig.connectionTimeout,
             onTimeout: () => throw Exception('Connection timeout'),

@@ -23,6 +23,8 @@
   "store": "Boutique",
   "storeSubtitle": "Déverrouiller les thèmes et catégories premium",
   "availableContent": "Contenu disponible",
+  "quizzBuilderContent": "QuizzBuilder",
+  "quizzBuilderContentSubtitle": "Contenu actif total (y compris non acheté)",
   "selectedContent": "Sélectionné: {categories} catégor{categoryPlural} • {themes} thème{themePlural} • {questions} question{questionPlural}",
   "@selectedContent": {
     "description": "Display of selected content stats",

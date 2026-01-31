@@ -185,6 +185,18 @@ abstract class AppLocalizations {
   /// **'Available content'**
   String get availableContent;
 
+  /// No description provided for @quizzBuilderContent.
+  ///
+  /// In en, this message translates to:
+  /// **'QuizzBuilder'**
+  String get quizzBuilderContent;
+
+  /// No description provided for @quizzBuilderContentSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Total active content (including unpurchased)'**
+  String get quizzBuilderContentSubtitle;
+
   /// Display of selected content stats
   ///
   /// In en, this message translates to:

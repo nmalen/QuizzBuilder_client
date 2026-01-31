@@ -23,6 +23,8 @@
   "store": "Store",
   "storeSubtitle": "Unlock premium themes and categories",
   "availableContent": "Available content",
+  "quizzBuilderContent": "QuizzBuilder",
+  "quizzBuilderContentSubtitle": "Total active content (including unpurchased)",
   "selectedContent": "Selected: {categories} categor{categoryPlural} • {themes} theme{themePlural} • {questions} question{questionPlural}",
   "@selectedContent": {
     "description": "Display of selected content stats",

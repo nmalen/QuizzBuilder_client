@@ -87,11 +87,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  const Icon(Icons.person, size: 80, color: Colors.white),
-                  const SizedBox(height: 16),
+                  const Icon(Icons.person, size: 60, color: Colors.white),
+                  const SizedBox(height: 12),
                   Text(
                     AppLocalizations.of(context)!.welcomeMessage(user?.displayName ?? 'User'),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     AppLocalizations.of(context)!.readyToTest,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
@@ -107,10 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 children: [
                   _ActionButton(
@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
                   _ActionButton(
                     icon: Icons.shopping_cart,
                     title: AppLocalizations.of(context)!.store,
@@ -138,10 +138,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -211,10 +211,68 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withValues(alpha: 0.15),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.auto_awesome, color: Theme.of(context).primaryColor, size: 20),
+                            const SizedBox(width: 6),
+                            Text(
+                              AppLocalizations.of(context)!.quizzBuilderContent,
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          AppLocalizations.of(context)!.quizzBuilderContentSubtitle,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _StatItem(
+                              icon: Icons.school,
+                              label: AppLocalizations.of(context)!.categories,
+                              value: _formatStatValue(catalogProvider.stats?.totalCategoriesAll, catalogProvider.isStatsLoading),
+                            ),
+                            Container(height: 40, width: 1, color: Colors.grey.shade300),
+                            _StatItem(
+                              icon: Icons.bookmark,
+                              label: AppLocalizations.of(context)!.themes,
+                              value: _formatStatValue(catalogProvider.stats?.totalThemesAll, catalogProvider.isStatsLoading),
+                            ),
+                            Container(height: 40, width: 1, color: Colors.grey.shade300),
+                            _StatItem(
+                              icon: Icons.help_center,
+                              label: AppLocalizations.of(context)!.questions,
+                              value: _formatStatValue(catalogProvider.stats?.totalQuestionsAll, catalogProvider.isStatsLoading),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -246,7 +304,7 @@ class _ActionButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -261,23 +319,23 @@ class _ActionButton extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Theme.of(context).primaryColor, size: 24),
+              child: Icon(icon, color: Theme.of(context).primaryColor, size: 20),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
@@ -285,7 +343,7 @@ class _ActionButton extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+            const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
           ],
         ),
       ),
@@ -309,16 +367,16 @@ class _StatItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, color: Theme.of(context).primaryColor, size: 28),
-        const SizedBox(height: 8),
+        Icon(icon, color: Theme.of(context).primaryColor, size: 22),
+        const SizedBox(height: 6),
         Text(
           value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).primaryColor,
               ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(

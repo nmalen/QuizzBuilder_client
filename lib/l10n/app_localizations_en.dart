@@ -56,6 +56,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get availableContent => 'Available content';
 
   @override
+  String get quizzBuilderContent => 'QuizzBuilder';
+
+  @override
+  String get quizzBuilderContentSubtitle => 'Total active content (including unpurchased)';
+
+  @override
   String selectedContent(int categories, String categoryPlural, int themes, String themePlural, int questions, String questionPlural) {
     return 'Selected: $categories categor$categoryPlural • $themes theme$themePlural • $questions question$questionPlural';
   }

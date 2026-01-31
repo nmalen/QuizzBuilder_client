@@ -129,7 +129,35 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _stats = await _catalogService.getStatistics();
+      final stats = await _catalogService.getStatistics();
+      CatalogStats resolvedStats = stats;
+
+      try {
+        final allThemes = await _catalogService.getAllThemes();
+        final totalThemesAll = allThemes.length;
+        final totalQuestionsAll = allThemes.fold<int>(
+          0,
+          (sum, theme) => sum + theme.questionsCount,
+        );
+        final totalCategoriesAll = allThemes
+            .map((theme) => theme.category)
+            .whereType<String>()
+            .toSet()
+            .length;
+
+        resolvedStats = CatalogStats(
+          totalQuestions: stats.totalQuestions,
+          totalThemes: stats.totalThemes,
+          totalCategories: stats.totalCategories,
+          totalQuestionsAll: totalQuestionsAll,
+          totalThemesAll: totalThemesAll,
+          totalCategoriesAll: totalCategoriesAll,
+        );
+      } catch (_) {
+        resolvedStats = stats;
+      }
+
+      _stats = resolvedStats;
       _statsError = null;
     } catch (e) {
       _statsError = e.toString();
