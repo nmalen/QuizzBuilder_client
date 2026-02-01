@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../widgets/gradient_background.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/language_provider.dart';
@@ -17,8 +16,7 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.settings),
       ),
-      body: GradientBackground(
-        child: Column(
+      body: Column(
           children: [
           Expanded(
             child: SingleChildScrollView(
@@ -70,28 +68,15 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          AppLocalizations.of(context)!.version,
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 4),
                         FutureBuilder<PackageInfo>(
                           future: PackageInfo.fromPlatform(),
                           builder: (context, snapshot) {
-                            if (!snapshot.hasData) {
-                              return Text(
-                                '—',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey,
-                                ),
-                              );
-                            }
-                            final info = snapshot.data!;
+                            final versionText = snapshot.hasData
+                                ? ' v${snapshot.data!.version}'
+                                : '';
                             return Text(
-                              '${info.version}+${info.buildNumber}',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey,
-                              ),
+                              '${AppLocalizations.of(context)!.appTitle}$versionText',
+                              style: Theme.of(context).textTheme.bodyMedium,
                             );
                           },
                         ),
@@ -99,7 +84,7 @@ class SettingsScreen extends StatelessWidget {
                         Text(
                           AppLocalizations.of(context)!.aboutText,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey,
+                            color: Colors.grey[800],
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -153,7 +138,6 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ],
-        ),
       ),
     );
   }
