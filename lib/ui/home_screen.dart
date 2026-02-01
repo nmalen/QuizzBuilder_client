@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/catalog_provider.dart';
+import '../widgets/gradient_background.dart';
 import 'game_mode_screen.dart';
 import 'settings_screen.dart';
 
@@ -72,9 +73,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
+      body: GradientBackground(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -297,14 +299,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      ),
     );
   }
-}
 
-String _formatStatValue(int? value, bool isLoading) {
-  if (isLoading) return '...';
-  if (value == null) return '-';
-  return value.toString();
+  String _formatStatValue(int? value, bool isLoading) {
+    if (isLoading) return '...';
+    if (value == null) return '-';
+    return value.toString();
+  }
 }
 
 class _ActionButton extends StatelessWidget {

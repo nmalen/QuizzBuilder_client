@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/gradient_background.dart';
 import '../l10n/app_localizations.dart';
 import 'game_screen_multiplayer.dart';
 import 'game_screen_solo.dart';
@@ -25,7 +26,8 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
         ),
         title: Text(AppLocalizations.of(context)!.multiplayerMode),
       ),
-      body: Padding(
+      body: GradientBackground(
+        child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -120,7 +122,8 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

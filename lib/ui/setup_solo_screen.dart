@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/gradient_background.dart';
 import '../l10n/app_localizations.dart';
 import 'game_screen_solo.dart';
 
@@ -27,7 +28,8 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.soloMode),
       ),
-      body: Padding(
+      body: GradientBackground(
+        child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -121,7 +123,8 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

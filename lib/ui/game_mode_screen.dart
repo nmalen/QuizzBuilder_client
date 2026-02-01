@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/gradient_background.dart';
 import '../l10n/app_localizations.dart';
 import 'selected_themes_screen.dart';
 
@@ -19,9 +20,10 @@ class _GameModeScreenState extends State<GameModeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.selectGameMode)),
-      body: Align(
-        alignment: Alignment.topCenter,
-        child: Padding(
+      body: GradientBackground(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -85,6 +87,7 @@ class _GameModeScreenState extends State<GameModeScreen> {
             },
           ),
         ),
+      ),
       ),
     );
   }

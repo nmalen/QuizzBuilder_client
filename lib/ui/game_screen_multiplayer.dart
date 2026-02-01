@@ -6,6 +6,7 @@ import '../providers/catalog_provider.dart';
 import '../models/question.dart';
 import '../models/theme.dart' as theme_model;
 import '../db/local_db.dart';
+import '../widgets/gradient_background.dart';
 import 'home_screen.dart';
 import 'setup_multiplayer_screen.dart';
 
@@ -147,12 +148,13 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.multiplayerMode),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      body: GradientBackground(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               // Player scoreboard
               Wrap(
                 spacing: 12,
@@ -345,6 +347,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
               const SizedBox(height: 24),
             ],
           ),
+        ),
         ),
       ),
     );

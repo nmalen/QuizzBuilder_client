@@ -6,6 +6,7 @@ import '../providers/catalog_provider.dart';
 import '../models/question.dart';
 import '../models/theme.dart' as theme_model;
 import '../db/local_db.dart';
+import '../widgets/gradient_background.dart';
 import 'results_screen.dart';
 
 class GameScreenSolo extends StatefulWidget {
@@ -144,12 +145,13 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         title: Text(AppLocalizations.of(context)!.soloMode),
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      body: GradientBackground(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               // Header with progress
               Center(
                 child: Column(
@@ -351,6 +353,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
               const SizedBox(height: 24),
             ],
           ),
+        ),
         ),
       ),
     );

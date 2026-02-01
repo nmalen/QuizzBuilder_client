@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/gradient_background.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/language_provider.dart';
@@ -15,8 +16,9 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.settings),
       ),
-      body: Column(
-        children: [
+      body: GradientBackground(
+        child: Column(
+          children: [
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -129,6 +131,7 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
         ],
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/catalog_provider.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../providers/language_provider.dart';
+import '../widgets/gradient_background.dart';
 import 'quizz_builder_themes_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
@@ -30,7 +31,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final builder = Provider.of<QuizzBuilderProvider>(context);
     return Scaffold(
       appBar: AppBar(title: Text(AppLocalizations.of(context)!.selectCategory)),
-      body: Consumer<CatalogProvider>(
+      body: GradientBackground(
+        child: Consumer<CatalogProvider>(
         builder: (context, catalogProvider, child) {
           if (catalogProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -145,8 +147,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 ),
               ),
             ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
