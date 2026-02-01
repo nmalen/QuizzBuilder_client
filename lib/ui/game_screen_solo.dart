@@ -4,6 +4,8 @@ import '../l10n/app_localizations.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
 import '../models/question.dart';
+import '../models/theme.dart' as theme_model;
+import '../db/local_db.dart';
 import 'results_screen.dart';
 
 class GameScreenSolo extends StatefulWidget {
@@ -200,6 +202,23 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                             fontWeight: FontWeight.bold,
                           ),
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    FutureBuilder<theme_model.Theme?>(
+                      future: LocalDb.getThemeById(currentQuestion.theme),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data != null) {
+                          return Text(
+                            snapshot.data!.getName(languageCode),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                              fontStyle: FontStyle.italic,
+                            ),
+                            textAlign: TextAlign.center,
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
                     ),
                     const SizedBox(height: 12),
                     Text(

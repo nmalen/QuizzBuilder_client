@@ -127,6 +127,25 @@ class LocalDb {
     )).toList();
   }
 
+  static Future<Theme?> getThemeById(int themeId) async {
+    final db = await database;
+    final maps = await db.query('themes', where: 'id = ?', whereArgs: [themeId], limit: 1);
+    if (maps.isEmpty) return null;
+    final m = maps.first;
+    return Theme(
+      id: m['id'] as int,
+      category: (m['category_id'] as int).toString(),
+      nameEn: m['name_en'] as String,
+      nameFr: m['name_fr'] as String,
+      descriptionEn: m['description_en'] as String?,
+      descriptionFr: m['description_fr'] as String?,
+      isFree: (m['is_free'] as int) == 1,
+      isActive: (m['is_active'] as int) == 1,
+      questionsCount: 0,
+      sourceUrl: null,
+    );
+  }
+
   // QUESTION CRUD
   static Future<void> insertQuestions(List<Question> questions) async {
     final db = await database;
