@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
+import '../models/theme.dart' as theme_model;
 import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
-import 'categories_screen.dart';
+import '../widgets/gradient_background.dart';
 import 'setup_solo_screen.dart';
 import 'setup_multiplayer_screen.dart';
 
@@ -27,7 +28,11 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateFilteredCounts();
+      final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
+      if (catalogProvider.categories.isEmpty && !catalogProvider.isLoading) {
+        catalogProvider.loadCategories();
+      }
+      _refreshThemesForSelectedCategories();
     });
   }
 
@@ -64,6 +69,20 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
     });
   }
 
+  Future<void> _refreshThemesForSelectedCategories() async {
+    final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
+    final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+
+    if (builder.selectedCategoryIds.isEmpty) {
+      await _updateFilteredCounts();
+      return;
+    }
+
+    await catalogProvider.loadThemesByCategories(builder.selectedCategoryIds.toList());
+    builder.syncThemesWithSelectedCategories(List.of(catalogProvider.themes));
+    await _updateFilteredCounts();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,45 +90,69 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
         title: Text(AppLocalizations.of(context)!.selectThemes),
         elevation: 0,
       ),
-      body: Consumer2<QuizzBuilderProvider, CatalogProvider>(
-        builder: (context, builder, catalogProvider, _) {
-          final selectedCategories = builder.selectedCategories;
-          final selectedThemeCount = builder.selectedCount;
-          final selectedThemes = builder.selectedThemes;
+      body: GradientBackground(
+        child: Consumer2<QuizzBuilderProvider, CatalogProvider>(
+          builder: (context, builder, catalogProvider, _) {
+            final selectedCategories = builder.selectedCategories;
+            final selectedThemeCount = builder.selectedCount;
+            final allCategories = catalogProvider.categories;
+            final activeThemes = catalogProvider.themes.where((t) => t.isActive).toList();
 
-          return SingleChildScrollView(
+            return SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Selected Categories Section (supports multi-select)
-                  if (selectedCategories.isNotEmpty) ...[
-                    Text(
-                      AppLocalizations.of(context)!.selectCategory,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                  // Categories Section (supports multi-select)
+                  Text(
+                    AppLocalizations.of(context)!.selectCategory,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: selectedCategories
-                          .map(
-                            (c) => Chip(
-                              avatar: const Icon(Icons.category, size: 16),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: allCategories
+                        .map(
+                          (c) {
+                            final isSelected = selectedCategories.any((item) => item.id == c.id);
+                            final highlightColor = Theme.of(context).primaryColor;
+                            return FilterChip(
+                              selected: isSelected,
+                              onSelected: (_) async {
+                                builder.toggleCategory(c);
+                                await _refreshThemesForSelectedCategories();
+                              },
+                              avatar: Icon(
+                                Icons.category,
+                                size: 16,
+                                color: isSelected ? highlightColor : null,
+                              ),
                               label: Text(
                                 c.getName(
                                   Localizations.localeOf(context).languageCode,
                                 ),
+                                style: isSelected
+                                    ? Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          color: highlightColor,
+                                          fontWeight: FontWeight.bold,
+                                        )
+                                    : null,
                               ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                    const SizedBox(height: 28),
-                  ],
+                              selectedColor: highlightColor.withValues(alpha: 0.12),
+                              backgroundColor: Colors.grey[200],
+                              side: isSelected
+                                  ? BorderSide(color: highlightColor)
+                                  : null,
+                            );
+                          },
+                        )
+                        .toList(),
+                  ),
+                  const SizedBox(height: 28),
 
                   // Sélection des niveaux de difficulté
                   Text(
@@ -118,6 +161,16 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                   ),
                   const SizedBox(height: 12),
                   ToggleButtons(
+                    color: Colors.white70,
+                    selectedColor: Colors.white,
+                    fillColor: Theme.of(context).primaryColor.withValues(alpha: 0.35),
+                    borderColor: Colors.white54,
+                    selectedBorderColor: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                    constraints: const BoxConstraints(minHeight: 44, minWidth: 90),
                     isSelected: [
                       _selectedDifficulties.contains('easy'),
                       _selectedDifficulties.contains('medium'),
@@ -153,7 +206,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                   ),
                   const SizedBox(height: 28),
 
-                  // Selected Themes Section
+                  // Themes Section
                   Text(
                     AppLocalizations.of(context)!.themes,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -161,7 +214,64 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  if (selectedThemeCount == 0)
+                  if (builder.selectedCategoryIds.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.selectCategory,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  else if (catalogProvider.isLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (catalogProvider.error != null)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withValues(alpha: 0.15),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.errorLoadingThemes,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            catalogProvider.error ?? 'Unknown error',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: () {
+                              catalogProvider.loadThemesByCategories(
+                                builder.selectedCategoryIds.toList(),
+                              );
+                            },
+                            child: Text(AppLocalizations.of(context)!.retry),
+                          ),
+                        ],
+                      ),
+                    )
+                  else if (activeThemes.isEmpty)
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -206,125 +316,68 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(fontWeight: FontWeight.w600),
                               ),
+                              const Spacer(),
+                              Icon(
+                                Icons.help_center,
+                                color: Theme.of(context).primaryColor,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 6),
+                              _loadingCounts
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : Text(
+                                      '$_totalFilteredQuestions ${_totalFilteredQuestions == 1 ? AppLocalizations.of(context)!.question : AppLocalizations.of(context)!.questions}',
+                                      style: Theme.of(context).textTheme.bodyMedium
+                                          ?.copyWith(fontWeight: FontWeight.w600),
+                                    ),
                             ],
                           ),
                           const SizedBox(height: 12),
-                          // List selected themes by name
-                          ...selectedThemes.map(
-                            (t) => Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle,
-                                    size: 18,
-                                    color: Colors.green,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      t.getName(
-                                        Localizations.localeOf(
-                                          context,
-                                        ).languageCode,
-                                      ),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium,
-                                    ),
-                                  ),
-                                  _loadingCounts
-                                      ? const SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        )
-                                      : Text('${_filteredQuestionsCount[t.id] ?? 0}'),
-                                ],
-                              ),
-                            ),
+                          ...activeThemes.map(
+                            (theme) {
+                              final selected = builder.isSelected(theme.id);
+                              final canSelect = builder.isThemeEntitled(theme);
+                              final trailing = _loadingCounts
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                  : Text('${_filteredQuestionsCount[theme.id] ?? 0}');
+                              return _ThemeSelectTile(
+                                theme: theme,
+                                selected: selected && canSelect,
+                                enabled: canSelect,
+                                secondary: trailing,
+                                onChanged: canSelect
+                                    ? (value) async {
+                                        final error = builder.toggleTheme(theme);
+                                        if (error != null) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(error),
+                                              backgroundColor: Colors.red[600],
+                                              duration: const Duration(seconds: 3),
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        await _updateFilteredCounts();
+                                      }
+                                    : null,
+                              );
+                            },
                           ),
                         ],
                       ),
                     ),
                   const SizedBox(height: 28),
 
-                  // Summary Section
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor.withAlpha(25),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Theme.of(context).primaryColor.withAlpha(80),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.quizSummary,
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.bookmark,
-                              size: 18,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '$selectedThemeCount ${selectedThemeCount == 1 ? AppLocalizations.of(context)!.theme : AppLocalizations.of(context)!.themes}',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.help_center,
-                              size: 18,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                            const SizedBox(width: 8),
-                            _loadingCounts
-                                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                                : Text('$_totalFilteredQuestions ${_totalFilteredQuestions == 1 ? AppLocalizations.of(context)!.question : AppLocalizations.of(context)!.questions}'),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-
                   // Action Buttons
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CategoriesScreen(gameMode: widget.gameMode),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.changeSelection,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: selectedThemeCount == 0
                         ? null
@@ -367,8 +420,98 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                 ],
               ),
             ),
-          );
-        },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemeSelectTile extends StatelessWidget {
+  final theme_model.Theme theme;
+  final bool selected;
+  final ValueChanged<bool?>? onChanged;
+  final bool enabled;
+  final Widget? secondary;
+
+  const _ThemeSelectTile({
+    required this.theme,
+    required this.selected,
+    required this.onChanged,
+    this.enabled = true,
+    this.secondary,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        border: Border.all(color: Colors.grey[300]! ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: CheckboxListTile(
+        value: selected,
+        onChanged: enabled ? onChanged : null,
+        controlAffinity: ListTileControlAffinity.leading,
+        secondary: secondary,
+        title: Text(
+          theme.getName(Localizations.localeOf(context).languageCode),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: enabled ? null : Colors.grey,
+              ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              '${theme.questionsCount} question${theme.questionsCount == 1 ? '' : 's'}',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: theme.isFree
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.amber.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    theme.isFree ? 'FREE' : 'PREMIUM',
+                    style: TextStyle(
+                      color: theme.isFree
+                          ? Colors.green
+                          : enabled
+                              ? Colors.amber[800]
+                              : Colors.grey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                if (!enabled)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Icon(Icons.lock, color: Colors.grey, size: 18),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
