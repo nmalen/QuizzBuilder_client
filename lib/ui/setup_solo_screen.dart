@@ -38,20 +38,30 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
               AppLocalizations.of(context)!.setupSoloGame,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
             ),
             const SizedBox(height: 16),
             if (_gameMode != 'survival') ...[
               Text(
                 AppLocalizations.of(context)!.selectNumberOfQuestions,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: 12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(AppLocalizations.of(context)!.questions),
-                  Text('$_questionCount'),
+                  Text(
+                    AppLocalizations.of(context)!.questions,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    '$_questionCount',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                 ],
               ),
               Slider(
@@ -60,6 +70,8 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                 max: 20,
                 divisions: 15,
                 label: '$_questionCount',
+                activeColor: Colors.white,
+                inactiveColor: Colors.white54,
                 onChanged: (value) {
                   setState(() {
                     _questionCount = value.round();
@@ -70,7 +82,10 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
             ],
             Text(
               AppLocalizations.of(context)!.selectGameMode,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -79,24 +94,32 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                   child: RadioListTile<String>(
                     value: 'standard',
                     groupValue: _gameMode,
+                    activeColor: Colors.white,
                     onChanged: (value) {
                       setState(() {
                         _gameMode = value!;
                       });
                     },
-                    title: Text(AppLocalizations.of(context)!.standardMode),
+                    title: Text(
+                      AppLocalizations.of(context)!.standardMode,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                    ),
                   ),
                 ),
                 Expanded(
                   child: RadioListTile<String>(
                     value: 'survival',
                     groupValue: _gameMode,
+                    activeColor: Colors.white,
                     onChanged: (value) {
                       setState(() {
                         _gameMode = value!;
                       });
                     },
-                    title: Text(AppLocalizations.of(context)!.survivalMode),
+                    title: Text(
+                      AppLocalizations.of(context)!.survivalMode,
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                    ),
                   ),
                 ),
               ],

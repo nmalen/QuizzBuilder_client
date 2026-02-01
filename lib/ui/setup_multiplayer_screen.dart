@@ -36,19 +36,29 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
               AppLocalizations.of(context)!.setupMultiplayerGame,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
             ),
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.selectNumberOfPlayers,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(AppLocalizations.of(context)!.players),
-                Text('$_playerCount'),
+                Text(
+                  AppLocalizations.of(context)!.players,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                ),
+                Text(
+                  '$_playerCount',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ],
             ),
             Slider(
@@ -57,6 +67,8 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
               max: 4,
               divisions: 3,
               label: '$_playerCount',
+              activeColor: Colors.white,
+              inactiveColor: Colors.white54,
               onChanged: (value) {
                 setState(() {
                   _playerCount = value.round();
@@ -66,14 +78,23 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
             const SizedBox(height: 24),
             Text(
               AppLocalizations.of(context)!.selectNumberOfQuestions,
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(AppLocalizations.of(context)!.questions),
-                Text('$_questionCount'),
+                Text(
+                  AppLocalizations.of(context)!.questions,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                ),
+                Text(
+                  '$_questionCount',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                ),
               ],
             ),
             Slider(
@@ -82,6 +103,8 @@ class _SetupMultiplayerScreenState extends State<SetupMultiplayerScreen> {
               max: 20,
               divisions: 15,
               label: '$_questionCount',
+              activeColor: Colors.white,
+              inactiveColor: Colors.white54,
               onChanged: (value) {
                 setState(() {
                   _questionCount = value.round();
