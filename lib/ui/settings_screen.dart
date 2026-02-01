@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/language_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -72,6 +73,27 @@ class SettingsScreen extends StatelessWidget {
                         Text(
                           AppLocalizations.of(context)!.version,
                           style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 4),
+                        FutureBuilder<PackageInfo>(
+                          future: PackageInfo.fromPlatform(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return Text(
+                                '—',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.grey,
+                                ),
+                              );
+                            }
+                            final info = snapshot.data!;
+                            return Text(
+                              '${info.version}+${info.buildNumber}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey,
+                              ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 8),
                         Text(
