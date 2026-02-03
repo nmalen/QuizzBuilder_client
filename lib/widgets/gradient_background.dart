@@ -29,8 +29,8 @@ class GradientBackground extends StatelessWidget {
           ],
         ),
       ),
-      child: child,
       constraints: BoxConstraints.expand(),
+      child: child,
     );
   }
 }
