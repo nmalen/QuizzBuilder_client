@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/theme.dart' as theme_model;
@@ -19,7 +20,7 @@ class SelectedThemesScreen extends StatefulWidget {
 }
 
 class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
-  final List<String> _selectedDifficulties = ['easy', 'medium', 'hard'];
+  late List<String> _selectedDifficulties;
   Map<int, int> _filteredQuestionsCount = {};
   int _totalFilteredQuestions = 0;
   bool _loadingCounts = false;
@@ -27,6 +28,8 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedDifficulties = ['easy'];
+    _loadSavedDifficulties();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
       if (catalogProvider.categories.isEmpty && !catalogProvider.isLoading) {
@@ -34,6 +37,22 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
       }
       _refreshThemesForSelectedCategories();
     });
+  }
+
+  Future<void> _loadSavedDifficulties() async {
+    final prefs = await SharedPreferences.getInstance();
+    final saved = prefs.getStringList('selected_difficulties');
+    if (saved != null && saved.isNotEmpty) {
+      setState(() {
+        _selectedDifficulties = saved;
+      });
+      await _updateFilteredCounts();
+    }
+  }
+
+  Future<void> _saveDifficulties() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('selected_difficulties', _selectedDifficulties);
   }
 
   // Removed _updateFilteredCounts from didChangeDependencies to prevent infinite loop
@@ -187,6 +206,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                           _selectedDifficulties.add(diff);
                         }
                       });
+                      await _saveDifficulties();
                       await _updateFilteredCounts();
                     },
                     children: [
