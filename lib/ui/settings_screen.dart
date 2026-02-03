@@ -88,6 +88,13 @@ class SettingsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 16),
+                        Text(
+                          AppLocalizations.of(context)!.feedbackInvitation,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         Row(
                           children: [
                             const Icon(Icons.email, size: 18, color: Colors.grey),

@@ -53,13 +53,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storeSubtitle => 'Unlock premium themes and categories';
 
   @override
-  String get availableContent => 'Content';
+  String get availableContent => 'Available content';
 
   @override
   String get quizzBuilderContent => 'QuizzBuilder';
 
   @override
-  String get quizzBuilderContentSubtitle => 'Total content';
+  String get quizzBuilderContentSubtitle => 'Total active content (including unpurchased)';
 
   @override
   String get userContent => 'User';
@@ -289,20 +289,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emailAlreadyExists => 'An account with this email already exists.';
 
   @override
-  String get outstanding => 'Outstanding!';
+  String get outstanding => 'Outstanding! 🌟';
 
   @override
-  String get excellent => 'Excellent!';
+  String get excellent => 'Excellent! ⭐';
 
   @override
-  String get greatJob => 'Great Job!';
+  String get greatJob => 'Great Job! 👍';
 
   @override
-  String get goodEffort => 'Good Effort!';
+  String get goodEffort => 'Good Effort! 💪';
 
   @override
-  String get notBad => 'Not Bad!';
+  String get notBad => 'Not Bad! 📚';
 
   @override
-  String get keepPracticing => 'Keep Practicing!';
+  String get keepPracticing => 'Keep Practicing! 📖';
+
+  @override
+  String get free => 'Free';
+
+  @override
+  String get premium => 'Premium';
+
+  @override
+  String get feedbackInvitation => 'Feel free to contact me to request new themes or share your feedback';
+
+  @override
+  String get iapNotImplemented => 'In-app purchases are not yet implemented. This feature is coming soon!';
 }

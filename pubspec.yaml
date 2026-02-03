@@ -36,9 +36,6 @@ dependencies:
   # Authentication
   flutter_secure_storage: ^9.0.0
   
-  # In-App Purchases
-  in_app_purchase: ^3.1.0
-  
   # Date & Time
   intl: ^0.20.2
   

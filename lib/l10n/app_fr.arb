@@ -159,5 +159,9 @@
   "greatJob": "Excellent travail! 👍",
   "goodEffort": "Bon effort! 💪",
   "notBad": "Pas mal! 📚",
-  "keepPracticing": "Continue à pratiquer! 📖"
+  "keepPracticing": "Continue à pratiquer! 📖",
+  "free": "Gratuit",
+  "premium": "Premium",
+  "feedbackInvitation": "N'hésitez pas à me contacter pour demander de nouveaux thèmes ou me faire part de vos commentaires",
+  "iapNotImplemented": "Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!"
 }

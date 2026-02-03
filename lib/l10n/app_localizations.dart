@@ -670,6 +670,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Keep Practicing! 📖'**
   String get keepPracticing;
+
+  /// No description provided for @free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get free;
+
+  /// No description provided for @premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get premium;
+
+  /// No description provided for @feedbackInvitation.
+  ///
+  /// In en, this message translates to:
+  /// **'Feel free to contact me to request new themes or share your feedback'**
+  String get feedbackInvitation;
+
+  /// No description provided for @iapNotImplemented.
+  ///
+  /// In en, this message translates to:
+  /// **'In-app purchases are not yet implemented. This feature is coming soon!'**
+  String get iapNotImplemented;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

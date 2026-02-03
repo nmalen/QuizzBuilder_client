@@ -7,21 +7,15 @@ part of 'stats.dart';
 // **************************************************************************
 
 CatalogStats _$CatalogStatsFromJson(Map<String, dynamic> json) => CatalogStats(
-  totalQuestions: (json['total_questions'] as num?)?.toInt() ?? 0,
-  totalThemes: (json['total_themes'] as num?)?.toInt() ?? 0,
-  totalCategories: (json['total_categories'] as num?)?.toInt() ?? 0,
-  totalQuestionsAll: (json['total_questions_all'] as num?)?.toInt() ??
-      (json['total_questions'] as num?)?.toInt() ??
-      0,
-  totalThemesAll: (json['total_themes_all'] as num?)?.toInt() ??
-      (json['total_themes'] as num?)?.toInt() ??
-      0,
-  totalCategoriesAll: (json['total_categories_all'] as num?)?.toInt() ??
-      (json['total_categories'] as num?)?.toInt() ??
-      0,
-  totalQuestionsPurchased: (json['total_questions_purchased'] as num?)?.toInt() ?? 0,
-  totalThemesPurchased: (json['total_themes_purchased'] as num?)?.toInt() ?? 0,
-  totalCategoriesPurchased: (json['total_categories_purchased'] as num?)?.toInt() ?? 0,
+  totalQuestions: (json['total_questions'] as num).toInt(),
+  totalThemes: (json['total_themes'] as num).toInt(),
+  totalCategories: (json['total_categories'] as num).toInt(),
+  totalQuestionsAll: (json['total_questions_all'] as num).toInt(),
+  totalThemesAll: (json['total_themes_all'] as num).toInt(),
+  totalCategoriesAll: (json['total_categories_all'] as num).toInt(),
+  totalQuestionsPurchased: (json['total_questions_purchased'] as num).toInt(),
+  totalThemesPurchased: (json['total_themes_purchased'] as num).toInt(),
+  totalCategoriesPurchased: (json['total_categories_purchased'] as num).toInt(),
 );
 
 Map<String, dynamic> _$CatalogStatsToJson(CatalogStats instance) =>

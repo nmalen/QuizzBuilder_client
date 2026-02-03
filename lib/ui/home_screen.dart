@@ -133,7 +133,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     subtitle: AppLocalizations.of(context)!.storeSubtitle,
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(AppLocalizations.of(context)!.storeFeatureComing)),
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context)!.storeFeatureComing),
+                        ),
                       );
                     },
                   ),

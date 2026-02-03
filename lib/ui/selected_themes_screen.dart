@@ -368,7 +368,14 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                         }
                                         await _updateFilteredCounts();
                                       }
-                                    : null,
+                                    : (_) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(AppLocalizations.of(context)!.iapNotImplemented),
+                                            duration: const Duration(seconds: 3),
+                                          ),
+                                        );
+                                      },
                               );
                             },
                           ),
@@ -461,7 +468,7 @@ class _ThemeSelectTile extends StatelessWidget {
       ),
       child: CheckboxListTile(
         value: selected,
-        onChanged: enabled ? onChanged : null,
+        onChanged: onChanged,
         controlAffinity: ListTileControlAffinity.leading,
         secondary: secondary,
         title: Text(

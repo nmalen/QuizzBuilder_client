@@ -53,13 +53,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get storeSubtitle => 'Déverrouiller les thèmes et catégories premium';
 
   @override
-  String get availableContent => 'Contenu';
+  String get availableContent => 'Contenu disponible';
 
   @override
   String get quizzBuilderContent => 'QuizzBuilder';
 
   @override
-  String get quizzBuilderContentSubtitle => 'Contenu total';
+  String get quizzBuilderContentSubtitle => 'Contenu actif total (y compris non acheté)';
 
   @override
   String get userContent => 'Utilisateur';
@@ -289,20 +289,32 @@ class AppLocalizationsFr extends AppLocalizations {
   String get emailAlreadyExists => 'Un compte avec cet email existe déjà.';
 
   @override
-  String get outstanding => 'Exceptionnel!';
+  String get outstanding => 'Exceptionnel! 🌟';
 
   @override
-  String get excellent => 'Excellent!';
+  String get excellent => 'Excellent! ⭐';
 
   @override
-  String get greatJob => 'Excellent travail!';
+  String get greatJob => 'Excellent travail! 👍';
 
   @override
-  String get goodEffort => 'Bon effort!';
+  String get goodEffort => 'Bon effort! 💪';
 
   @override
-  String get notBad => 'Pas mal!';
+  String get notBad => 'Pas mal! 📚';
 
   @override
-  String get keepPracticing => 'Continue à pratiquer!';
+  String get keepPracticing => 'Continue à pratiquer! 📖';
+
+  @override
+  String get free => 'Gratuit';
+
+  @override
+  String get premium => 'Premium';
+
+  @override
+  String get feedbackInvitation => 'N\'hésitez pas à me contacter pour demander de nouveaux thèmes ou me faire part de vos commentaires';
+
+  @override
+  String get iapNotImplemented => 'Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!';
 }
