@@ -120,11 +120,11 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
             children: [
               Icon(Icons.inbox, size: 64, color: Colors.grey),
               const SizedBox(height: 16),
-              const Text('No questions found'),
+              Text(AppLocalizations.of(context)!.noQuestionsFound),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Go Back'),
+                child: Text(AppLocalizations.of(context)!.goBack),
               ),
             ],
           ),
@@ -333,11 +333,11 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                       try {
                         await catalog.reportQuestionError(playerQuestions[currentPlayerIndex][currentQuestionIndex].id);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Question flagged for verification.')),
+                          SnackBar(content: Text(AppLocalizations.of(context)!.questionFlagged)),
                         );
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Failed to report error: $e')),
+                          SnackBar(content: Text(AppLocalizations.of(context)!.failedToReportError(e.toString()))),
                         );
                       }
                     },
@@ -482,7 +482,7 @@ class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> wi
                   const SizedBox(height: 20),
                   // Winner announcement
                   Text(
-                    winners.length > 1 ? 'It\'s a Tie!' : 'Player ${winners.first} Wins!',
+                    winners.length > 1 ? AppLocalizations.of(context)!.itsTie : AppLocalizations.of(context)!.playerWins(winners.first),
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.grey[900],
@@ -501,7 +501,7 @@ class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> wi
                     child: Column(
                       children: [
                         Text(
-                          'Winning Score',
+                          AppLocalizations.of(context)!.winningScore,
                           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                 color: Colors.amber[900],
                               ),
@@ -520,7 +520,7 @@ class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> wi
                   const SizedBox(height: 36),
                   // Leaderboard
                   Text(
-                    'Final Leaderboard',
+                    AppLocalizations.of(context)!.finalLeaderboard,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -567,7 +567,7 @@ class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> wi
                                 ),
                                 const SizedBox(width: 16),
                                 Text(
-                                  'Player $playerNumber',
+                                  AppLocalizations.of(context)!.player(playerNumber),
                                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                         fontWeight: FontWeight.w600,
                                         color: isWinner ? Colors.amber[900] : Colors.grey[900],

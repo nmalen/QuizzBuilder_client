@@ -320,4 +320,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportError => 'Report Error';
+
+  @override
+  String get winningScore => 'Winning Score';
+
+  @override
+  String get finalLeaderboard => 'Final Leaderboard';
+
+  @override
+  String get itsTie => 'It\'s a Tie!';
+
+  @override
+  String playerWins(int playerNumber) {
+    return 'Player $playerNumber Wins!';
+  }
+
+  @override
+  String player(int playerNumber) {
+    return 'Player $playerNumber';
+  }
+
+  @override
+  String get noQuestionsFound => 'No questions found';
+
+  @override
+  String get goBack => 'Go Back';
+
+  @override
+  String get questionFlagged => 'Question flagged for verification.';
+
+  @override
+  String failedToReportError(String error) {
+    return 'Failed to report error: $error';
+  }
 }

@@ -339,11 +339,11 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                       try {
                         await catalog.reportQuestionError(questions[currentQuestionIndex].id);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Question flagged for verification.')),
+                          SnackBar(content: Text(AppLocalizations.of(context)!.questionFlagged)),
                         );
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Failed to report error: $e')),
+                          SnackBar(content: Text(AppLocalizations.of(context)!.failedToReportError(e.toString()))),
                         );
                       }
                     },

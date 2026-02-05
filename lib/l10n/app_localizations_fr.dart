@@ -320,4 +320,37 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get reportError => 'Signaler une erreur';
+
+  @override
+  String get winningScore => 'Score gagnant';
+
+  @override
+  String get finalLeaderboard => 'Classement final';
+
+  @override
+  String get itsTie => 'Égalité !';
+
+  @override
+  String playerWins(int playerNumber) {
+    return 'Joueur $playerNumber gagne !';
+  }
+
+  @override
+  String player(int playerNumber) {
+    return 'Joueur $playerNumber';
+  }
+
+  @override
+  String get noQuestionsFound => 'Aucune question trouvée';
+
+  @override
+  String get goBack => 'Retour';
+
+  @override
+  String get questionFlagged => 'Question signalée pour vérification.';
+
+  @override
+  String failedToReportError(String error) {
+    return 'Échec du signalement de l\'erreur : $error';
+  }
 }

@@ -700,6 +700,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Report Error'**
   String get reportError;
+
+  /// No description provided for @winningScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Winning Score'**
+  String get winningScore;
+
+  /// No description provided for @finalLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Final Leaderboard'**
+  String get finalLeaderboard;
+
+  /// No description provided for @itsTie.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s a Tie!'**
+  String get itsTie;
+
+  /// No description provided for @playerWins.
+  ///
+  /// In en, this message translates to:
+  /// **'Player {playerNumber} Wins!'**
+  String playerWins(int playerNumber);
+
+  /// No description provided for @player.
+  ///
+  /// In en, this message translates to:
+  /// **'Player {playerNumber}'**
+  String player(int playerNumber);
+
+  /// No description provided for @noQuestionsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions found'**
+  String get noQuestionsFound;
+
+  /// No description provided for @goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go Back'**
+  String get goBack;
+
+  /// No description provided for @questionFlagged.
+  ///
+  /// In en, this message translates to:
+  /// **'Question flagged for verification.'**
+  String get questionFlagged;
+
+  /// No description provided for @failedToReportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to report error: {error}'**
+  String failedToReportError(String error);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
