@@ -317,4 +317,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get iapNotImplemented => 'In-app purchases are not yet implemented. This feature is coming soon!';
+
+  @override
+  String get reportError => 'Report Error';
 }

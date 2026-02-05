@@ -317,4 +317,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get iapNotImplemented => 'Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!';
+
+  @override
+  String get reportError => 'Signaler une erreur';
 }

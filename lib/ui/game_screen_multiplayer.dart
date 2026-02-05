@@ -341,7 +341,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                         );
                       }
                     },
-                    label: const Text('Signaler une erreur'),
+                    label: Text(AppLocalizations.of(context)!.reportError),
                   ),
                 ),
               const SizedBox(height: 24),

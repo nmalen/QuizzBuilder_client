@@ -694,6 +694,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'In-app purchases are not yet implemented. This feature is coming soon!'**
   String get iapNotImplemented;
+
+  /// No description provided for @reportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Report Error'**
+  String get reportError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
