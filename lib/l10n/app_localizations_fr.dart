@@ -193,6 +193,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get email => 'Email';
 
   @override
+  String get emailOrUsername => 'Email ou Nom d\'utilisateur';
+
+  @override
   String get username => 'Nom d\'utilisateur';
 
   @override

@@ -397,21 +397,22 @@ class _AuthScreenState extends State<AuthScreen> {
                               key: _formKey,
                               child: Column(
                                 children: [
-                                  // Email Field
+                                  // Email/Username Field (Login) or Email Field (Register)
                                   TextFormField(
                                     controller: _emailController,
                                     keyboardType: TextInputType.emailAddress,
                                     validator: _validateIdentifier,
                                     enabled: !authProvider.isLoading,
                                     decoration: InputDecoration(
-                                      hintText: AppLocalizations.of(
-                                        context,
-                                      )!.email,
+                                      hintText: _isLogin
+                                          ? AppLocalizations.of(context)!
+                                              .emailOrUsername
+                                          : AppLocalizations.of(context)!.email,
                                       hintStyle: const TextStyle(
                                         color: Colors.white70,
                                       ),
-                                      prefixIcon: const Icon(
-                                        Icons.email,
+                                      prefixIcon: Icon(
+                                        _isLogin ? Icons.person : Icons.email,
                                         color: Colors.white70,
                                       ),
                                       filled: true,
