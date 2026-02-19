@@ -135,7 +135,8 @@ class _AuthScreenState extends State<AuthScreen> {
 
       if (mounted) {
         if (success) {
-          Navigator.of(context).pushReplacementNamed('/home');
+          // Navigation handled automatically by _AppRouter when auth state changes
+          debugPrint('[AuthScreen] Login successful, _AppRouter will navigate to HomeScreen');
         } else {
           // Show error message when login fails
           final error = context.read<AuthProvider>().error;
