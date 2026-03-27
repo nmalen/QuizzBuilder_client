@@ -163,5 +163,115 @@
   "free": "Free",
   "premium": "Premium",
   "feedbackInvitation": "Feel free to contact me to request new themes or share your feedback",
-  "iapNotImplemented": "In-app purchases are not yet implemented. This feature is coming soon!"
+  "iapNotImplemented": "In-app purchases are not yet implemented. This feature is coming soon!",
+  "storePacksTitle": "Pack Store",
+  "storeCurrentBalance": "Current balance: {packs}",
+  "@storeCurrentBalance": {
+    "placeholders": {
+      "packs": {
+        "type": "String",
+        "example": "5 question packs"
+      }
+    }
+  },
+  "storeRestorePurchases": "Restore purchases",
+  "storeRestoring": "Restoring...",
+  "storeUnavailableOnDevice": "Store unavailable on this device/account. You can still verify backend setup.",
+  "storePurchaseSuccess": "Purchase successful: +{granted} (balance {balance})",
+  "@storePurchaseSuccess": {
+    "placeholders": {
+      "granted": {
+        "type": "String",
+        "example": "1 question pack"
+      },
+      "balance": {
+        "type": "String",
+        "example": "5 question packs"
+      }
+    }
+  },
+  "storeRestoreSuccess": "Restore complete. Current balance: {balance}.",
+  "@storeRestoreSuccess": {
+    "placeholders": {
+      "balance": {
+        "type": "String",
+        "example": "5 question packs"
+      }
+    }
+  },
+  "storeVerificationFailed": "Verification failed: {error}",
+  "@storeVerificationFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "storeRestoreFailed": "Restore failed: {error}",
+  "@storeRestoreFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Timeout"
+      }
+    }
+  },
+  "storeProductUnavailable": "Product not available on the store yet.",
+  "storePurchaseFlowFailed": "Failed to start purchase flow.",
+  "storeUnknownProductId": "Unknown product ID: {productId}",
+  "@storeUnknownProductId": {
+    "placeholders": {
+      "productId": {
+        "type": "String",
+        "example": "com.quizzbuilder.packs.5"
+      }
+    }
+  },
+  "storeBuy": "Buy",
+  "storeProcessing": "Processing...",
+  "storeQuestionPackCount": "{count, plural, one{{count} question pack} other{{count} question packs}}",
+  "@storeQuestionPackCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "emailOrUsername": "Email or username",
+  "reportError": "Report error",
+  "questionFlagged": "Question reported successfully",
+  "failedToReportError": "Failed to report error: {error}",
+  "@failedToReportError": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network error"
+      }
+    }
+  },
+  "noQuestionsFound": "No questions found",
+  "goBack": "Go back",
+  "itsTie": "It's a tie!",
+  "playerWins": "Player {player} wins!",
+  "@playerWins": {
+    "placeholders": {
+      "player": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "winningScore": "Winning Score",
+  "finalLeaderboard": "Final Leaderboard",
+  "player": "Player {number}",
+  "@player": {
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  }
 }

@@ -193,9 +193,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get email => 'Email';
 
   @override
-  String get emailOrUsername => 'Email or Username';
-
-  @override
   String get username => 'Username';
 
   @override
@@ -322,7 +319,97 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iapNotImplemented => 'In-app purchases are not yet implemented. This feature is coming soon!';
 
   @override
-  String get reportError => 'Report Error';
+  String get storePacksTitle => 'Pack Store';
+
+  @override
+  String storeCurrentBalance(String packs) {
+    return 'Current balance: $packs';
+  }
+
+  @override
+  String get storeRestorePurchases => 'Restore purchases';
+
+  @override
+  String get storeRestoring => 'Restoring...';
+
+  @override
+  String get storeUnavailableOnDevice => 'Store unavailable on this device/account. You can still verify backend setup.';
+
+  @override
+  String storePurchaseSuccess(String granted, String balance) {
+    return 'Purchase successful: +$granted (balance $balance)';
+  }
+
+  @override
+  String storeRestoreSuccess(String balance) {
+    return 'Restore complete. Current balance: $balance.';
+  }
+
+  @override
+  String storeVerificationFailed(String error) {
+    return 'Verification failed: $error';
+  }
+
+  @override
+  String storeRestoreFailed(String error) {
+    return 'Restore failed: $error';
+  }
+
+  @override
+  String get storeProductUnavailable => 'Product not available on the store yet.';
+
+  @override
+  String get storePurchaseFlowFailed => 'Failed to start purchase flow.';
+
+  @override
+  String storeUnknownProductId(String productId) {
+    return 'Unknown product ID: $productId';
+  }
+
+  @override
+  String get storeBuy => 'Buy';
+
+  @override
+  String get storeProcessing => 'Processing...';
+
+  @override
+  String storeQuestionPackCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count question packs',
+      one: '$count question pack',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get emailOrUsername => 'Email or username';
+
+  @override
+  String get reportError => 'Report error';
+
+  @override
+  String get questionFlagged => 'Question reported successfully';
+
+  @override
+  String failedToReportError(String error) {
+    return 'Failed to report error: $error';
+  }
+
+  @override
+  String get noQuestionsFound => 'No questions found';
+
+  @override
+  String get goBack => 'Go back';
+
+  @override
+  String get itsTie => 'It\'s a tie!';
+
+  @override
+  String playerWins(int player) {
+    return 'Player $player wins!';
+  }
 
   @override
   String get winningScore => 'Winning Score';
@@ -331,29 +418,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get finalLeaderboard => 'Final Leaderboard';
 
   @override
-  String get itsTie => 'It\'s a Tie!';
-
-  @override
-  String playerWins(int playerNumber) {
-    return 'Player $playerNumber Wins!';
-  }
-
-  @override
-  String player(int playerNumber) {
-    return 'Player $playerNumber';
-  }
-
-  @override
-  String get noQuestionsFound => 'No questions found';
-
-  @override
-  String get goBack => 'Go Back';
-
-  @override
-  String get questionFlagged => 'Question flagged for verification.';
-
-  @override
-  String failedToReportError(String error) {
-    return 'Failed to report error: $error';
+  String player(int number) {
+    return 'Player $number';
   }
 }

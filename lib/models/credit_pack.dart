@@ -19,12 +19,26 @@ class CreditPack {
     required this.isActive,
   });
 
+  static int _toInt(dynamic value, {int fallback = 0}) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? fallback;
+    return fallback;
+  }
+
+  static double _toDouble(dynamic value, {double fallback = 0}) {
+    if (value is double) return value;
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value) ?? fallback;
+    return fallback;
+  }
+
   factory CreditPack.fromJson(Map<String, dynamic> json) {
     return CreditPack(
-      id: (json['id'] as num).toInt(),
+      id: _toInt(json['id']),
       name: json['name'] as String? ?? '',
-      credits: (json['credits'] as num?)?.toInt() ?? 0,
-      price: (json['price'] as num?)?.toDouble() ?? 0,
+      credits: _toInt(json['credits']),
+      price: _toDouble(json['price']),
       currency: json['currency'] as String? ?? 'EUR',
       storeProductIdIos: json['store_product_id_ios'] as String? ?? '',
       storeProductIdAndroid: json['store_product_id_android'] as String? ?? '',

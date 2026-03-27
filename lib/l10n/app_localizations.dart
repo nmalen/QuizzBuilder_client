@@ -443,12 +443,6 @@ abstract class AppLocalizations {
   /// **'Email'**
   String get email;
 
-  /// No description provided for @emailOrUsername.
-  ///
-  /// In en, this message translates to:
-  /// **'Email or Username'**
-  String get emailOrUsername;
-
   /// No description provided for @username.
   ///
   /// In en, this message translates to:
@@ -701,11 +695,143 @@ abstract class AppLocalizations {
   /// **'In-app purchases are not yet implemented. This feature is coming soon!'**
   String get iapNotImplemented;
 
+  /// No description provided for @storePacksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack Store'**
+  String get storePacksTitle;
+
+  /// No description provided for @storeCurrentBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance: {packs}'**
+  String storeCurrentBalance(String packs);
+
+  /// No description provided for @storeRestorePurchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get storeRestorePurchases;
+
+  /// No description provided for @storeRestoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring...'**
+  String get storeRestoring;
+
+  /// No description provided for @storeUnavailableOnDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Store unavailable on this device/account. You can still verify backend setup.'**
+  String get storeUnavailableOnDevice;
+
+  /// No description provided for @storePurchaseSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase successful: +{granted} (balance {balance})'**
+  String storePurchaseSuccess(String granted, String balance);
+
+  /// No description provided for @storeRestoreSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore complete. Current balance: {balance}.'**
+  String storeRestoreSuccess(String balance);
+
+  /// No description provided for @storeVerificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification failed: {error}'**
+  String storeVerificationFailed(String error);
+
+  /// No description provided for @storeRestoreFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore failed: {error}'**
+  String storeRestoreFailed(String error);
+
+  /// No description provided for @storeProductUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Product not available on the store yet.'**
+  String get storeProductUnavailable;
+
+  /// No description provided for @storePurchaseFlowFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to start purchase flow.'**
+  String get storePurchaseFlowFailed;
+
+  /// No description provided for @storeUnknownProductId.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown product ID: {productId}'**
+  String storeUnknownProductId(String productId);
+
+  /// No description provided for @storeBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get storeBuy;
+
+  /// No description provided for @storeProcessing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get storeProcessing;
+
+  /// No description provided for @storeQuestionPackCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} question pack} other{{count} question packs}}'**
+  String storeQuestionPackCount(int count);
+
+  /// No description provided for @emailOrUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Email or username'**
+  String get emailOrUsername;
+
   /// No description provided for @reportError.
   ///
   /// In en, this message translates to:
-  /// **'Report Error'**
+  /// **'Report error'**
   String get reportError;
+
+  /// No description provided for @questionFlagged.
+  ///
+  /// In en, this message translates to:
+  /// **'Question reported successfully'**
+  String get questionFlagged;
+
+  /// No description provided for @failedToReportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to report error: {error}'**
+  String failedToReportError(String error);
+
+  /// No description provided for @noQuestionsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions found'**
+  String get noQuestionsFound;
+
+  /// No description provided for @goBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Go back'**
+  String get goBack;
+
+  /// No description provided for @itsTie.
+  ///
+  /// In en, this message translates to:
+  /// **'It\'s a tie!'**
+  String get itsTie;
+
+  /// No description provided for @playerWins.
+  ///
+  /// In en, this message translates to:
+  /// **'Player {player} wins!'**
+  String playerWins(int player);
 
   /// No description provided for @winningScore.
   ///
@@ -719,47 +845,11 @@ abstract class AppLocalizations {
   /// **'Final Leaderboard'**
   String get finalLeaderboard;
 
-  /// No description provided for @itsTie.
-  ///
-  /// In en, this message translates to:
-  /// **'It\'s a Tie!'**
-  String get itsTie;
-
-  /// No description provided for @playerWins.
-  ///
-  /// In en, this message translates to:
-  /// **'Player {playerNumber} Wins!'**
-  String playerWins(int playerNumber);
-
   /// No description provided for @player.
   ///
   /// In en, this message translates to:
-  /// **'Player {playerNumber}'**
-  String player(int playerNumber);
-
-  /// No description provided for @noQuestionsFound.
-  ///
-  /// In en, this message translates to:
-  /// **'No questions found'**
-  String get noQuestionsFound;
-
-  /// No description provided for @goBack.
-  ///
-  /// In en, this message translates to:
-  /// **'Go Back'**
-  String get goBack;
-
-  /// No description provided for @questionFlagged.
-  ///
-  /// In en, this message translates to:
-  /// **'Question flagged for verification.'**
-  String get questionFlagged;
-
-  /// No description provided for @failedToReportError.
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to report error: {error}'**
-  String failedToReportError(String error);
+  /// **'Player {number}'**
+  String player(int number);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

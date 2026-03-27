@@ -7,6 +7,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/credit_pack.dart';
 import '../providers/auth_provider.dart';
 import '../services/credit_store_service.dart';
@@ -134,9 +135,10 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
     final product = _productForPack(pack);
     if (product == null) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Product not available on the store yet.'),
+        SnackBar(
+          content: Text(l10n.storeProductUnavailable),
           backgroundColor: Colors.red,
         ),
       );
@@ -152,9 +154,10 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
     final started = await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
     if (!started && mounted) {
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
         _purchaseInProgress = false;
-        _error = 'Failed to start purchase flow.';
+        _error = l10n.storePurchaseFlowFailed;
       });
     }
   }
@@ -206,10 +209,11 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
     if (_processingPurchaseIds.contains(purchaseKey)) return;
     _processingPurchaseIds.add(purchaseKey);
 
+    final l10n = AppLocalizations.of(context)!;
     try {
       final matches = _packs.where((p) => _productIdForPack(p) == purchase.productID).toList();
       if (matches.isEmpty) {
-        throw Exception('Unknown product ID: ${purchase.productID}');
+        throw Exception(l10n.storeUnknownProductId(purchase.productID));
       }
       final pack = matches.first;
       final packageInfo = await PackageInfo.fromPlatform();
@@ -238,7 +242,10 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Purchase successful: +${result['credits_granted']} credits (balance ${result['new_balance']})',
+            l10n.storePurchaseSuccess(
+              l10n.storeQuestionPackCount((result['credits_granted'] as num?)?.toInt() ?? 0),
+              l10n.storeQuestionPackCount((result['new_balance'] as num?)?.toInt() ?? 0),
+            ),
           ),
           backgroundColor: Colors.green,
         ),
@@ -251,7 +258,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Verification failed: $e'),
+          content: Text(l10n.storeVerificationFailed(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -268,6 +275,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       _error = null;
     });
 
+    final l10n = AppLocalizations.of(context)!;
     try {
       await _inAppPurchase.restorePurchases();
 
@@ -281,7 +289,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Restore complete. Current balance: ${credits.balance} credits.'),
+          content: Text(l10n.storeRestoreSuccess(l10n.storeQuestionPackCount(credits.balance))),
           backgroundColor: Colors.green,
         ),
       );
@@ -292,7 +300,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Restore failed: $e'),
+          content: Text(l10n.storeRestoreFailed(e.toString())),
           backgroundColor: Colors.red,
         ),
       );
@@ -307,9 +315,11 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Credit Store'),
+        title: Text(l10n.storePacksTitle),
         actions: [
           IconButton(
             onPressed: _loading ? null : _initializeStore,
@@ -335,7 +345,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                       const Icon(Icons.account_balance_wallet, color: Colors.blue),
                       const SizedBox(width: 12),
                       Text(
-                        'Current balance: $_creditBalance credits',
+                        l10n.storeCurrentBalance(l10n.storeQuestionPackCount(_creditBalance)),
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
@@ -354,16 +364,16 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.restore),
-                      label: Text(_isRestoring ? 'Restoring...' : 'Restore purchases'),
+                      label: Text(_isRestoring ? l10n.storeRestoring : l10n.storeRestorePurchases),
                     ),
                   ),
                 ),
                 if (!_storeAvailable)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.all(16),
                     child: Text(
-                      'Store unavailable on this device/account. You can still verify backend setup.',
-                      style: TextStyle(color: Colors.red),
+                      l10n.storeUnavailableOnDevice,
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
                 if (_error != null)
@@ -395,7 +405,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    '${pack.credits} credit${pack.credits > 1 ? 's' : ''}',
+                                    l10n.storeQuestionPackCount(pack.credits),
                                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -424,7 +434,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                                           child: CircularProgressIndicator(strokeWidth: 2),
                                         )
                                       : const Icon(Icons.shopping_cart_checkout),
-                                  label: Text(_purchaseInProgress ? 'Processing...' : 'Buy'),
+                                  label: Text(_purchaseInProgress ? l10n.storeProcessing : l10n.storeBuy),
                                 ),
                               ),
                             ],

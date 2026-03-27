@@ -193,9 +193,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get email => 'Email';
 
   @override
-  String get emailOrUsername => 'Email ou Nom d\'utilisateur';
-
-  @override
   String get username => 'Nom d\'utilisateur';
 
   @override
@@ -322,25 +319,82 @@ class AppLocalizationsFr extends AppLocalizations {
   String get iapNotImplemented => 'Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!';
 
   @override
-  String get reportError => 'Signaler une erreur';
+  String get storePacksTitle => 'Boutique packs';
 
   @override
-  String get winningScore => 'Score gagnant';
-
-  @override
-  String get finalLeaderboard => 'Classement final';
-
-  @override
-  String get itsTie => 'Égalité !';
-
-  @override
-  String playerWins(int playerNumber) {
-    return 'Joueur $playerNumber gagne !';
+  String storeCurrentBalance(String packs) {
+    return 'Solde actuel : $packs';
   }
 
   @override
-  String player(int playerNumber) {
-    return 'Joueur $playerNumber';
+  String get storeRestorePurchases => 'Restaurer les achats';
+
+  @override
+  String get storeRestoring => 'Restauration...';
+
+  @override
+  String get storeUnavailableOnDevice => 'Boutique indisponible sur cet appareil/compte. Vous pouvez quand meme verifier la configuration backend.';
+
+  @override
+  String storePurchaseSuccess(String granted, String balance) {
+    return 'Achat reussi : +$granted (solde $balance)';
+  }
+
+  @override
+  String storeRestoreSuccess(String balance) {
+    return 'Restauration terminee. Solde actuel : $balance.';
+  }
+
+  @override
+  String storeVerificationFailed(String error) {
+    return 'Verification echouee : $error';
+  }
+
+  @override
+  String storeRestoreFailed(String error) {
+    return 'Restauration echouee : $error';
+  }
+
+  @override
+  String get storeProductUnavailable => 'Produit pas encore disponible sur le store.';
+
+  @override
+  String get storePurchaseFlowFailed => 'Impossible de demarrer l\'achat.';
+
+  @override
+  String storeUnknownProductId(String productId) {
+    return 'Identifiant produit inconnu : $productId';
+  }
+
+  @override
+  String get storeBuy => 'Acheter';
+
+  @override
+  String get storeProcessing => 'Traitement...';
+
+  @override
+  String storeQuestionPackCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count packs de questions',
+      one: '$count pack de questions',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get emailOrUsername => 'Email ou nom d\'utilisateur';
+
+  @override
+  String get reportError => 'Signaler une erreur';
+
+  @override
+  String get questionFlagged => 'Question signalée avec succès';
+
+  @override
+  String failedToReportError(String error) {
+    return 'Échec du signalement : $error';
   }
 
   @override
@@ -350,10 +404,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get goBack => 'Retour';
 
   @override
-  String get questionFlagged => 'Question signalée pour vérification.';
+  String get itsTie => 'Égalité !';
 
   @override
-  String failedToReportError(String error) {
-    return 'Échec du signalement de l\'erreur : $error';
+  String playerWins(int player) {
+    return 'Le joueur $player gagne !';
+  }
+
+  @override
+  String get winningScore => 'Score gagnant';
+
+  @override
+  String get finalLeaderboard => 'Classement final';
+
+  @override
+  String player(int number) {
+    return 'Joueur $number';
   }
 }

@@ -163,5 +163,115 @@
   "free": "Gratuit",
   "premium": "Premium",
   "feedbackInvitation": "N'hésitez pas à me contacter pour demander de nouveaux thèmes ou me faire part de vos commentaires",
-  "iapNotImplemented": "Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!"
+  "iapNotImplemented": "Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!",
+  "storePacksTitle": "Boutique packs",
+  "storeCurrentBalance": "Solde actuel : {packs}",
+  "@storeCurrentBalance": {
+    "placeholders": {
+      "packs": {
+        "type": "String",
+        "example": "5 packs de questions"
+      }
+    }
+  },
+  "storeRestorePurchases": "Restaurer les achats",
+  "storeRestoring": "Restauration...",
+  "storeUnavailableOnDevice": "Boutique indisponible sur cet appareil/compte. Vous pouvez quand meme verifier la configuration backend.",
+  "storePurchaseSuccess": "Achat reussi : +{granted} (solde {balance})",
+  "@storePurchaseSuccess": {
+    "placeholders": {
+      "granted": {
+        "type": "String",
+        "example": "1 pack de questions"
+      },
+      "balance": {
+        "type": "String",
+        "example": "5 packs de questions"
+      }
+    }
+  },
+  "storeRestoreSuccess": "Restauration terminee. Solde actuel : {balance}.",
+  "@storeRestoreSuccess": {
+    "placeholders": {
+      "balance": {
+        "type": "String",
+        "example": "5 packs de questions"
+      }
+    }
+  },
+  "storeVerificationFailed": "Verification echouee : {error}",
+  "@storeVerificationFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Erreur reseau"
+      }
+    }
+  },
+  "storeRestoreFailed": "Restauration echouee : {error}",
+  "@storeRestoreFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Delai depasse"
+      }
+    }
+  },
+  "storeProductUnavailable": "Produit pas encore disponible sur le store.",
+  "storePurchaseFlowFailed": "Impossible de demarrer l'achat.",
+  "storeUnknownProductId": "Identifiant produit inconnu : {productId}",
+  "@storeUnknownProductId": {
+    "placeholders": {
+      "productId": {
+        "type": "String",
+        "example": "com.quizzbuilder.packs.5"
+      }
+    }
+  },
+  "storeBuy": "Acheter",
+  "storeProcessing": "Traitement...",
+  "storeQuestionPackCount": "{count, plural, one{{count} pack de questions} other{{count} packs de questions}}",
+  "@storeQuestionPackCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "emailOrUsername": "Email ou nom d'utilisateur",
+  "reportError": "Signaler une erreur",
+  "questionFlagged": "Question signalée avec succès",
+  "failedToReportError": "Échec du signalement : {error}",
+  "@failedToReportError": {
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Erreur réseau"
+      }
+    }
+  },
+  "noQuestionsFound": "Aucune question trouvée",
+  "goBack": "Retour",
+  "itsTie": "Égalité !",
+  "playerWins": "Le joueur {player} gagne !",
+  "@playerWins": {
+    "placeholders": {
+      "player": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "winningScore": "Score gagnant",
+  "finalLeaderboard": "Classement final",
+  "player": "Joueur {number}",
+  "@player": {
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  }
 }
