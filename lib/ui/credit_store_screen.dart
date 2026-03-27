@@ -54,7 +54,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
         if (!mounted) return;
         setState(() {
           _purchaseInProgress = false;
-          _error = 'Purchase stream error: $error';
+          _error = _storeAvailable ? 'Purchase stream error: $error' : null;
         });
       },
     );
@@ -376,7 +376,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                       style: const TextStyle(color: Colors.red),
                     ),
                   ),
-                if (_error != null)
+                if (_error != null && _storeAvailable)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Text(
