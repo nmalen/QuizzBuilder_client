@@ -9,6 +9,10 @@ class ApiConfig {
   static const String questionsEndpoint = '/questions/';
   static const String purchasesEndpoint = '/purchases/';
   static const String entitlementsEndpoint = '/entitlements/';
+  static const String creditPacksEndpoint = '/credit-packs/';
+  static const String userCreditsMeEndpoint = '/user-credits/me/';
+  static const String creditPurchasesVerifyEndpoint = '/credit-purchases/verify/';
+  static const String creditPurchasesRestoreEndpoint = '/credit-purchases/restore/';
   static const String authRegisterEndpoint = '/auth/registration/';
   static const String authLoginEndpoint = '/auth/login/';
   static const String authLogoutEndpoint = '/auth/logout/';

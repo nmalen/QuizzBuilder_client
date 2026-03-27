@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/catalog_provider.dart';
 import '../widgets/gradient_background.dart';
+import 'credit_store_screen.dart';
 import 'game_mode_screen.dart';
 import 'settings_screen.dart';
 
@@ -132,10 +133,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     title: AppLocalizations.of(context)!.store,
                     subtitle: AppLocalizations.of(context)!.storeSubtitle,
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(AppLocalizations.of(context)!.storeFeatureComing),
-                        ),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const CreditStoreScreen()),
                       );
                     },
                   ),

@@ -20,6 +20,7 @@ class AuthProvider extends ChangeNotifier {
   String? get error => _error;
   String? get lastMessage => _lastMessage;
   String? get successMessage => _successMessage;
+  AuthService get authService => _authService;
 
   void clearSuccessMessage() {
     _successMessage = null;
