@@ -319,11 +319,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iapNotImplemented => 'In-app purchases are not yet implemented. This feature is coming soon!';
 
   @override
-  String get storePacksTitle => 'Pack Store';
+  String get storePacksTitle => 'Question Packs';
 
   @override
   String storeCurrentBalance(String packs) {
-    return 'Current balance: $packs';
+    return 'Available packs: $packs';
   }
 
   @override
@@ -333,16 +333,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storeRestoring => 'Restoring...';
 
   @override
-  String get storeUnavailableOnDevice => 'Store unavailable on this device/account. You can still verify backend setup.';
+  String get storeUnavailableOnDevice => 'Purchases are currently unavailable on this device.';
+
+  @override
+  String get storeUnlockExplanation => 'Each purchased pack can be used to unlock additional premium themes.';
+
+  @override
+  String storeLockedPaidThemesCount(int count) {
+    return 'Premium themes not yet unlocked: $count';
+  }
 
   @override
   String storePurchaseSuccess(String granted, String balance) {
-    return 'Purchase successful: +$granted (balance $balance)';
+    return 'Pack added: +$granted (available $balance)';
   }
 
   @override
   String storeRestoreSuccess(String balance) {
-    return 'Restore complete. Current balance: $balance.';
+    return 'Restore complete. Available packs: $balance.';
   }
 
   @override
@@ -356,7 +364,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get storeProductUnavailable => 'Product not available on the store yet.';
+  String get storeProductUnavailable => 'This pack is not available for purchase yet.';
 
   @override
   String get storePurchaseFlowFailed => 'Failed to start purchase flow.';
@@ -367,7 +375,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get storeBuy => 'Buy';
+  String get storeBuy => 'Get pack';
 
   @override
   String get storeProcessing => 'Processing...';

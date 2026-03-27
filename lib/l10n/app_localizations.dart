@@ -698,13 +698,13 @@ abstract class AppLocalizations {
   /// No description provided for @storePacksTitle.
   ///
   /// In en, this message translates to:
-  /// **'Pack Store'**
+  /// **'Question Packs'**
   String get storePacksTitle;
 
   /// No description provided for @storeCurrentBalance.
   ///
   /// In en, this message translates to:
-  /// **'Current balance: {packs}'**
+  /// **'Available packs: {packs}'**
   String storeCurrentBalance(String packs);
 
   /// No description provided for @storeRestorePurchases.
@@ -722,19 +722,31 @@ abstract class AppLocalizations {
   /// No description provided for @storeUnavailableOnDevice.
   ///
   /// In en, this message translates to:
-  /// **'Store unavailable on this device/account. You can still verify backend setup.'**
+  /// **'Purchases are currently unavailable on this device.'**
   String get storeUnavailableOnDevice;
+
+  /// No description provided for @storeUnlockExplanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Each purchased pack can be used to unlock additional premium themes.'**
+  String get storeUnlockExplanation;
+
+  /// No description provided for @storeLockedPaidThemesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium themes not yet unlocked: {count}'**
+  String storeLockedPaidThemesCount(int count);
 
   /// No description provided for @storePurchaseSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Purchase successful: +{granted} (balance {balance})'**
+  /// **'Pack added: +{granted} (available {balance})'**
   String storePurchaseSuccess(String granted, String balance);
 
   /// No description provided for @storeRestoreSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Restore complete. Current balance: {balance}.'**
+  /// **'Restore complete. Available packs: {balance}.'**
   String storeRestoreSuccess(String balance);
 
   /// No description provided for @storeVerificationFailed.
@@ -752,7 +764,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeProductUnavailable.
   ///
   /// In en, this message translates to:
-  /// **'Product not available on the store yet.'**
+  /// **'This pack is not available for purchase yet.'**
   String get storeProductUnavailable;
 
   /// No description provided for @storePurchaseFlowFailed.
@@ -770,7 +782,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeBuy.
   ///
   /// In en, this message translates to:
-  /// **'Buy'**
+  /// **'Get pack'**
   String get storeBuy;
 
   /// No description provided for @storeProcessing.

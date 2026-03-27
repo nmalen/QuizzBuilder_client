@@ -164,8 +164,8 @@
   "premium": "Premium",
   "feedbackInvitation": "Feel free to contact me to request new themes or share your feedback",
   "iapNotImplemented": "In-app purchases are not yet implemented. This feature is coming soon!",
-  "storePacksTitle": "Pack Store",
-  "storeCurrentBalance": "Current balance: {packs}",
+  "storePacksTitle": "Question Packs",
+  "storeCurrentBalance": "Available packs: {packs}",
   "@storeCurrentBalance": {
     "placeholders": {
       "packs": {
@@ -176,8 +176,18 @@
   },
   "storeRestorePurchases": "Restore purchases",
   "storeRestoring": "Restoring...",
-  "storeUnavailableOnDevice": "Store unavailable on this device/account. You can still verify backend setup.",
-  "storePurchaseSuccess": "Purchase successful: +{granted} (balance {balance})",
+  "storeUnavailableOnDevice": "Purchases are currently unavailable on this device.",
+  "storeUnlockExplanation": "Each purchased pack can be used to unlock additional premium themes.",
+  "storeLockedPaidThemesCount": "Premium themes not yet unlocked: {count}",
+  "@storeLockedPaidThemesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "storePurchaseSuccess": "Pack added: +{granted} (available {balance})",
   "@storePurchaseSuccess": {
     "placeholders": {
       "granted": {
@@ -190,7 +200,7 @@
       }
     }
   },
-  "storeRestoreSuccess": "Restore complete. Current balance: {balance}.",
+  "storeRestoreSuccess": "Restore complete. Available packs: {balance}.",
   "@storeRestoreSuccess": {
     "placeholders": {
       "balance": {
@@ -217,7 +227,7 @@
       }
     }
   },
-  "storeProductUnavailable": "Product not available on the store yet.",
+  "storeProductUnavailable": "This pack is not available for purchase yet.",
   "storePurchaseFlowFailed": "Failed to start purchase flow.",
   "storeUnknownProductId": "Unknown product ID: {productId}",
   "@storeUnknownProductId": {
@@ -228,7 +238,7 @@
       }
     }
   },
-  "storeBuy": "Buy",
+  "storeBuy": "Get pack",
   "storeProcessing": "Processing...",
   "storeQuestionPackCount": "{count, plural, one{{count} question pack} other{{count} question packs}}",
   "@storeQuestionPackCount": {

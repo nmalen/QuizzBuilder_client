@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/credit_pack.dart';
 import '../providers/auth_provider.dart';
+import '../services/catalog_service.dart';
 import '../services/credit_store_service.dart';
 
 class CreditStoreScreen extends StatefulWidget {
@@ -29,6 +30,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
 
   late final CreditStoreService _service;
+  late final CatalogService _catalogService;
   StreamSubscription<List<PurchaseDetails>>? _purchaseSub;
 
   bool _loading = true;
@@ -37,6 +39,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
   bool _isRestoring = false;
 
   int _creditBalance = 0;
+  int _lockedPaidThemesCount = 0;
   String? _error;
 
   List<CreditPack> _packs = const [];
@@ -48,6 +51,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
     super.initState();
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     _service = CreditStoreService(authService: authProvider.authService);
+    _catalogService = CatalogService(authService: authProvider.authService);
     _purchaseSub = _inAppPurchase.purchaseStream.listen(
       _onPurchaseUpdates,
       onError: (Object error) {
@@ -75,15 +79,29 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
     try {
       final available = await _inAppPurchase.isAvailable();
-      final packs = await _service.getCreditPacks();
-      final credits = await _service.getMyCredits();
+      final results = await Future.wait<Object>([
+        _service.getCreditPacks(),
+        _service.getMyCredits(),
+        _catalogService.getStatistics(),
+        _catalogService.getAllThemes(),
+      ]);
+
+      final packs = results[0] as List<CreditPack>;
+      final credits = results[1] as dynamic;
+      final stats = results[2] as dynamic;
+      final allThemes = results[3] as List<dynamic>;
 
       final filteredPacks = packs
           .where((pack) => const <int>{1, 5, 10}.contains(pack.credits))
           .toList(growable: false)
         ..sort((a, b) => a.credits.compareTo(b.credits));
 
+      final totalPaidThemes = allThemes.where((theme) => theme.isActive && !theme.isFree).length;
+      final lockedPaidThemesCount =
+          (totalPaidThemes - stats.totalThemesPurchased).clamp(0, totalPaidThemes).toInt();
+
       List<ProductDetails> products = const [];
+      String? storeError;
       if (available && filteredPacks.isNotEmpty) {
         final ids = filteredPacks
             .map(_productIdForPack)
@@ -93,18 +111,20 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
         if (ids.isNotEmpty) {
           final response = await _inAppPurchase.queryProductDetails(ids);
           products = response.productDetails;
-          if (response.error != null) {
-            _error = response.error!.message;
+          if (response.error != null || response.notFoundIDs.isNotEmpty) {
+            storeError = null;
           }
         }
       }
 
       if (!mounted) return;
       setState(() {
-        _storeAvailable = available;
+        _storeAvailable = available && products.isNotEmpty;
         _packs = filteredPacks;
         _products = products;
         _creditBalance = credits.balance;
+        _lockedPaidThemesCount = lockedPaidThemesCount;
+        _error = storeError;
         _loading = false;
       });
     } catch (e) {
@@ -316,6 +336,8 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
@@ -327,26 +349,84 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              colorScheme.primary.withValues(alpha: 0.05),
+              colorScheme.surface,
+            ],
+          ),
+        ),
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
               children: [
                 Container(
                   width: double.infinity,
                   margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.blue.shade100),
+                    color: colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: colorScheme.primary.withValues(alpha: 0.14)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colorScheme.primary.withValues(alpha: 0.08),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.account_balance_wallet, color: Colors.blue),
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(Icons.account_balance_wallet, color: colorScheme.primary),
+                      ),
                       const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          l10n.storeCurrentBalance(l10n.storeQuestionPackCount(_creditBalance)),
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: colorScheme.outlineVariant),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        l10n.storeCurrentBalance(l10n.storeQuestionPackCount(_creditBalance)),
-                        style: Theme.of(context).textTheme.titleMedium,
+                        l10n.storeUnlockExplanation,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.storeLockedPaidThemesCount(_lockedPaidThemesCount),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: colorScheme.primary,
+                            ),
                       ),
                     ],
                   ),
@@ -369,11 +449,33 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                   ),
                 ),
                 if (!_storeAvailable)
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      l10n.storeUnavailableOnDevice,
-                      style: const TextStyle(color: Colors.red),
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF4E5),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFFFD59E)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 2),
+                          child: Icon(Icons.info_outline, color: Color(0xFF9A5B00)),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            l10n.storeUnavailableOnDevice,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: const Color(0xFF7A4B00),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 if (_error != null && _storeAvailable)
@@ -392,41 +494,82 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                       final pack = _packs[index];
                       final product = _productForPack(pack);
                       final displayPrice = product?.price ?? _fallbackPrices[pack.credits] ?? '${pack.price} ${pack.currency}';
-                      final productId = _productIdForPack(pack);
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 0,
+                        color: colorScheme.surface,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(color: colorScheme.outlineVariant),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    l10n.storeQuestionPackCount(pack.credits),
-                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                          fontWeight: FontWeight.bold,
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: colorScheme.secondaryContainer,
+                                            borderRadius: BorderRadius.circular(14),
+                                          ),
+                                          child: Icon(
+                                            Icons.auto_awesome,
+                                            color: colorScheme.onSecondaryContainer,
+                                          ),
                                         ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            product?.title.isNotEmpty == true
+                                                ? product!.title
+                                                : l10n.storeQuestionPackCount(pack.credits),
+                                            style: theme.textTheme.titleLarge?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  Chip(label: Text(displayPrice)),
+                                  const SizedBox(width: 12),
+                                  Chip(
+                                    label: Text(displayPrice),
+                                    backgroundColor: colorScheme.primaryContainer,
+                                    side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.12)),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                'Product ID: $productId',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Colors.grey[700],
-                                    ),
-                              ),
-                              const SizedBox(height: 12),
+                              if (product?.description.isNotEmpty == true) ...[
+                                Text(
+                                  product!.description,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                ),
+                                const SizedBox(height: 12),
+                              ],
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
                                   onPressed: (_purchaseInProgress || !_storeAvailable)
                                       ? null
                                       : () => _buyPack(pack),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
                                   icon: _purchaseInProgress
                                       ? const SizedBox(
                                           width: 16,
@@ -446,6 +589,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                 ),
               ],
             ),
+      ),
     );
   }
 }

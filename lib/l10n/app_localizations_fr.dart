@@ -319,11 +319,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get iapNotImplemented => 'Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!';
 
   @override
-  String get storePacksTitle => 'Boutique packs';
+  String get storePacksTitle => 'Packs de questions';
 
   @override
   String storeCurrentBalance(String packs) {
-    return 'Solde actuel : $packs';
+    return 'Packs disponibles : $packs';
   }
 
   @override
@@ -333,16 +333,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get storeRestoring => 'Restauration...';
 
   @override
-  String get storeUnavailableOnDevice => 'Boutique indisponible sur cet appareil/compte. Vous pouvez quand meme verifier la configuration backend.';
+  String get storeUnavailableOnDevice => 'Les achats ne sont actuellement pas disponibles sur cet appareil.';
+
+  @override
+  String get storeUnlockExplanation => 'Chaque pack achete peut etre utilise pour debloquer des themes premium supplementaires.';
+
+  @override
+  String storeLockedPaidThemesCount(int count) {
+    return 'Themes premium non encore debloques : $count';
+  }
 
   @override
   String storePurchaseSuccess(String granted, String balance) {
-    return 'Achat reussi : +$granted (solde $balance)';
+    return 'Pack ajoute : +$granted (disponibles : $balance)';
   }
 
   @override
   String storeRestoreSuccess(String balance) {
-    return 'Restauration terminee. Solde actuel : $balance.';
+    return 'Restauration terminee. Packs disponibles : $balance.';
   }
 
   @override
@@ -356,7 +364,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get storeProductUnavailable => 'Produit pas encore disponible sur le store.';
+  String get storeProductUnavailable => 'Ce pack n\'est pas encore disponible a l\'achat.';
 
   @override
   String get storePurchaseFlowFailed => 'Impossible de demarrer l\'achat.';
@@ -367,7 +375,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get storeBuy => 'Acheter';
+  String get storeBuy => 'Obtenir le pack';
 
   @override
   String get storeProcessing => 'Traitement...';

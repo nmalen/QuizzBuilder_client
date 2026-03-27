@@ -164,8 +164,8 @@
   "premium": "Premium",
   "feedbackInvitation": "N'hésitez pas à me contacter pour demander de nouveaux thèmes ou me faire part de vos commentaires",
   "iapNotImplemented": "Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!",
-  "storePacksTitle": "Boutique packs",
-  "storeCurrentBalance": "Solde actuel : {packs}",
+  "storePacksTitle": "Packs de questions",
+  "storeCurrentBalance": "Packs disponibles : {packs}",
   "@storeCurrentBalance": {
     "placeholders": {
       "packs": {
@@ -176,8 +176,18 @@
   },
   "storeRestorePurchases": "Restaurer les achats",
   "storeRestoring": "Restauration...",
-  "storeUnavailableOnDevice": "Boutique indisponible sur cet appareil/compte. Vous pouvez quand meme verifier la configuration backend.",
-  "storePurchaseSuccess": "Achat reussi : +{granted} (solde {balance})",
+  "storeUnavailableOnDevice": "Les achats ne sont actuellement pas disponibles sur cet appareil.",
+  "storeUnlockExplanation": "Chaque pack achete peut etre utilise pour debloquer des themes premium supplementaires.",
+  "storeLockedPaidThemesCount": "Themes premium non encore debloques : {count}",
+  "@storeLockedPaidThemesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "storePurchaseSuccess": "Pack ajoute : +{granted} (disponibles : {balance})",
   "@storePurchaseSuccess": {
     "placeholders": {
       "granted": {
@@ -190,7 +200,7 @@
       }
     }
   },
-  "storeRestoreSuccess": "Restauration terminee. Solde actuel : {balance}.",
+  "storeRestoreSuccess": "Restauration terminee. Packs disponibles : {balance}.",
   "@storeRestoreSuccess": {
     "placeholders": {
       "balance": {
@@ -217,7 +227,7 @@
       }
     }
   },
-  "storeProductUnavailable": "Produit pas encore disponible sur le store.",
+  "storeProductUnavailable": "Ce pack n'est pas encore disponible a l'achat.",
   "storePurchaseFlowFailed": "Impossible de demarrer l'achat.",
   "storeUnknownProductId": "Identifiant produit inconnu : {productId}",
   "@storeUnknownProductId": {
@@ -228,7 +238,7 @@
       }
     }
   },
-  "storeBuy": "Acheter",
+  "storeBuy": "Obtenir le pack",
   "storeProcessing": "Traitement...",
   "storeQuestionPackCount": "{count, plural, one{{count} pack de questions} other{{count} packs de questions}}",
   "@storeQuestionPackCount": {
