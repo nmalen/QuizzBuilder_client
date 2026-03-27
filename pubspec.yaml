@@ -3,7 +3,7 @@ description: "QuizzBuilder - A multilingual quiz game with free and paid themes.
 publish_to: 'none'
 
 # Bump down to 0.1.0 for TestFlight sandbox iteration
-version: 0.18.0+24
+version: 0.19.0+25
 
 
 
@@ -35,6 +35,9 @@ dependencies:
   # JSON Serialization
   json_annotation: ^4.8.0
   
+  # In-App Purchases
+  in_app_purchase: ^3.2.0
+
   # Authentication
   flutter_secure_storage: ^9.0.0
   
