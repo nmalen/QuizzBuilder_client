@@ -96,7 +96,7 @@
   },
   "language": "Language",
   "about": "About",
-  "version": "QuizzBuilder v1.0.0",
+  "version": "QuizzBuilder v0.21.2",
   "aboutText": "An interactive quiz platform to test your knowledge.",
   "storeFeatureComing": "Store feature coming soon!",
   "errorLoadingCategories": "Error loading categories",
