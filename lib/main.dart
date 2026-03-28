@@ -34,7 +34,7 @@ void main() async {
           create: (_) => CatalogProvider(authService: authService),
         ),
         ChangeNotifierProvider(
-          create: (_) => QuizzBuilderProvider(),
+          create: (_) => QuizzBuilderProvider(authService: authService),
         ),
       ],
       child: const MyApp(),

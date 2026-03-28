@@ -15,26 +15,33 @@ class CreditStoreService {
 
   Future<http.Response> _authorizedGet(String url) async {
     final headers = await authService.getAuthHeaders();
-    http.Response response = await http.get(Uri.parse(url), headers: headers).timeout(
-      ApiConfig.connectionTimeout,
-      onTimeout: () => throw Exception('Connection timeout'),
-    );
+    http.Response response = await http
+        .get(Uri.parse(url), headers: headers)
+        .timeout(
+          ApiConfig.connectionTimeout,
+          onTimeout: () => throw Exception('Connection timeout'),
+        );
 
     if (response.statusCode == 401) {
       final refreshed = await authService.refreshAccessToken();
       if (refreshed) {
         final retryHeaders = await authService.getAuthHeaders();
-        response = await http.get(Uri.parse(url), headers: retryHeaders).timeout(
-          ApiConfig.connectionTimeout,
-          onTimeout: () => throw Exception('Connection timeout'),
-        );
+        response = await http
+            .get(Uri.parse(url), headers: retryHeaders)
+            .timeout(
+              ApiConfig.connectionTimeout,
+              onTimeout: () => throw Exception('Connection timeout'),
+            );
       }
     }
 
     return response;
   }
 
-  Future<http.Response> _authorizedPost(String url, Map<String, dynamic> body) async {
+  Future<http.Response> _authorizedPost(
+    String url,
+    Map<String, dynamic> body,
+  ) async {
     final headers = await authService.getAuthHeaders();
     http.Response response = await http
         .post(Uri.parse(url), headers: headers, body: jsonEncode(body))
@@ -60,7 +67,9 @@ class CreditStoreService {
   }
 
   Future<List<CreditPack>> getCreditPacks() async {
-    final response = await _authorizedGet('$baseUrl${ApiConfig.creditPacksEndpoint}');
+    final response = await _authorizedGet(
+      '$baseUrl${ApiConfig.creditPacksEndpoint}',
+    );
     if (response.statusCode != 200) {
       throw Exception('Failed to load credit packs: ${response.statusCode}');
     }
@@ -73,13 +82,32 @@ class CreditStoreService {
   }
 
   Future<UserCredits> getMyCredits() async {
-    final response = await _authorizedGet('$baseUrl${ApiConfig.userCreditsMeEndpoint}');
+    final response = await _authorizedGet(
+      '$baseUrl${ApiConfig.userCreditsMeEndpoint}',
+    );
     if (response.statusCode != 200) {
       throw Exception('Failed to load user credits: ${response.statusCode}');
     }
 
-    final Map<String, dynamic> data = jsonDecode(response.body) as Map<String, dynamic>;
+    final Map<String, dynamic> data =
+        jsonDecode(response.body) as Map<String, dynamic>;
     return UserCredits.fromJson(data);
+  }
+
+  Future<Set<int>> getUnlockedThemeIds() async {
+    final response = await _authorizedGet(
+      '$baseUrl${ApiConfig.entitlementsEndpoint}',
+    );
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load entitlements: ${response.statusCode}');
+    }
+
+    final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
+    return data
+        .map((item) => (item as Map<String, dynamic>)['theme'])
+        .whereType<num>()
+        .map((themeId) => themeId.toInt())
+        .toSet();
   }
 
   Future<Map<String, dynamic>> verifyCreditPurchase({
@@ -89,14 +117,11 @@ class CreditStoreService {
   }) async {
     final response = await _authorizedPost(
       '$baseUrl${ApiConfig.creditPurchasesVerifyEndpoint}',
-      {
-        'store_type': storeType,
-        'receipt': receipt,
-        'pack_id': packId,
-      },
+      {'store_type': storeType, 'receipt': receipt, 'pack_id': packId},
     );
 
-    final Map<String, dynamic> body = jsonDecode(response.body) as Map<String, dynamic>;
+    final Map<String, dynamic> body =
+        jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return body;
     }
@@ -123,12 +148,29 @@ class CreditStoreService {
       payload,
     );
 
-    final Map<String, dynamic> body = jsonDecode(response.body) as Map<String, dynamic>;
+    final Map<String, dynamic> body =
+        jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return body;
     }
 
     final error = body['error']?.toString() ?? 'Restore failed';
+    throw Exception(error);
+  }
+
+  Future<Map<String, dynamic>> unlockThemeWithCredit(int themeId) async {
+    final response = await _authorizedPost(
+      '$baseUrl${ApiConfig.themesEndpoint}$themeId/unlock/',
+      const <String, dynamic>{},
+    );
+
+    final Map<String, dynamic> body =
+        jsonDecode(response.body) as Map<String, dynamic>;
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      return body;
+    }
+
+    final error = body['error']?.toString() ?? 'Theme unlock failed';
     throw Exception(error);
   }
 }

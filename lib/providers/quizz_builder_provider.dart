@@ -1,115 +1,145 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/category.dart';
 import '../models/theme.dart' as theme_model;
+import '../services/auth_service.dart';
+import '../services/credit_store_service.dart';
 
 class QuizzBuilderProvider extends ChangeNotifier {
-      Set<int>? _lastSyncedCategoryIds;
-    // Track themes manually unselected by the user (session only)
-    final Set<int> _manuallyUnselectedThemeIds = {};
+  QuizzBuilderProvider({required AuthService authService})
+    : _creditStoreService = CreditStoreService(authService: authService);
+
+  final CreditStoreService _creditStoreService;
+  Set<int>? _lastSyncedCategoryIds;
+  final Set<int> _manuallyUnselectedThemeIds = {};
+  final Set<int> _entitledThemeIds = {};
+
+  bool _isSyncingThemeAccess = false;
+  String? _themeAccessError;
+  int _creditBalance = 0;
+
+  bool get isSyncingThemeAccess => _isSyncingThemeAccess;
+  String? get themeAccessError => _themeAccessError;
+  int get creditBalance => _creditBalance;
+  Set<int> get entitledThemeIds => _entitledThemeIds;
+
   /// Sync selected themes with selected categories (auto-select all themes for selected categories, unselect others)
   void syncThemesWithSelectedCategories(List<theme_model.Theme> allThemes) {
-        // Clear manual unselections if categories changed
-        final currentCategoryIds = this.selectedCategoryIds;
-        if (_lastSyncedCategoryIds == null || !_lastSyncedCategoryIds!.containsAll(currentCategoryIds) || !_lastSyncedCategoryIds!.containsAll(currentCategoryIds)) {
-          _manuallyUnselectedThemeIds.clear();
-        }
-        _lastSyncedCategoryIds = Set<int>.from(currentCategoryIds);
-    final selectedCategoryIds = this.selectedCategoryIds;
-    debugPrint('SYNC THEMES:');
-    debugPrint('Selected category IDs: ${selectedCategoryIds.join(', ')}');
-    debugPrint('All themes:');
-    for (final theme in allThemes) {
-      debugPrint('  Theme id=${theme.id}, nameEn=${theme.nameEn}, nameFr=${theme.nameFr}, category=${theme.category}');
+    final activeCategoryIds = this.selectedCategoryIds;
+    if (_lastSyncedCategoryIds == null ||
+        !_lastSyncedCategoryIds!.containsAll(activeCategoryIds) ||
+        !activeCategoryIds.containsAll(_lastSyncedCategoryIds!)) {
+      _manuallyUnselectedThemeIds.clear();
     }
-    // Add all themes for selected categories
+    _lastSyncedCategoryIds = Set<int>.from(activeCategoryIds);
+
     for (final theme in allThemes) {
       final catId = int.tryParse(theme.category?.toString() ?? '');
-      if (catId != null && selectedCategoryIds.contains(catId) && !isSelected(theme.id) && isThemeEntitled(theme) && theme.isActive && !_manuallyUnselectedThemeIds.contains(theme.id)) {
-        debugPrint('  SELECT theme id=${theme.id} (${theme.nameEn}) for category=$catId');
+      if (catId != null &&
+          activeCategoryIds.contains(catId) &&
+          !isSelected(theme.id) &&
+          isThemeEntitled(theme) &&
+          theme.isActive &&
+          !_manuallyUnselectedThemeIds.contains(theme.id)) {
         _selectedThemeIds.add(theme.id);
         _selectedThemeQuestionCounts[theme.id] = theme.questionsCount;
         _selectedThemesMeta[theme.id] = theme;
       }
     }
-    // Remove themes from unselected categories or themes no longer entitled
+
     final toRemove = <int>[];
     for (final themeId in _selectedThemeIds) {
       final theme = _selectedThemesMeta[themeId];
       final catId = int.tryParse(theme?.category?.toString() ?? '');
-      
-      // Remove if category is no longer selected
-      if (theme != null && (catId == null || !selectedCategoryIds.contains(catId))) {
-        debugPrint('  UNSELECT theme id=${theme.id} (${theme.nameEn}) for category=$catId (category not selected)');
+
+      if (theme != null &&
+          (catId == null || !selectedCategoryIds.contains(catId))) {
         toRemove.add(themeId);
-      }
-      // Remove if user no longer has entitlement (e.g., theme changed from free to paid)
-      else if (theme != null && !isThemeEntitled(theme)) {
-        debugPrint('  UNSELECT theme id=${theme.id} (${theme.nameEn}) (no longer entitled)');
+      } else if (theme != null && !isThemeEntitled(theme)) {
         toRemove.add(themeId);
       }
     }
+
     for (final themeId in toRemove) {
       _selectedThemeIds.remove(themeId);
       _selectedThemeQuestionCounts.remove(themeId);
       _selectedThemesMeta.remove(themeId);
     }
-    debugPrint('Selected theme IDs after sync: ${_selectedThemeIds.join(', ')}');
     _saveToPrefs();
     notifyListeners();
   }
-      Map<int, theme_model.Theme> get selectedThemesMeta => _selectedThemesMeta;
-    // Entitled (unlocked) paid theme IDs
-    final Set<int> _entitledThemeIds = {};
-    Set<int> get entitledThemeIds => _entitledThemeIds;
 
-    // Fetch entitlements from backend (replace with real HTTP call)
-    Future<void> fetchEntitlements(String? authToken) async {
-      // TODO: Replace with real HTTP call using your auth header logic as needed
-      // Example using http package:
-      // final response = await http.get(Uri.parse('https://your.api/api/v1/entitlements/'), headers: {'Authorization': 'Bearer $authToken'});
-      // if (response.statusCode == 200) {
-      //   final data = jsonDecode(response.body);
-      //   _entitledThemeIds.clear();
-      //   for (final item in data) {
-      //     _entitledThemeIds.add(item['theme']);
-      //   }
-      //   notifyListeners();
-      // }
-      // For now, simulate: _entitledThemeIds = {1, 2, 3};
-      // Remove this simulation in production:
-      _entitledThemeIds.clear();
-      _entitledThemeIds.addAll([1, 2, 3]);
+  Map<int, theme_model.Theme> get selectedThemesMeta => _selectedThemesMeta;
+
+  Future<void> fetchEntitlements([String? _]) async {
+    await refreshThemeAccess();
+  }
+
+  Future<void> refreshThemeAccess() async {
+    if (_isSyncingThemeAccess) return;
+
+    _isSyncingThemeAccess = true;
+    _themeAccessError = null;
+    notifyListeners();
+
+    try {
+      final results = await Future.wait<Object>([
+        _creditStoreService.getUnlockedThemeIds(),
+        _creditStoreService.getMyCredits(),
+      ]);
+
+      _entitledThemeIds
+        ..clear()
+        ..addAll(results[0] as Set<int>);
+      _creditBalance = (results[1] as dynamic).balance as int;
+      validateAndCleanupEntitlements(notify: false);
+    } catch (e) {
+      _themeAccessError = e.toString();
+    } finally {
+      _isSyncingThemeAccess = false;
       notifyListeners();
     }
+  }
 
-    bool isThemeEntitled(theme_model.Theme theme) {
-      return theme.isFree || _entitledThemeIds.contains(theme.id);
-    }
+  Future<int> unlockThemeWithCredit(theme_model.Theme theme) async {
+    final result = await _creditStoreService.unlockThemeWithCredit(theme.id);
+    _entitledThemeIds.add(theme.id);
+    _creditBalance =
+        (result['credits_remaining'] as num?)?.toInt() ??
+        (_creditBalance > 0 ? _creditBalance - 1 : 0);
+    _themeAccessError = null;
+    notifyListeners();
+    return _creditBalance;
+  }
 
-    /// Validate and clean up selected themes based on current entitlements
-    /// Removes any themes that user no longer has access to (e.g., changed from free to paid)
-    void validateAndCleanupEntitlements() {
-      debugPrint('VALIDATE ENTITLEMENTS:');
-      final toRemove = <int>[];
-      for (final themeId in _selectedThemeIds) {
-        final theme = _selectedThemesMeta[themeId];
-        if (theme != null && !isThemeEntitled(theme)) {
-          debugPrint('  REMOVE theme id=${theme.id} (${theme.nameEn}) - user no longer entitled');
-          toRemove.add(themeId);
-        }
-      }
-      if (toRemove.isNotEmpty) {
-        for (final themeId in toRemove) {
-          _selectedThemeIds.remove(themeId);
-          _selectedThemeQuestionCounts.remove(themeId);
-          _selectedThemesMeta.remove(themeId);
-        }
-        _saveToPrefs();
-        notifyListeners();
+  bool isThemeEntitled(theme_model.Theme theme) {
+    return theme.isFree || _entitledThemeIds.contains(theme.id);
+  }
+
+  void validateAndCleanupEntitlements({bool notify = true}) {
+    final toRemove = <int>[];
+    for (final themeId in _selectedThemeIds) {
+      final theme = _selectedThemesMeta[themeId];
+      if (theme != null && !isThemeEntitled(theme)) {
+        toRemove.add(themeId);
       }
     }
+
+    if (toRemove.isEmpty) return;
+
+    for (final themeId in toRemove) {
+      _selectedThemeIds.remove(themeId);
+      _selectedThemeQuestionCounts.remove(themeId);
+      _selectedThemesMeta.remove(themeId);
+    }
+    _saveToPrefs();
+    if (notify) {
+      notifyListeners();
+    }
+  }
 
   // Categories (multi-select)
   final Set<int> _selectedCategoryIds = {};
@@ -129,7 +159,7 @@ class QuizzBuilderProvider extends ChangeNotifier {
   int get selectedCategoriesCount => _selectedCategoryIds.length;
 
   Set<int> get selectedThemeIds => _selectedThemeIds;
-    List<theme_model.Theme> get selectedThemes => _selectedThemeIds
+  List<theme_model.Theme> get selectedThemes => _selectedThemeIds
       .map((id) => _selectedThemesMeta[id])
       .whereType<theme_model.Theme>()
       .where((t) => t.isActive)
@@ -152,7 +182,11 @@ class QuizzBuilderProvider extends ChangeNotifier {
 
       // Unselect all themes belonging to this category
       final themeIdsToRemove = _selectedThemesMeta.entries
-          .where((entry) => entry.value.category == category.nameEn || entry.value.category == category.nameFr)
+          .where(
+            (entry) =>
+                entry.value.category == category.nameEn ||
+                entry.value.category == category.nameFr,
+          )
           .map((entry) => entry.key)
           .toList();
       for (final themeId in themeIdsToRemove) {
@@ -183,17 +217,14 @@ class QuizzBuilderProvider extends ChangeNotifier {
   String? toggleTheme(theme_model.Theme theme) {
     final themeId = theme.id;
     if (!theme.isActive) return 'Theme is not active';
-    
+
     if (_selectedThemeIds.contains(themeId)) {
-      // Unselect the theme
       _selectedThemeIds.remove(themeId);
       _selectedThemeQuestionCounts.remove(themeId);
       _selectedThemesMeta.remove(themeId);
       _manuallyUnselectedThemeIds.add(themeId);
     } else {
-      // Try to select the theme - check entitlement for paid themes
       if (!isThemeEntitled(theme)) {
-        // User doesn't have access to this paid theme
         return 'You need to purchase this theme to unlock it';
       }
       _selectedThemeIds.add(themeId);
@@ -203,7 +234,7 @@ class QuizzBuilderProvider extends ChangeNotifier {
     }
     _saveToPrefs();
     notifyListeners();
-    return null; // Success
+    return null;
   }
 
   bool isSelected(int themeId) => _selectedThemeIds.contains(themeId);

@@ -62,7 +62,8 @@ import 'app_localizations_fr.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,17 +84,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('fr')
+    Locale('fr'),
   ];
 
   /// No description provided for @standardMode.
@@ -213,7 +216,14 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Selected: {categories} categor{categoryPlural} • {themes} theme{themePlural} • {questions} question{questionPlural}'**
-  String selectedContent(int categories, String categoryPlural, int themes, String themePlural, int questions, String questionPlural);
+  String selectedContent(
+    int categories,
+    String categoryPlural,
+    int themes,
+    String themePlural,
+    int questions,
+    String questionPlural,
+  );
 
   /// No description provided for @noSelection.
   ///
@@ -803,6 +813,60 @@ abstract class AppLocalizations {
   /// **'This pack is too large for your remaining unlocks ({remaining}).'**
   String storePackTooLargeForRemaining(String remaining);
 
+  /// No description provided for @unlockPremiumThemesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Premium Themes'**
+  String get unlockPremiumThemesTitle;
+
+  /// No description provided for @unlockThemeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get unlockThemeAction;
+
+  /// No description provided for @unlockThemePrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock {theme} for 1 credit?'**
+  String unlockThemePrompt(String theme);
+
+  /// No description provided for @unlockThemeNoCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'You need at least 1 credit to unlock this theme.'**
+  String get unlockThemeNoCredits;
+
+  /// No description provided for @openStore.
+  ///
+  /// In en, this message translates to:
+  /// **'Open store'**
+  String get openStore;
+
+  /// No description provided for @unlockThemeSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'{theme} unlocked. Remaining credits: {balance}'**
+  String unlockThemeSuccess(String theme, String balance);
+
+  /// No description provided for @noPremiumThemesToUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'All premium themes are already unlocked.'**
+  String get noPremiumThemesToUnlock;
+
+  /// No description provided for @tapLockedThemeToUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a locked premium theme to unlock it with 1 credit.'**
+  String get tapLockedThemeToUnlock;
+
+  /// No description provided for @errorLoadingCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not refresh credit balance.'**
+  String get errorLoadingCredits;
+
   /// No description provided for @emailOrUsername.
   ///
   /// In en, this message translates to:
@@ -870,7 +934,8 @@ abstract class AppLocalizations {
   String player(int number);
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -879,25 +944,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'fr'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'fr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'fr': return AppLocalizationsFr();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'fr':
+      return AppLocalizationsFr();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

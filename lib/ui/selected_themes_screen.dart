@@ -7,6 +7,7 @@ import '../models/theme.dart' as theme_model;
 import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
 import '../widgets/gradient_background.dart';
+import 'credit_store_screen.dart';
 import 'setup_solo_screen.dart';
 import 'setup_multiplayer_screen.dart';
 
@@ -24,6 +25,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   Map<int, int> _filteredQuestionsCount = {};
   int _totalFilteredQuestions = 0;
   bool _loadingCounts = false;
+  bool _isUnlocking = false;
 
   @override
   void initState() {
@@ -31,12 +33,107 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
     _selectedDifficulties = ['easy'];
     _loadSavedDifficulties();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
+      Provider.of<QuizzBuilderProvider>(
+        context,
+        listen: false,
+      ).refreshThemeAccess();
+      final catalogProvider = Provider.of<CatalogProvider>(
+        context,
+        listen: false,
+      );
       if (catalogProvider.categories.isEmpty && !catalogProvider.isLoading) {
         catalogProvider.loadCategories();
       }
       _refreshThemesForSelectedCategories();
     });
+  }
+
+  Future<void> _promptUnlockTheme(theme_model.Theme theme) async {
+    if (_isUnlocking) return;
+    final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+    final l10n = AppLocalizations.of(context)!;
+    final themeName = theme.getName(
+      Localizations.localeOf(context).languageCode,
+    );
+    final hasCredits = builder.creditBalance > 0;
+
+    final action = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(themeName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.unlockThemePrompt(themeName)),
+              const SizedBox(height: 12),
+              Text(
+                l10n.storeCurrentBalance(
+                  l10n.storeQuestionPackCount(builder.creditBalance),
+                ),
+              ),
+              if (!hasCredits) ...[
+                const SizedBox(height: 12),
+                Text(l10n.unlockThemeNoCredits),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop('cancel'),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(
+                dialogContext,
+              ).pop(hasCredits ? 'unlock' : 'store'),
+              child: Text(hasCredits ? l10n.unlockThemeAction : l10n.openStore),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || action == null || action == 'cancel') {
+      return;
+    }
+
+    if (action == 'store') {
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const CreditStoreScreen()));
+      if (mounted) {
+        await builder.refreshThemeAccess();
+      }
+      return;
+    }
+
+    setState(() => _isUnlocking = true);
+    try {
+      final remaining = await builder.unlockThemeWithCredit(theme);
+      builder.toggleTheme(theme);
+      await _updateFilteredCounts();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.unlockThemeSuccess(
+              themeName,
+              l10n.storeQuestionPackCount(remaining),
+            ),
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) setState(() => _isUnlocking = false);
+    }
   }
 
   Future<void> _loadSavedDifficulties() async {
@@ -61,9 +158,14 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
     setState(() {
       _loadingCounts = true;
     });
-    final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
+    final catalogProvider = Provider.of<CatalogProvider>(
+      context,
+      listen: false,
+    );
     final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
-    final selectedThemes = builder.selectedThemes.where((t) => t.isActive).toList();
+    final selectedThemes = builder.selectedThemes
+        .where((t) => t.isActive)
+        .toList();
     Map<int, int> themeCounts = {};
     int total = 0;
     for (final theme in selectedThemes) {
@@ -73,7 +175,9 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
       }
       try {
         final questions = await catalogProvider.loadQuestionsByTheme(theme.id);
-        final filtered = questions.where((q) => _selectedDifficulties.contains(q.difficulty)).toList();
+        final filtered = questions
+            .where((q) => _selectedDifficulties.contains(q.difficulty))
+            .toList();
         themeCounts[theme.id] = filtered.length;
         total += filtered.length;
       } catch (e) {
@@ -89,7 +193,10 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   }
 
   Future<void> _refreshThemesForSelectedCategories() async {
-    final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
+    final catalogProvider = Provider.of<CatalogProvider>(
+      context,
+      listen: false,
+    );
     final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
 
     if (builder.selectedCategoryIds.isEmpty) {
@@ -97,7 +204,9 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
       return;
     }
 
-    await catalogProvider.loadThemesByCategories(builder.selectedCategoryIds.toList());
+    await catalogProvider.loadThemesByCategories(
+      builder.selectedCategoryIds.toList(),
+    );
     builder.syncThemesWithSelectedCategories(List.of(catalogProvider.themes));
     await _updateFilteredCounts();
   }
@@ -115,259 +224,351 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
             final selectedCategories = builder.selectedCategories;
             final selectedThemeCount = builder.selectedCount;
             final allCategories = catalogProvider.categories;
-            final activeThemes = catalogProvider.themes.where((t) => t.isActive).toList();
+            final activeThemes = catalogProvider.themes
+                .where((t) => t.isActive)
+                .toList();
 
             return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Categories Section (supports multi-select)
-                  Text(
-                    AppLocalizations.of(context)!.selectCategory,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Categories Section (supports multi-select)
+                    Text(
+                      AppLocalizations.of(context)!.selectCategory,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: allCategories
-                        .map(
-                          (c) {
-                            final isSelected = selectedCategories.any((item) => item.id == c.id);
-                            final highlightColor = Theme.of(context).primaryColor;
-                            return FilterChip(
-                              selected: isSelected,
-                              onSelected: (_) async {
-                                builder.toggleCategory(c);
-                                await _refreshThemesForSelectedCategories();
-                              },
-                              avatar: Icon(
-                                Icons.category,
-                                size: 16,
-                                color: isSelected ? highlightColor : null,
-                              ),
-                              label: Text(
-                                c.getName(
-                                  Localizations.localeOf(context).languageCode,
-                                ),
-                                style: isSelected
-                                    ? Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          color: highlightColor,
-                                          fontWeight: FontWeight.bold,
-                                        )
-                                    : null,
-                              ),
-                              selectedColor: highlightColor.withValues(alpha: 0.12),
-                              backgroundColor: Colors.grey[200],
-                              side: isSelected
-                                  ? BorderSide(color: highlightColor)
-                                  : null,
-                            );
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: allCategories.map((c) {
+                        final isSelected = selectedCategories.any(
+                          (item) => item.id == c.id,
+                        );
+                        final highlightColor = Theme.of(context).primaryColor;
+                        return FilterChip(
+                          selected: isSelected,
+                          onSelected: (_) async {
+                            builder.toggleCategory(c);
+                            await _refreshThemesForSelectedCategories();
                           },
-                        )
-                        .toList(),
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Sélection des niveaux de difficulté
-                  Text(
-                    AppLocalizations.of(context)!.selectQuestionsLevels,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 12),
-                  ToggleButtons(
-                    color: Colors.white70,
-                    selectedColor: Colors.white,
-                    fillColor: Theme.of(context).primaryColor.withValues(alpha: 0.35),
-                    borderColor: Colors.white54,
-                    selectedBorderColor: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                    constraints: const BoxConstraints(minHeight: 44, minWidth: 90),
-                    isSelected: [
-                      _selectedDifficulties.contains('easy'),
-                      _selectedDifficulties.contains('medium'),
-                      _selectedDifficulties.contains('hard'),
-                    ],
-                    onPressed: (index) async {
-                      setState(() {
-                        final diff = ['easy', 'medium', 'hard'][index];
-                        if (_selectedDifficulties.contains(diff)) {
-                          if (_selectedDifficulties.length > 1) {
-                            _selectedDifficulties.remove(diff);
-                          }
-                        } else {
-                          _selectedDifficulties.add(diff);
-                        }
-                      });
-                      await _saveDifficulties();
-                      await _updateFilteredCounts();
-                    },
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(AppLocalizations.of(context)!.easy), // TODO: assurez-vous que 'easy' existe dans les ARB
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(AppLocalizations.of(context)!.medium), // TODO: assurez-vous que 'medium' existe dans les ARB
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text(AppLocalizations.of(context)!.hard), // TODO: assurez-vous que 'hard' existe dans les ARB
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 28),
-
-                  // Themes Section
-                  Text(
-                    AppLocalizations.of(context)!.themes,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (builder.selectedCategoryIds.isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.selectCategory,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    )
-                  else if (catalogProvider.isLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (catalogProvider.error != null)
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withValues(alpha: 0.15),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                          avatar: Icon(
+                            Icons.category,
+                            size: 16,
+                            color: isSelected ? highlightColor : null,
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)!.errorLoadingThemes,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            catalogProvider.error ?? 'Unknown error',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey[600],
+                          label: Text(
+                            c.getName(
+                              Localizations.localeOf(context).languageCode,
                             ),
+                            style: isSelected
+                                ? Theme.of(
+                                    context,
+                                  ).textTheme.bodyMedium?.copyWith(
+                                    color: highlightColor,
+                                    fontWeight: FontWeight.bold,
+                                  )
+                                : null,
                           ),
-                          const SizedBox(height: 12),
-                          ElevatedButton(
-                            onPressed: () {
-                              catalogProvider.loadThemesByCategories(
-                                builder.selectedCategoryIds.toList(),
-                              );
-                            },
-                            child: Text(AppLocalizations.of(context)!.retry),
-                          ),
-                        ],
+                          selectedColor: highlightColor.withValues(alpha: 0.12),
+                          backgroundColor: Colors.grey[200],
+                          side: isSelected
+                              ? BorderSide(color: highlightColor)
+                              : null,
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 28),
+
+                    // Sélection des niveaux de difficulté
+                    Text(
+                      AppLocalizations.of(context)!.selectQuestionsLevels,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    ToggleButtons(
+                      color: Colors.white70,
+                      selectedColor: Colors.white,
+                      fillColor: Theme.of(
+                        context,
+                      ).primaryColor.withValues(alpha: 0.35),
+                      borderColor: Colors.white54,
+                      selectedBorderColor: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      textStyle: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
+                      constraints: const BoxConstraints(
+                        minHeight: 44,
+                        minWidth: 90,
                       ),
-                    )
-                  else if (activeThemes.isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.noThemesSelected,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey[600],
+                      isSelected: [
+                        _selectedDifficulties.contains('easy'),
+                        _selectedDifficulties.contains('medium'),
+                        _selectedDifficulties.contains('hard'),
+                      ],
+                      onPressed: (index) async {
+                        setState(() {
+                          final diff = ['easy', 'medium', 'hard'][index];
+                          if (_selectedDifficulties.contains(diff)) {
+                            if (_selectedDifficulties.length > 1) {
+                              _selectedDifficulties.remove(diff);
+                            }
+                          } else {
+                            _selectedDifficulties.add(diff);
+                          }
+                        });
+                        await _saveDifficulties();
+                        await _updateFilteredCounts();
+                      },
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            AppLocalizations.of(context)!.easy,
+                          ), // TODO: assurez-vous que 'easy' existe dans les ARB
                         ),
-                        textAlign: TextAlign.center,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            AppLocalizations.of(context)!.medium,
+                          ), // TODO: assurez-vous que 'medium' existe dans les ARB
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            AppLocalizations.of(context)!.hard,
+                          ), // TODO: assurez-vous que 'hard' existe dans les ARB
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 28),
+
+                    // Themes Section
+                    Text(
+                      AppLocalizations.of(context)!.themes,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
-                    )
-                  else
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withValues(alpha: 0.15),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.bookmark,
-                                color: Theme.of(context).primaryColor,
-                                size: 20,
+                    ),
+                    const SizedBox(height: 12),
+                    Consumer<QuizzBuilderProvider>(
+                      builder: (context, builder, _) {
+                        return Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withValues(alpha: 0.12),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                '$selectedThemeCount ${selectedThemeCount == 1 ? AppLocalizations.of(context)!.theme : AppLocalizations.of(context)!.themes}',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              const Spacer(),
-                              Icon(
-                                Icons.help_center,
-                                color: Theme.of(context).primaryColor,
-                                size: 18,
-                              ),
-                              const SizedBox(width: 6),
-                              _loadingCounts
-                                  ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
-                                    )
-                                  : Text(
-                                      '$_totalFilteredQuestions ${_totalFilteredQuestions == 1 ? AppLocalizations.of(context)!.question : AppLocalizations.of(context)!.questions}',
-                                      style: Theme.of(context).textTheme.bodyMedium
-                                          ?.copyWith(fontWeight: FontWeight.w600),
-                                    ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          ...activeThemes.map(
-                            (theme) {
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.storeCurrentBalance(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.storeQuestionPackCount(
+                                          builder.creditBalance,
+                                        ),
+                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.tapLockedThemeToUnlock,
+                                    ),
+                                    if (builder.themeAccessError != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.errorLoadingCredits,
+                                        style: TextStyle(
+                                          color: Colors.red[700],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              if (builder.isSyncingThemeAccess)
+                                const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    if (builder.selectedCategoryIds.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.selectCategory,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: Colors.grey[600]),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    else if (catalogProvider.isLoading)
+                      const Center(child: CircularProgressIndicator())
+                    else if (catalogProvider.error != null)
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withValues(alpha: 0.15),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.errorLoadingThemes,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              catalogProvider.error ?? 'Unknown error',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey[600]),
+                            ),
+                            const SizedBox(height: 12),
+                            ElevatedButton(
+                              onPressed: () {
+                                catalogProvider.loadThemesByCategories(
+                                  builder.selectedCategoryIds.toList(),
+                                );
+                              },
+                              child: Text(AppLocalizations.of(context)!.retry),
+                            ),
+                          ],
+                        ),
+                      )
+                    else if (activeThemes.isEmpty)
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.noThemesSelected,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: Colors.grey[600]),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    else
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withValues(alpha: 0.15),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.bookmark,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '$selectedThemeCount ${selectedThemeCount == 1 ? AppLocalizations.of(context)!.theme : AppLocalizations.of(context)!.themes}',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                                const Spacer(),
+                                Icon(
+                                  Icons.help_center,
+                                  color: Theme.of(context).primaryColor,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 6),
+                                _loadingCounts
+                                    ? const SizedBox(
+                                        width: 16,
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Text(
+                                        '$_totalFilteredQuestions ${_totalFilteredQuestions == 1 ? AppLocalizations.of(context)!.question : AppLocalizations.of(context)!.questions}',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            ...activeThemes.map((theme) {
                               final selected = builder.isSelected(theme.id);
                               final canSelect = builder.isThemeEntitled(theme);
                               final trailing = _loadingCounts
                                   ? const SizedBox(
                                       width: 16,
                                       height: 16,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
                                     )
-                                  : Text('${_filteredQuestionsCount[theme.id] ?? 0}');
+                                  : Text(
+                                      '${_filteredQuestionsCount[theme.id] ?? 0}',
+                                    );
                               return _ThemeSelectTile(
                                 theme: theme,
                                 selected: selected && canSelect,
@@ -375,78 +576,79 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                 secondary: trailing,
                                 onChanged: canSelect
                                     ? (value) async {
-                                        final error = builder.toggleTheme(theme);
+                                        final error = builder.toggleTheme(
+                                          theme,
+                                        );
                                         if (error != null) {
-                                          ScaffoldMessenger.of(context).showSnackBar(
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
                                             SnackBar(
                                               content: Text(error),
                                               backgroundColor: Colors.red[600],
-                                              duration: const Duration(seconds: 3),
+                                              duration: const Duration(
+                                                seconds: 3,
+                                              ),
                                             ),
                                           );
                                           return;
                                         }
                                         await _updateFilteredCounts();
                                       }
-                                    : (_) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(AppLocalizations.of(context)!.iapNotImplemented),
-                                            duration: const Duration(seconds: 3),
-                                          ),
-                                        );
-                                      },
+                                    : (_) => _promptUnlockTheme(theme),
                               );
-                            },
-                          ),
-                        ],
+                            }),
+                          ],
+                        ),
                       ),
-                    ),
-                  const SizedBox(height: 28),
+                    const SizedBox(height: 28),
 
-                  // Action Buttons
-                  ElevatedButton(
-                    onPressed: selectedThemeCount == 0
-                        ? null
-                        : () {
-                            if (widget.gameMode == 'multiplayer') {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const SetupMultiplayerScreen(),
-                                ),
-                              );
-                            } else {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => SetupSoloScreen(
-                                    selectedDifficulties: List<String>.from(_selectedDifficulties),
+                    // Action Buttons
+                    ElevatedButton(
+                      onPressed: selectedThemeCount == 0
+                          ? null
+                          : () {
+                              if (widget.gameMode == 'multiplayer') {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const SetupMultiplayerScreen(),
                                   ),
-                                ),
-                              );
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                                );
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => SetupSoloScreen(
+                                      selectedDifficulties: List<String>.from(
+                                        _selectedDifficulties,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        backgroundColor: Colors.green,
+                        disabledBackgroundColor: Colors.grey[400],
                       ),
-                      backgroundColor: Colors.green,
-                      disabledBackgroundColor: Colors.grey[400],
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.startQuiz,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      child: Text(
+                        AppLocalizations.of(context)!.startQuiz,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
             );
           },
         ),
@@ -477,7 +679,7 @@ class _ThemeSelectTile extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
-        border: Border.all(color: Colors.grey[300]! ),
+        border: Border.all(color: Colors.grey[300]!),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withValues(alpha: 0.1),
@@ -494,9 +696,9 @@ class _ThemeSelectTile extends StatelessWidget {
         title: Text(
           theme.getName(Localizations.localeOf(context).languageCode),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: enabled ? null : Colors.grey,
-              ),
+            fontWeight: FontWeight.bold,
+            color: enabled ? null : Colors.grey,
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -504,13 +706,18 @@ class _ThemeSelectTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '${theme.questionsCount} question${theme.questionsCount == 1 ? '' : 's'}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.grey),
             ),
             const SizedBox(height: 6),
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.isFree
                         ? Colors.green.withValues(alpha: 0.1)
@@ -523,8 +730,8 @@ class _ThemeSelectTile extends StatelessWidget {
                       color: theme.isFree
                           ? Colors.green
                           : enabled
-                              ? Colors.amber[800]
-                              : Colors.grey,
+                          ? Colors.amber[800]
+                          : Colors.grey,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),

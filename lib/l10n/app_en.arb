@@ -258,6 +258,35 @@
       }
     }
   },
+  "unlockPremiumThemesTitle": "Unlock Premium Themes",
+  "unlockThemeAction": "Unlock",
+  "unlockThemePrompt": "Unlock {theme} for 1 credit?",
+  "@unlockThemePrompt": {
+    "placeholders": {
+      "theme": {
+        "type": "String",
+        "example": "Astronomy"
+      }
+    }
+  },
+  "unlockThemeNoCredits": "You need at least 1 credit to unlock this theme.",
+  "openStore": "Open store",
+  "unlockThemeSuccess": "{theme} unlocked. Remaining credits: {balance}",
+  "@unlockThemeSuccess": {
+    "placeholders": {
+      "theme": {
+        "type": "String",
+        "example": "Astronomy"
+      },
+      "balance": {
+        "type": "String",
+        "example": "2 question packs"
+      }
+    }
+  },
+  "noPremiumThemesToUnlock": "All premium themes are already unlocked.",
+  "tapLockedThemeToUnlock": "Tap a locked premium theme to unlock it with 1 credit.",
+  "errorLoadingCredits": "Could not refresh credit balance.",
   "emailOrUsername": "Email or username",
   "reportError": "Report error",
   "questionFlagged": "Question reported successfully",

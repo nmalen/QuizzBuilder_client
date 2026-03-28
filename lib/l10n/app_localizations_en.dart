@@ -38,7 +38,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get playQuiz => 'Play Quiz';
 
   @override
-  String get playQuizSubtitle => 'Select categories, themes, and challenge yourself';
+  String get playQuizSubtitle =>
+      'Select categories, themes, and challenge yourself';
 
   @override
   String get buildQuiz => 'Build Quiz';
@@ -59,7 +60,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quizzBuilderContent => 'QuizzBuilder';
 
   @override
-  String get quizzBuilderContentSubtitle => 'Total active content (including unpurchased)';
+  String get quizzBuilderContentSubtitle =>
+      'Total active content (including unpurchased)';
 
   @override
   String get userContent => 'User';
@@ -68,7 +70,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get userContentSubtitle => 'Unlocked content';
 
   @override
-  String selectedContent(int categories, String categoryPlural, int themes, String themePlural, int questions, String questionPlural) {
+  String selectedContent(
+    int categories,
+    String categoryPlural,
+    int themes,
+    String themePlural,
+    int questions,
+    String questionPlural,
+  ) {
     return 'Selected: $categories categor$categoryPlural • $themes theme$themePlural • $questions question$questionPlural';
   }
 
@@ -143,7 +152,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get version => 'QuizzBuilder v0.21.3';
 
   @override
-  String get aboutText => 'An interactive quiz platform to test your knowledge.';
+  String get aboutText =>
+      'An interactive quiz platform to test your knowledge.';
 
   @override
   String get storeFeatureComing => 'Store feature coming soon!';
@@ -181,7 +191,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createAccount => 'Create Account';
 
   @override
-  String get registrationSuccessful => 'Registration successful! Please check your email to verify your account.';
+  String get registrationSuccessful =>
+      'Registration successful! Please check your email to verify your account.';
 
   @override
   String get login => 'Login';
@@ -313,10 +324,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premium => 'Premium';
 
   @override
-  String get feedbackInvitation => 'Feel free to contact me to request new themes or share your feedback';
+  String get feedbackInvitation =>
+      'Feel free to contact me to request new themes or share your feedback';
 
   @override
-  String get iapNotImplemented => 'In-app purchases are not yet implemented. This feature is coming soon!';
+  String get iapNotImplemented =>
+      'In-app purchases are not yet implemented. This feature is coming soon!';
 
   @override
   String get storePacksTitle => 'Question Packs';
@@ -333,10 +346,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storeRestoring => 'Restoring...';
 
   @override
-  String get storeUnavailableOnDevice => 'Purchases are currently unavailable on this device.';
+  String get storeUnavailableOnDevice =>
+      'Purchases are currently unavailable on this device.';
 
   @override
-  String get storeUnlockExplanation => 'Each purchased pack can be used to unlock additional premium themes.';
+  String get storeUnlockExplanation =>
+      'Each purchased pack can be used to unlock additional premium themes.';
 
   @override
   String storeLockedPaidThemesCount(int count) {
@@ -364,7 +379,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get storeProductUnavailable => 'This pack is not available for purchase yet.';
+  String get storeProductUnavailable =>
+      'This pack is not available for purchase yet.';
 
   @override
   String get storePurchaseFlowFailed => 'Failed to start purchase flow.';
@@ -395,6 +411,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String storePackTooLargeForRemaining(String remaining) {
     return 'This pack is too large for your remaining unlocks ($remaining).';
   }
+
+  @override
+  String get unlockPremiumThemesTitle => 'Unlock Premium Themes';
+
+  @override
+  String get unlockThemeAction => 'Unlock';
+
+  @override
+  String unlockThemePrompt(String theme) {
+    return 'Unlock $theme for 1 credit?';
+  }
+
+  @override
+  String get unlockThemeNoCredits =>
+      'You need at least 1 credit to unlock this theme.';
+
+  @override
+  String get openStore => 'Open store';
+
+  @override
+  String unlockThemeSuccess(String theme, String balance) {
+    return '$theme unlocked. Remaining credits: $balance';
+  }
+
+  @override
+  String get noPremiumThemesToUnlock =>
+      'All premium themes are already unlocked.';
+
+  @override
+  String get tapLockedThemeToUnlock =>
+      'Tap a locked premium theme to unlock it with 1 credit.';
+
+  @override
+  String get errorLoadingCredits => 'Could not refresh credit balance.';
 
   @override
   String get emailOrUsername => 'Email or username';

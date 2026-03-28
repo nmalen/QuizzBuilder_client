@@ -13,6 +13,7 @@ import '../models/credit_pack.dart';
 import '../providers/auth_provider.dart';
 import '../services/catalog_service.dart';
 import '../services/credit_store_service.dart';
+import 'premium_theme_unlock_screen.dart';
 
 class CreditStoreScreen extends StatefulWidget {
   const CreditStoreScreen({super.key});
@@ -160,6 +161,14 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
     return (_lockedPaidThemesCount - _creditBalance)
         .clamp(0, _lockedPaidThemesCount)
         .toInt();
+  }
+
+  Future<void> _openPremiumThemesToUnlock() async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const PremiumThemeUnlockScreen()));
+    if (!mounted) return;
+    await _initializeStore();
   }
 
   Future<void> _buyPack(CreditPack pack) async {
@@ -453,33 +462,47 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                       ],
                     ),
                   ),
-                  Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: colorScheme.outlineVariant),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.storeUnlockExplanation,
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.storeLockedPaidThemesCount(
-                            _lockedPaidThemesCount,
+                  InkWell(
+                    onTap: _openPremiumThemesToUnlock,
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surface,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: colorScheme.outlineVariant),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.storeUnlockExplanation,
+                            style: theme.textTheme.bodyMedium,
                           ),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.primary,
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  l10n.storeLockedPaidThemesCount(
+                                    _lockedPaidThemesCount,
+                                  ),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right,
+                                color: colorScheme.primary,
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   Padding(

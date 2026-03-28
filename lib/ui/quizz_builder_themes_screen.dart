@@ -6,6 +6,7 @@ import '../providers/quizz_builder_provider.dart';
 // Removed unused imports after multi-category support
 import '../models/theme.dart' as theme_model;
 import '../providers/language_provider.dart';
+import 'credit_store_screen.dart';
 import 'selected_themes_screen.dart';
 
 class QuizzBuilderThemesScreen extends StatefulWidget {
@@ -19,15 +20,104 @@ class QuizzBuilderThemesScreen extends StatefulWidget {
 }
 
 class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
+  bool _isUnlocking = false;
+
   @override
   void initState() {
     super.initState();
-    // Validate and clean up any selected themes that user no longer has access to
-    // (e.g., themes changed from free to paid by admin after initial selection)
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<QuizzBuilderProvider>(context, listen: false)
-          .validateAndCleanupEntitlements();
+      final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+      builder.refreshThemeAccess().then((_) {
+        builder.validateAndCleanupEntitlements();
+      });
     });
+  }
+
+  Future<void> _promptUnlockTheme(theme_model.Theme theme) async {
+    if (_isUnlocking) return;
+    final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+    final l10n = AppLocalizations.of(context)!;
+    final themeName = theme.getName(
+      Localizations.localeOf(context).languageCode,
+    );
+    final hasCredits = builder.creditBalance > 0;
+
+    final action = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(themeName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.unlockThemePrompt(themeName)),
+              const SizedBox(height: 12),
+              Text(
+                l10n.storeCurrentBalance(
+                  l10n.storeQuestionPackCount(builder.creditBalance),
+                ),
+              ),
+              if (!hasCredits) ...[
+                const SizedBox(height: 12),
+                Text(l10n.unlockThemeNoCredits),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop('cancel'),
+              child: Text(l10n.cancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(
+                dialogContext,
+              ).pop(hasCredits ? 'unlock' : 'store'),
+              child: Text(hasCredits ? l10n.unlockThemeAction : l10n.openStore),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || action == null || action == 'cancel') {
+      return;
+    }
+
+    if (action == 'store') {
+      await Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => const CreditStoreScreen()));
+      if (mounted) {
+        await builder.refreshThemeAccess();
+      }
+      return;
+    }
+
+    setState(() => _isUnlocking = true);
+    try {
+      final remaining = await builder.unlockThemeWithCredit(theme);
+      builder.toggleTheme(theme);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            l10n.unlockThemeSuccess(
+              themeName,
+              l10n.storeQuestionPackCount(remaining),
+            ),
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      );
+    } finally {
+      if (mounted) setState(() => _isUnlocking = false);
+    }
   }
 
   @override
@@ -103,6 +193,62 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
           final activeThemes = catalog.themes.where((t) => t.isActive).toList();
           return Column(
             children: [
+              Consumer<QuizzBuilderProvider>(
+                builder: (context, builder, _) {
+                  return Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.storeCurrentBalance(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.storeQuestionPackCount(
+                                    builder.creditBalance,
+                                  ),
+                                ),
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                            if (builder.isSyncingThemeAccess)
+                              const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                          ],
+                        ),
+                        if (builder.themeAccessError != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            AppLocalizations.of(context)!.errorLoadingCredits,
+                            style: TextStyle(
+                              color: Colors.red[700],
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                },
+              ),
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
@@ -116,7 +262,9 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                       selected: selected && canSelect,
                       onChanged: canSelect
                           ? (value) {
-                              debugPrint('USER ${value == true ? 'CHECKED' : 'UNCHECKED'} theme id=${theme.id} (${theme.nameEn}), category=${theme.category}');
+                              debugPrint(
+                                'USER ${value == true ? 'CHECKED' : 'UNCHECKED'} theme id=${theme.id} (${theme.nameEn}), category=${theme.category}',
+                              );
                               final error = builder.toggleTheme(theme);
                               if (error != null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -128,7 +276,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                                 );
                               }
                             }
-                          : null,
+                          : (_) => _promptUnlockTheme(theme),
                       enabled: canSelect,
                     );
                   },
@@ -166,7 +314,9 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => SelectedThemesScreen(gameMode: widget.gameMode),
+                                    builder: (_) => SelectedThemesScreen(
+                                      gameMode: widget.gameMode,
+                                    ),
                                   ),
                                 );
                               },
@@ -222,9 +372,10 @@ class _ThemeSelectTile extends StatelessWidget {
           builder: (context, langProvider, _) {
             return Text(
               langProvider.getLocalizedText(theme.nameEn, theme.nameFr),
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: enabled ? null : Colors.grey),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: enabled ? null : Colors.grey,
+              ),
             );
           },
         ),
@@ -255,7 +406,11 @@ class _ThemeSelectTile extends StatelessWidget {
                   child: Text(
                     theme.isFree ? 'FREE' : 'PREMIUM',
                     style: TextStyle(
-                      color: theme.isFree ? Colors.green : enabled ? Colors.amber[800] : Colors.grey,
+                      color: theme.isFree
+                          ? Colors.green
+                          : enabled
+                          ? Colors.amber[800]
+                          : Colors.grey,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),

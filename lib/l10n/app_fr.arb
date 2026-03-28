@@ -258,6 +258,35 @@
       }
     }
   },
+  "unlockPremiumThemesTitle": "Débloquer les thèmes premium",
+  "unlockThemeAction": "Débloquer",
+  "unlockThemePrompt": "Débloquer {theme} pour 1 crédit ?",
+  "@unlockThemePrompt": {
+    "placeholders": {
+      "theme": {
+        "type": "String",
+        "example": "Astronomie"
+      }
+    }
+  },
+  "unlockThemeNoCredits": "Il faut au moins 1 crédit pour débloquer ce thème.",
+  "openStore": "Ouvrir la boutique",
+  "unlockThemeSuccess": "{theme} débloqué. Crédits restants : {balance}",
+  "@unlockThemeSuccess": {
+    "placeholders": {
+      "theme": {
+        "type": "String",
+        "example": "Astronomie"
+      },
+      "balance": {
+        "type": "String",
+        "example": "2 packs de questions"
+      }
+    }
+  },
+  "noPremiumThemesToUnlock": "Tous les thèmes premium sont déjà débloqués.",
+  "tapLockedThemeToUnlock": "Touchez un thème premium verrouillé pour le débloquer avec 1 crédit.",
+  "errorLoadingCredits": "Impossible d'actualiser le solde de crédits.",
   "emailOrUsername": "Email ou nom d'utilisateur",
   "reportError": "Signaler une erreur",
   "questionFlagged": "Question signalée avec succès",
