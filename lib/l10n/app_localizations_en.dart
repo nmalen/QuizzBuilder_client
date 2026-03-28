@@ -140,7 +140,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get about => 'About';
 
   @override
-  String get version => 'QuizzBuilder v0.21.2';
+  String get version => 'QuizzBuilder v0.21.3';
 
   @override
   String get aboutText => 'An interactive quiz platform to test your knowledge.';

@@ -344,7 +344,7 @@ abstract class AppLocalizations {
   /// No description provided for @version.
   ///
   /// In en, this message translates to:
-  /// **'QuizzBuilder v0.21.2'**
+  /// **'QuizzBuilder v0.21.3'**
   String get version;
 
   /// No description provided for @aboutText.

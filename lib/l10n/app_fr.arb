@@ -96,7 +96,7 @@
   },
   "language": "Langue",
   "about": "À propos",
-  "version": "QuizzBuilder v0.21.2",
+  "version": "QuizzBuilder v0.21.3",
   "aboutText": "Une plateforme de quiz interactive pour tester vos connaissances.",
   "storeFeatureComing": "La fonctionnalité de boutique arrive bientôt!",
   "errorLoadingCategories": "Erreur lors du chargement des catégories",

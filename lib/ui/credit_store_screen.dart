@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
@@ -91,14 +92,19 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       final stats = results[2] as dynamic;
       final allThemes = results[3] as List<dynamic>;
 
-      final filteredPacks = packs
-          .where((pack) => const <int>{1, 5, 10}.contains(pack.credits))
-          .toList(growable: false)
-        ..sort((a, b) => a.credits.compareTo(b.credits));
+      final filteredPacks =
+          packs
+              .where((pack) => const <int>{1, 5, 10}.contains(pack.credits))
+              .toList(growable: false)
+            ..sort((a, b) => a.credits.compareTo(b.credits));
 
-      final totalPaidThemes = allThemes.where((theme) => theme.isActive && !theme.isFree).length;
+      final totalPaidThemes = allThemes
+          .where((theme) => theme.isActive && !theme.isFree)
+          .length;
       final lockedPaidThemesCount =
-          (totalPaidThemes - stats.totalThemesPurchased).clamp(0, totalPaidThemes).toInt();
+          (totalPaidThemes - stats.totalThemesPurchased)
+              .clamp(0, totalPaidThemes)
+              .toInt();
 
       List<ProductDetails> products = const [];
       String? storeError;
@@ -151,7 +157,9 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
   }
 
   int get _remainingUnlockCapacity {
-    return (_lockedPaidThemesCount - _creditBalance).clamp(0, _lockedPaidThemesCount).toInt();
+    return (_lockedPaidThemesCount - _creditBalance)
+        .clamp(0, _lockedPaidThemesCount)
+        .toInt();
   }
 
   Future<void> _buyPack(CreditPack pack) async {
@@ -176,7 +184,9 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       _error = null;
     });
 
-    final started = await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+    final started = await _inAppPurchase.buyConsumable(
+      purchaseParam: purchaseParam,
+    );
     if (!started && mounted) {
       final l10n = AppLocalizations.of(context)!;
       setState(() {
@@ -235,7 +245,9 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
     final l10n = AppLocalizations.of(context)!;
     try {
-      final matches = _packs.where((p) => _productIdForPack(p) == purchase.productID).toList();
+      final matches = _packs
+          .where((p) => _productIdForPack(p) == purchase.productID)
+          .toList();
       if (matches.isEmpty) {
         throw Exception(l10n.storeUnknownProductId(purchase.productID));
       }
@@ -244,7 +256,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
       final storeType = Platform.isIOS ? 'apple' : 'google';
       final receipt = Platform.isIOS
-          ? purchase.verificationData.serverVerificationData
+          ? await _resolveAppleReceiptData(purchase)
           : jsonEncode({
               'packageName': packageInfo.packageName,
               'productId': purchase.productID,
@@ -259,7 +271,8 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
       if (!mounted) return;
       setState(() {
-        _creditBalance = (result['new_balance'] as num?)?.toInt() ?? _creditBalance;
+        _creditBalance =
+            (result['new_balance'] as num?)?.toInt() ?? _creditBalance;
         _purchaseInProgress = false;
       });
 
@@ -267,8 +280,12 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
         SnackBar(
           content: Text(
             l10n.storePurchaseSuccess(
-              l10n.storeQuestionPackCount((result['credits_granted'] as num?)?.toInt() ?? 0),
-              l10n.storeQuestionPackCount((result['new_balance'] as num?)?.toInt() ?? 0),
+              l10n.storeQuestionPackCount(
+                (result['credits_granted'] as num?)?.toInt() ?? 0,
+              ),
+              l10n.storeQuestionPackCount(
+                (result['new_balance'] as num?)?.toInt() ?? 0,
+              ),
             ),
           ),
           backgroundColor: Colors.green,
@@ -289,6 +306,23 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
     } finally {
       _processingPurchaseIds.remove(purchaseKey);
     }
+  }
+
+  Future<String> _resolveAppleReceiptData(PurchaseDetails purchase) async {
+    final fallbackReceipt = purchase.verificationData.serverVerificationData
+        .trim();
+
+    final addition = _inAppPurchase
+        .getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
+    final refreshed = await addition.refreshPurchaseVerificationData();
+    final refreshedReceipt = refreshed?.serverVerificationData.trim() ?? '';
+
+    // Some TestFlight flows can return a StoreKit2 token in purchase updates.
+    // Backend verifyReceipt expects the app receipt, so prefer refreshed receipt data.
+    if (refreshedReceipt.isNotEmpty) {
+      return refreshedReceipt;
+    }
+    return fallbackReceipt;
   }
 
   Future<void> _restorePurchases() async {
@@ -313,7 +347,11 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.storeRestoreSuccess(l10n.storeQuestionPackCount(credits.balance))),
+          content: Text(
+            l10n.storeRestoreSuccess(
+              l10n.storeQuestionPackCount(credits.balance),
+            ),
+          ),
           backgroundColor: Colors.green,
         ),
       );
@@ -367,248 +405,305 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
         child: _loading
             ? const Center(child: CircularProgressIndicator())
             : Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: colorScheme.primary.withValues(alpha: 0.14)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.primary.withValues(alpha: 0.08),
-                        blurRadius: 18,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Icon(Icons.account_balance_wallet, color: colorScheme.primary),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          l10n.storeCurrentBalance(l10n.storeQuestionPackCount(_creditBalance)),
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: colorScheme.onPrimaryContainer,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: colorScheme.outlineVariant),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.storeUnlockExplanation,
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.storeLockedPaidThemesCount(_lockedPaidThemesCount),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: colorScheme.primary,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: (_isRestoring || _loading) ? null : _restorePurchases,
-                      icon: _isRestoring
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.restore),
-                      label: Text(_isRestoring ? l10n.storeRestoring : l10n.storeRestorePurchases),
-                    ),
-                  ),
-                ),
-                if (!_storeAvailable)
+                children: [
                   Container(
                     width: double.infinity,
-                    margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    padding: const EdgeInsets.all(14),
+                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    padding: const EdgeInsets.all(18),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF4E5),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFFFD59E)),
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(
+                        color: colorScheme.primary.withValues(alpha: 0.14),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withValues(alpha: 0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
                     ),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(top: 2),
-                          child: Icon(Icons.info_outline, color: Color(0xFF9A5B00)),
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(
+                            Icons.account_balance_wallet,
+                            color: colorScheme.primary,
+                          ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            l10n.storeUnavailableOnDevice,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: const Color(0xFF7A4B00),
-                              fontWeight: FontWeight.w500,
+                            l10n.storeCurrentBalance(
+                              l10n.storeQuestionPackCount(_creditBalance),
+                            ),
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: colorScheme.onPrimaryContainer,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                if (_error != null && _storeAvailable)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Text(
-                      _error!,
-                      style: const TextStyle(color: Colors.red),
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: colorScheme.outlineVariant),
                     ),
-                  ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    itemCount: _packs.length,
-                    itemBuilder: (context, index) {
-                      final pack = _packs[index];
-                      final product = _productForPack(pack);
-                      final isPackTooLarge = pack.credits > _remainingUnlockCapacity;
-                      final canBuyThisPack =
-                          !_purchaseInProgress &&
-                          _storeAvailable &&
-                        !isPackTooLarge;
-                      final displayPrice = product?.price ?? _fallbackPrices[pack.credits] ?? '${pack.price} ${pack.currency}';
-
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        elevation: 0,
-                        color: colorScheme.surface,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(color: colorScheme.outlineVariant),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          l10n.storeUnlockExplanation,
+                          style: theme.textTheme.bodyMedium,
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: colorScheme.secondaryContainer,
-                                            borderRadius: BorderRadius.circular(14),
-                                          ),
-                                          child: Icon(
-                                            Icons.auto_awesome,
-                                            color: colorScheme.onSecondaryContainer,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Text(
-                                            product?.title.isNotEmpty == true
-                                                ? product!.title
-                                                : l10n.storeQuestionPackCount(pack.credits),
-                                            style: theme.textTheme.titleLarge?.copyWith(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Chip(
-                                    label: Text(displayPrice),
-                                    backgroundColor: colorScheme.primaryContainer,
-                                    side: BorderSide(color: colorScheme.primary.withValues(alpha: 0.12)),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              if (product?.description.isNotEmpty == true) ...[
-                                Text(
-                                  product!.description,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                ),
-                                const SizedBox(height: 12),
-                              ],
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
-                                  onPressed: canBuyThisPack ? () => _buyPack(pack) : null,
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                  ),
-                                  icon: _purchaseInProgress
-                                      ? const SizedBox(
-                                          width: 16,
-                                          height: 16,
-                                          child: CircularProgressIndicator(strokeWidth: 2),
-                                        )
-                                      : const Icon(Icons.shopping_cart_checkout),
-                                  label: Text(_purchaseInProgress ? l10n.storeProcessing : l10n.storeBuy),
-                                ),
-                              ),
-                              if (isPackTooLarge)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 8),
-                                  child: Text(
-                                    l10n.storePackTooLargeForRemaining(
-                                      l10n.storeQuestionPackCount(_remainingUnlockCapacity),
-                                    ),
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: colorScheme.error,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                            ],
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.storeLockedPaidThemesCount(
+                            _lockedPaidThemesCount,
+                          ),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.primary,
                           ),
                         ),
-                      );
-                    },
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: (_isRestoring || _loading)
+                            ? null
+                            : _restorePurchases,
+                        icon: _isRestoring
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.restore),
+                        label: Text(
+                          _isRestoring
+                              ? l10n.storeRestoring
+                              : l10n.storeRestorePurchases,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (!_storeAvailable)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF4E5),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFFFD59E)),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Icon(
+                              Icons.info_outline,
+                              color: Color(0xFF9A5B00),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              l10n.storeUnavailableOnDevice,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF7A4B00),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (_error != null && _storeAvailable)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text(
+                        _error!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      itemCount: _packs.length,
+                      itemBuilder: (context, index) {
+                        final pack = _packs[index];
+                        final product = _productForPack(pack);
+                        final isPackTooLarge =
+                            pack.credits > _remainingUnlockCapacity;
+                        final canBuyThisPack =
+                            !_purchaseInProgress &&
+                            _storeAvailable &&
+                            !isPackTooLarge;
+                        final displayPrice =
+                            product?.price ??
+                            _fallbackPrices[pack.credits] ??
+                            '${pack.price} ${pack.currency}';
+
+                        return Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          elevation: 0,
+                          color: colorScheme.surface,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            side: BorderSide(color: colorScheme.outlineVariant),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 40,
+                                            height: 40,
+                                            decoration: BoxDecoration(
+                                              color: colorScheme
+                                                  .secondaryContainer,
+                                              borderRadius:
+                                                  BorderRadius.circular(14),
+                                            ),
+                                            child: Icon(
+                                              Icons.auto_awesome,
+                                              color: colorScheme
+                                                  .onSecondaryContainer,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Text(
+                                              product?.title.isNotEmpty == true
+                                                  ? product!.title
+                                                  : l10n.storeQuestionPackCount(
+                                                      pack.credits,
+                                                    ),
+                                              style: theme.textTheme.titleLarge
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Chip(
+                                      label: Text(displayPrice),
+                                      backgroundColor:
+                                          colorScheme.primaryContainer,
+                                      side: BorderSide(
+                                        color: colorScheme.primary.withValues(
+                                          alpha: 0.12,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                if (product?.description.isNotEmpty ==
+                                    true) ...[
+                                  Text(
+                                    product!.description,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton.icon(
+                                    onPressed: canBuyThisPack
+                                        ? () => _buyPack(pack)
+                                        : null,
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    icon: _purchaseInProgress
+                                        ? const SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(
+                                            Icons.shopping_cart_checkout,
+                                          ),
+                                    label: Text(
+                                      _purchaseInProgress
+                                          ? l10n.storeProcessing
+                                          : l10n.storeBuy,
+                                    ),
+                                  ),
+                                ),
+                                if (isPackTooLarge)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      l10n.storePackTooLargeForRemaining(
+                                        l10n.storeQuestionPackCount(
+                                          _remainingUnlockCapacity,
+                                        ),
+                                      ),
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                            color: colorScheme.error,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
