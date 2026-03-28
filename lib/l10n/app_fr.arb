@@ -249,6 +249,15 @@
       }
     }
   },
+  "storePackTooLargeForRemaining": "Ce pack est trop grand pour vos debloquages restants ({remaining}).",
+  "@storePackTooLargeForRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "String",
+        "example": "2 packs de questions"
+      }
+    }
+  },
   "emailOrUsername": "Email ou nom d'utilisateur",
   "reportError": "Signaler une erreur",
   "questionFlagged": "Question signalée avec succès",

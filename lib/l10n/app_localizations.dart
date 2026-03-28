@@ -797,6 +797,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{count} question pack} other{{count} question packs}}'**
   String storeQuestionPackCount(int count);
 
+  /// No description provided for @storePackTooLargeForRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'This pack is too large for your remaining unlocks ({remaining}).'**
+  String storePackTooLargeForRemaining(String remaining);
+
   /// No description provided for @emailOrUsername.
   ///
   /// In en, this message translates to:

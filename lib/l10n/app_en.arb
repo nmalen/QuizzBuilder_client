@@ -249,6 +249,15 @@
       }
     }
   },
+  "storePackTooLargeForRemaining": "This pack is too large for your remaining unlocks ({remaining}).",
+  "@storePackTooLargeForRemaining": {
+    "placeholders": {
+      "remaining": {
+        "type": "String",
+        "example": "2 question packs"
+      }
+    }
+  },
   "emailOrUsername": "Email or username",
   "reportError": "Report error",
   "questionFlagged": "Question reported successfully",

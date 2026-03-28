@@ -150,6 +150,10 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
     return null;
   }
 
+  int get _remainingUnlockCapacity {
+    return (_lockedPaidThemesCount - _creditBalance).clamp(0, _lockedPaidThemesCount).toInt();
+  }
+
   Future<void> _buyPack(CreditPack pack) async {
     if (_purchaseInProgress) return;
 
@@ -493,6 +497,11 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                     itemBuilder: (context, index) {
                       final pack = _packs[index];
                       final product = _productForPack(pack);
+                      final isPackTooLarge = pack.credits > _remainingUnlockCapacity;
+                      final canBuyThisPack =
+                          !_purchaseInProgress &&
+                          _storeAvailable &&
+                        !isPackTooLarge;
                       final displayPrice = product?.price ?? _fallbackPrices[pack.credits] ?? '${pack.price} ${pack.currency}';
 
                       return Card(
@@ -561,9 +570,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                               SizedBox(
                                 width: double.infinity,
                                 child: ElevatedButton.icon(
-                                  onPressed: (_purchaseInProgress || !_storeAvailable)
-                                      ? null
-                                      : () => _buyPack(pack),
+                                  onPressed: canBuyThisPack ? () => _buyPack(pack) : null,
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(vertical: 14),
                                     shape: RoundedRectangleBorder(
@@ -580,6 +587,19 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                                   label: Text(_purchaseInProgress ? l10n.storeProcessing : l10n.storeBuy),
                                 ),
                               ),
+                              if (isPackTooLarge)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    l10n.storePackTooLargeForRemaining(
+                                      l10n.storeQuestionPackCount(_remainingUnlockCapacity),
+                                    ),
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: colorScheme.error,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ),

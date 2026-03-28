@@ -392,6 +392,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String storePackTooLargeForRemaining(String remaining) {
+    return 'This pack is too large for your remaining unlocks ($remaining).';
+  }
+
+  @override
   String get emailOrUsername => 'Email or username';
 
   @override
