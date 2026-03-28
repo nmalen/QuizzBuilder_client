@@ -266,11 +266,12 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       final storeType = Platform.isIOS ? 'apple' : 'google';
       final receipt = Platform.isIOS
           ? await _resolveAppleReceiptData(purchase)
-          : jsonEncode({
-              'packageName': packageInfo.packageName,
-              'productId': purchase.productID,
-              'purchaseToken': purchase.verificationData.serverVerificationData,
-            });
+          : jsonEncode(
+              _buildGoogleReceiptPayload(
+                purchase: purchase,
+                packageName: packageInfo.packageName,
+              ),
+            );
 
       final result = await _service.verifyCreditPurchase(
         storeType: storeType,
@@ -332,6 +333,81 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       return refreshedReceipt;
     }
     return fallbackReceipt;
+  }
+
+  Map<String, dynamic> _buildGoogleReceiptPayload({
+    required PurchaseDetails purchase,
+    required String packageName,
+  }) {
+    final localVerificationData = purchase.verificationData.localVerificationData;
+    final serverVerificationData = purchase.verificationData.serverVerificationData;
+    final localMap = _tryDecodeJsonMap(localVerificationData);
+
+    // Android requires the purchase token for backend verification.
+    final purchaseToken = _extractGooglePurchaseToken(
+      localVerificationData: localVerificationData,
+      serverVerificationData: serverVerificationData,
+      localMap: localMap,
+    );
+
+    return {
+      'packageName': packageName,
+      'productId': purchase.productID,
+      'purchaseToken': purchaseToken,
+      if (purchase.purchaseID != null && purchase.purchaseID!.isNotEmpty)
+        'orderId': purchase.purchaseID,
+      if (localMap['purchaseTime'] != null) 'purchaseTime': localMap['purchaseTime'],
+      if (localMap['purchaseState'] != null)
+        'purchaseState': localMap['purchaseState'],
+    };
+  }
+
+  String _extractGooglePurchaseToken({
+    required String localVerificationData,
+    required String serverVerificationData,
+    required Map<String, dynamic> localMap,
+  }) {
+    final tokenFromLocal = _tokenFromMap(localMap);
+    if (tokenFromLocal != null && tokenFromLocal.isNotEmpty) {
+      return tokenFromLocal;
+    }
+
+    final serverMap = _tryDecodeJsonMap(serverVerificationData);
+    final tokenFromServerMap = _tokenFromMap(serverMap);
+    if (tokenFromServerMap != null && tokenFromServerMap.isNotEmpty) {
+      return tokenFromServerMap;
+    }
+
+    // Fallback keeps compatibility with older plugin behavior.
+    return serverVerificationData;
+  }
+
+  String? _tokenFromMap(Map<String, dynamic> data) {
+    final token = data['purchaseToken'] ?? data['token'] ?? data['purchase_token'];
+    if (token is String) {
+      final trimmed = token.trim();
+      if (trimmed.isNotEmpty) {
+        return trimmed;
+      }
+    }
+    return null;
+  }
+
+  Map<String, dynamic> _tryDecodeJsonMap(String raw) {
+    if (raw.trim().isEmpty) {
+      return <String, dynamic>{};
+    }
+
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+    } catch (_) {
+      // Ignore invalid JSON and return empty map.
+    }
+
+    return <String, dynamic>{};
   }
 
   Future<void> _restorePurchases() async {
