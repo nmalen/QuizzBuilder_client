@@ -311,7 +311,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Theme.of(context).primaryColor,
                   ),
                   child: Text(
                     (gameMode == 'survival')

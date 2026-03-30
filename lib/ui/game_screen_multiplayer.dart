@@ -305,7 +305,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.orange,
+                    backgroundColor: Theme.of(context).primaryColor,
                   ),
                   child: Text(
                     currentQuestionIndex == widget.questionCount - 1 && currentPlayerIndex == widget.playerCount - 1
