@@ -33,7 +33,7 @@ class LanguageProvider extends ChangeNotifier {
 
   /// Get device language from system locale
   String _getDeviceLanguage() {
-    final deviceLocale = ui.window.locale;
+    final deviceLocale = ui.PlatformDispatcher.instance.locale;
     final deviceLanguage = deviceLocale.languageCode.toLowerCase();
     
     // Check if device language is supported

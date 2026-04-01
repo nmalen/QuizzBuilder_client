@@ -148,8 +148,24 @@
   "timeUsed": "Temps utilisé",
   "home": "Accueil",
   "playAgain": "Rejouer",
+  "save": "Enregistrer",
   "gameOver": "Fin du jeu!",
   "survivalComplete": "Survie réussie!",
+  "survivalBestScores": "Meilleurs scores survie",
+  "survivalNoBestScores": "Aucun score de survie enregistre pour le moment.",
+  "survivalCurrentResult": "Resultat actuel",
+  "survivalNewBestTitle": "Nouveau meilleur score !",
+  "survivalNewBestMessage": "Enregistre ce score sous un nom.",
+  "survivalPlayerName": "Nom du joueur",
+  "survivalRankLabel": "Rang n°{rank}",
+  "@survivalRankLabel": {
+    "placeholders": {
+      "rank": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
   "timesUp": "Temps écoulé!",
   "quizComplete": "Quiz terminé!",
   "ok": "OK",

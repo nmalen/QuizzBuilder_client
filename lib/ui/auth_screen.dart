@@ -29,7 +29,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   void initState() {
     super.initState();
-    print('[AuthScreen] initState');
+    debugPrint('[AuthScreen] initState');
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _usernameController = TextEditingController();
@@ -41,7 +41,7 @@ class _AuthScreenState extends State<AuthScreen> {
       final authProvider = context.read<AuthProvider>();
       final successMsg = authProvider.successMessage;
       if (successMsg != null && successMsg.isNotEmpty) {
-        print('[AuthScreen] found successMessage in provider: $successMsg');
+        debugPrint('[AuthScreen] found successMessage in provider: $successMsg');
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -92,10 +92,10 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _showSnack(String message) {
-    print('[AuthScreen] _showSnack called with: $message');
+    debugPrint('[AuthScreen] _showSnack called with: $message');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      print('[AuthScreen] showing alert dialog');
+      debugPrint('[AuthScreen] showing alert dialog');
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -122,7 +122,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _handleSubmit() async {
-    print('[AuthScreen] _handleSubmit invoked, _isLogin=$_isLogin');
+    debugPrint('[AuthScreen] _handleSubmit invoked, _isLogin=$_isLogin');
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -146,7 +146,7 @@ class _AuthScreenState extends State<AuthScreen> {
         }
       }
     } else {
-      print('[AuthScreen] calling authProvider.register');
+      debugPrint('[AuthScreen] calling authProvider.register');
       final success = await authProvider.register(
         email: _emailController.text.trim(),
         username: _usernameController.text.trim(),
@@ -154,11 +154,11 @@ class _AuthScreenState extends State<AuthScreen> {
         password2: _password2Controller.text,
       );
 
-      print('[AuthScreen] AFTER await: success=$success, mounted=$mounted');
+      debugPrint('[AuthScreen] AFTER await: success=$success, mounted=$mounted');
       if (mounted) {
-        print('[AuthScreen] mounted is true AFTER rebuild');
+        debugPrint('[AuthScreen] mounted is true AFTER rebuild');
       } else {
-        print(
+        debugPrint(
           '[AuthScreen] *** mounted is FALSE after await - widget was disposed! ***',
         );
       }
@@ -166,7 +166,7 @@ class _AuthScreenState extends State<AuthScreen> {
       if (mounted) {
         String message;
         if (success) {
-          print('[AuthScreen] success branch ENTERED');
+          debugPrint('[AuthScreen] success branch ENTERED');
           // Use lastMessage from provider if available, else fallback to localized string
           debugPrint('[AuthScreen] registration success, preparing message');
           final backendMsg = context.read<AuthProvider>().lastMessage;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,10 +56,10 @@ class AuthService {
     required String password2,
   }) async {
     try {
-      print('[REGISTER] Request:');
-      print('URL: $baseUrl${ApiConfig.authRegisterEndpoint}');
-      print('Headers: \\n${ApiConfig.defaultHeaders}');
-      print('Body: {email: $email, username: $username, password1: $password1, password2: $password2}');
+      debugPrint('[REGISTER] Request:');
+      debugPrint('URL: $baseUrl${ApiConfig.authRegisterEndpoint}');
+      debugPrint('Headers: \\n${ApiConfig.defaultHeaders}');
+      debugPrint('Body: {email: $email, username: $username, password1: $password1, password2: $password2}');
 
       final response = await http.post(
         Uri.parse('$baseUrl${ApiConfig.authRegisterEndpoint}'),
@@ -74,12 +75,12 @@ class AuthService {
         onTimeout: () => throw Exception('Connection timeout'),
       );
 
-      print('[REGISTER] Response status: \\n${response.statusCode}');
-      print('[REGISTER] Response body: \\n${response.body}');
+      debugPrint('[REGISTER] Response status: \\n${response.statusCode}');
+      debugPrint('[REGISTER] Response body: \\n${response.body}');
 
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-        print('[REGISTER] Registration success: $responseData');
+        debugPrint('[REGISTER] Registration success: $responseData');
         // Use backend message if available
         String backendMsg = '';
         if (responseData is Map && responseData.containsKey('detail')) {
@@ -91,7 +92,7 @@ class AuthService {
         };
       } else {
         final errorData = jsonDecode(response.body);
-        print('[REGISTER] Registration failed: $errorData');
+        debugPrint('[REGISTER] Registration failed: $errorData');
         String message = 'Registration failed';
         // Try to extract a specific error message for email already used
         if (errorData is Map && errorData.containsKey('error')) {
@@ -128,7 +129,7 @@ class AuthService {
         };
       }
     } catch (e) {
-      print('[REGISTER] Exception: $e');
+      debugPrint('[REGISTER] Exception: $e');
       return {
         'success': false,
         'message': 'Error: ${e.toString()}',
@@ -142,8 +143,8 @@ class AuthService {
     required String password,
   }) async {
     try {
-      print('[LOGIN] Attempting login to: $baseUrl${ApiConfig.authLoginEndpoint}');
-      print('[LOGIN] Identifier: $identifier');
+      debugPrint('[LOGIN] Attempting login to: $baseUrl${ApiConfig.authLoginEndpoint}');
+      debugPrint('[LOGIN] Identifier: $identifier');
       
       final response = await http.post(
         Uri.parse('$baseUrl${ApiConfig.authLoginEndpoint}'),
@@ -157,13 +158,13 @@ class AuthService {
       ).timeout(
         ApiConfig.connectionTimeout,
         onTimeout: () {
-          print('[LOGIN] Connection timeout after ${ApiConfig.connectionTimeout.inSeconds}s');
+          debugPrint('[LOGIN] Connection timeout after ${ApiConfig.connectionTimeout.inSeconds}s');
           throw TimeoutException('Connection timeout - server not responding');
         },
       );
 
-      print('[LOGIN] Response status: ${response.statusCode}');
-      print('[LOGIN] Response body: ${response.body}');
+      debugPrint('[LOGIN] Response status: ${response.statusCode}');
+      debugPrint('[LOGIN] Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
@@ -181,7 +182,7 @@ class AuthService {
           await _prefs.setString(_userKey, jsonEncode(userData));
         }
 
-        print('[LOGIN] Login successful for user: ${user?.email}');
+        debugPrint('[LOGIN] Login successful for user: ${user?.email}');
         return {
           'success': true,
           'message': 'Login successful',
@@ -189,13 +190,13 @@ class AuthService {
           'access_token': accessToken,
         };
       } else if (response.statusCode == 401) {
-        print('[LOGIN] Authentication failed - invalid credentials');
+        debugPrint('[LOGIN] Authentication failed - invalid credentials');
         return {
           'success': false,
           'message': 'Invalid email or password',
         };
       } else {
-        print('[LOGIN] Login failed with status ${response.statusCode}');
+        debugPrint('[LOGIN] Login failed with status ${response.statusCode}');
         final errorData = jsonDecode(response.body);
         return {
           'success': false,
@@ -204,31 +205,31 @@ class AuthService {
         };
       }
     } on TimeoutException catch (e) {
-      print('[LOGIN] Timeout error: $e');
+      debugPrint('[LOGIN] Timeout error: $e');
       return {
         'success': false,
         'message': 'Connection timeout. Please check your internet connection and try again.',
       };
     } on SocketException catch (e) {
-      print('[LOGIN] Network error: $e');
+      debugPrint('[LOGIN] Network error: $e');
       return {
         'success': false,
         'message': 'Cannot reach server. Please check your internet connection.',
       };
     } on HandshakeException catch (e) {
-      print('[LOGIN] SSL/TLS error: $e');
+      debugPrint('[LOGIN] SSL/TLS error: $e');
       return {
         'success': false,
         'message': 'Security certificate error. Please check your connection.',
       };
     } on FormatException catch (e) {
-      print('[LOGIN] JSON parsing error: $e');
+      debugPrint('[LOGIN] JSON parsing error: $e');
       return {
         'success': false,
         'message': 'Invalid response from server.',
       };
     } catch (e) {
-      print('[LOGIN] Unexpected error: $e');
+      debugPrint('[LOGIN] Unexpected error: $e');
       return {
         'success': false,
         'message': 'Error: ${e.toString()}',

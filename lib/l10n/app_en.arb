@@ -148,8 +148,24 @@
   "timeUsed": "Time Used",
   "home": "Home",
   "playAgain": "Play Again",
+  "save": "Save",
   "gameOver": "Game Over!",
   "survivalComplete": "Survival Complete!",
+  "survivalBestScores": "Best survival scores",
+  "survivalNoBestScores": "No saved survival scores yet.",
+  "survivalCurrentResult": "Current result",
+  "survivalNewBestTitle": "New best score!",
+  "survivalNewBestMessage": "Save this score under a name.",
+  "survivalPlayerName": "Player name",
+  "survivalRankLabel": "Rank #{rank}",
+  "@survivalRankLabel": {
+    "placeholders": {
+      "rank": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
   "timesUp": "Time's Up!",
   "quizComplete": "Quiz Complete!",
   "ok": "OK",

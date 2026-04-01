@@ -28,7 +28,7 @@ class QuizzBuilderProvider extends ChangeNotifier {
 
   /// Sync selected themes with selected categories (auto-select all themes for selected categories, unselect others)
   void syncThemesWithSelectedCategories(List<theme_model.Theme> allThemes) {
-    final activeCategoryIds = this.selectedCategoryIds;
+    final activeCategoryIds = selectedCategoryIds;
     if (_lastSyncedCategoryIds == null ||
         !_lastSyncedCategoryIds!.containsAll(activeCategoryIds) ||
         !activeCategoryIds.containsAll(_lastSyncedCategoryIds!)) {

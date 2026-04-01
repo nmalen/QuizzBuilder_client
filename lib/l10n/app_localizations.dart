@@ -62,8 +62,7 @@ import 'app_localizations_fr.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,18 +82,17 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
-        delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('fr'),
+    Locale('fr')
   ];
 
   /// No description provided for @standardMode.
@@ -216,14 +213,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Selected: {categories} categor{categoryPlural} • {themes} theme{themePlural} • {questions} question{questionPlural}'**
-  String selectedContent(
-    int categories,
-    String categoryPlural,
-    int themes,
-    String themePlural,
-    int questions,
-    String questionPlural,
-  );
+  String selectedContent(int categories, String categoryPlural, int themes, String themePlural, int questions, String questionPlural);
 
   /// No description provided for @noSelection.
   ///
@@ -609,6 +599,12 @@ abstract class AppLocalizations {
   /// **'Play Again'**
   String get playAgain;
 
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
   /// No description provided for @gameOver.
   ///
   /// In en, this message translates to:
@@ -620,6 +616,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Survival Complete!'**
   String get survivalComplete;
+
+  /// No description provided for @survivalBestScores.
+  ///
+  /// In en, this message translates to:
+  /// **'Best survival scores'**
+  String get survivalBestScores;
+
+  /// No description provided for @survivalNoBestScores.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved survival scores yet.'**
+  String get survivalNoBestScores;
+
+  /// No description provided for @survivalCurrentResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Current result'**
+  String get survivalCurrentResult;
+
+  /// No description provided for @survivalNewBestTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New best score!'**
+  String get survivalNewBestTitle;
+
+  /// No description provided for @survivalNewBestMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Save this score under a name.'**
+  String get survivalNewBestMessage;
+
+  /// No description provided for @survivalPlayerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Player name'**
+  String get survivalPlayerName;
+
+  /// No description provided for @survivalRankLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank #{rank}'**
+  String survivalRankLabel(int rank);
 
   /// No description provided for @timesUp.
   ///
@@ -934,8 +972,7 @@ abstract class AppLocalizations {
   String player(int number);
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -944,26 +981,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'fr'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'fr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'fr':
-      return AppLocalizationsFr();
+    case 'en': return AppLocalizationsEn();
+    case 'fr': return AppLocalizationsFr();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.',
+    'that was used.'
   );
 }

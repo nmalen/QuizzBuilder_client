@@ -88,41 +88,40 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: RadioListTile<String>(
-                    value: 'standard',
-                    groupValue: _gameMode,
-                    activeColor: Colors.white,
-                    onChanged: (value) {
-                      setState(() {
-                        _gameMode = value!;
-                      });
-                    },
-                    title: Text(
-                      AppLocalizations.of(context)!.standardMode,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+            RadioGroup<String>(
+              groupValue: _gameMode,
+              onChanged: (value) {
+                if (value == null) {
+                  return;
+                }
+                setState(() {
+                  _gameMode = value;
+                });
+              },
+              child: Row(
+                children: [
+                  Expanded(
+                    child: RadioListTile<String>(
+                      value: 'standard',
+                      activeColor: Colors.white,
+                      title: Text(
+                        AppLocalizations.of(context)!.standardMode,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: RadioListTile<String>(
-                    value: 'survival',
-                    groupValue: _gameMode,
-                    activeColor: Colors.white,
-                    onChanged: (value) {
-                      setState(() {
-                        _gameMode = value!;
-                      });
-                    },
-                    title: Text(
-                      AppLocalizations.of(context)!.survivalMode,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                  Expanded(
+                    child: RadioListTile<String>(
+                      value: 'survival',
+                      activeColor: Colors.white,
+                      title: Text(
+                        AppLocalizations.of(context)!.survivalMode,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 24),
             ElevatedButton(

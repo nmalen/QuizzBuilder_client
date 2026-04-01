@@ -188,7 +188,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                   border: Border.all(color: Colors.grey[300]!),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.08),
+                      color: Colors.grey.withValues(alpha: 0.08),
                       blurRadius: 6,
                     ),
                   ],
@@ -330,14 +330,18 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                     ),
                     onPressed: () async {
                       final catalog = Provider.of<CatalogProvider>(context, listen: false);
+                      final messenger = ScaffoldMessenger.of(context);
+                      final loc = AppLocalizations.of(context)!;
                       try {
                         await catalog.reportQuestionError(playerQuestions[currentPlayerIndex][currentQuestionIndex].id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(AppLocalizations.of(context)!.questionFlagged)),
+                        if (!mounted) return;
+                        messenger.showSnackBar(
+                          SnackBar(content: Text(loc.questionFlagged)),
                         );
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(AppLocalizations.of(context)!.failedToReportError(e.toString()))),
+                        if (!mounted) return;
+                        messenger.showSnackBar(
+                          SnackBar(content: Text(loc.failedToReportError(e.toString()))),
                         );
                       }
                     },
@@ -455,8 +459,8 @@ class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> wi
     }
     sortedScores.sort((a, b) => b.value.compareTo(a.value));
 
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
       child: Scaffold(
         body: SafeArea(
           child: SingleChildScrollView(

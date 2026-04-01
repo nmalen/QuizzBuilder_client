@@ -38,15 +38,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get playQuiz => 'Jouer au Quiz';
 
   @override
-  String get playQuizSubtitle =>
-      'Sélectionnez des catégories, des thèmes et défiez-vous';
+  String get playQuizSubtitle => 'Sélectionnez des catégories, des thèmes et défiez-vous';
 
   @override
   String get buildQuiz => 'Construire un Quiz';
 
   @override
-  String get buildQuizSubtitle =>
-      'Composez votre propre quiz à partir de thèmes';
+  String get buildQuizSubtitle => 'Composez votre propre quiz à partir de thèmes';
 
   @override
   String get store => 'Boutique';
@@ -61,8 +59,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get quizzBuilderContent => 'QuizzBuilder';
 
   @override
-  String get quizzBuilderContentSubtitle =>
-      'Contenu actif total (y compris non acheté)';
+  String get quizzBuilderContentSubtitle => 'Contenu actif total (y compris non acheté)';
 
   @override
   String get userContent => 'Utilisateur';
@@ -71,20 +68,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get userContentSubtitle => 'Contenu déverrouillé';
 
   @override
-  String selectedContent(
-    int categories,
-    String categoryPlural,
-    int themes,
-    String themePlural,
-    int questions,
-    String questionPlural,
-  ) {
+  String selectedContent(int categories, String categoryPlural, int themes, String themePlural, int questions, String questionPlural) {
     return 'Sélectionné: $categories catégor$categoryPlural • $themes thème$themePlural • $questions question$questionPlural';
   }
 
   @override
-  String get noSelection =>
-      'Aucune sélection pour l\'instant. Allez à Construire un Quiz pour en créer une.';
+  String get noSelection => 'Aucune sélection pour l\'instant. Allez à Construire un Quiz pour en créer une.';
 
   @override
   String get categories => 'Catégories';
@@ -154,16 +143,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get version => 'QuizzBuilder v0.21.3';
 
   @override
-  String get aboutText =>
-      'Une plateforme de quiz interactive pour tester vos connaissances.';
+  String get aboutText => 'Une plateforme de quiz interactive pour tester vos connaissances.';
 
   @override
-  String get storeFeatureComing =>
-      'La fonctionnalité de boutique arrive bientôt!';
+  String get storeFeatureComing => 'La fonctionnalité de boutique arrive bientôt!';
 
   @override
-  String get errorLoadingCategories =>
-      'Erreur lors du chargement des catégories';
+  String get errorLoadingCategories => 'Erreur lors du chargement des catégories';
 
   @override
   String get errorLoadingThemes => 'Erreur lors du chargement des thèmes';
@@ -195,8 +181,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get createAccount => 'Créer un compte';
 
   @override
-  String get registrationSuccessful =>
-      'Inscription réussie! Veuillez vérifier votre email pour confirmer votre compte.';
+  String get registrationSuccessful => 'Inscription réussie! Veuillez vérifier votre email pour confirmer votre compte.';
 
   @override
   String get login => 'Connexion';
@@ -229,15 +214,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get setupMultiplayerGame => 'Configurer une partie multijoueur';
 
   @override
-  String get selectNumberOfQuestions =>
-      'Sélectionnez le nombre de questions (5-20)';
+  String get selectNumberOfQuestions => 'Sélectionnez le nombre de questions (5-20)';
 
   @override
   String get selectNumberOfPlayers => 'Sélectionnez le nombre de joueurs (1-4)';
 
   @override
-  String get selectQuestionsLevels =>
-      'Sélectionnez le(s) niveau(x) de question(s)';
+  String get selectQuestionsLevels => 'Sélectionnez le(s) niveau(x) de question(s)';
 
   @override
   String get players => 'Joueurs';
@@ -288,10 +271,36 @@ class AppLocalizationsFr extends AppLocalizations {
   String get playAgain => 'Rejouer';
 
   @override
+  String get save => 'Enregistrer';
+
+  @override
   String get gameOver => 'Fin du jeu!';
 
   @override
   String get survivalComplete => 'Survie réussie!';
+
+  @override
+  String get survivalBestScores => 'Meilleurs scores survie';
+
+  @override
+  String get survivalNoBestScores => 'Aucun score de survie enregistre pour le moment.';
+
+  @override
+  String get survivalCurrentResult => 'Resultat actuel';
+
+  @override
+  String get survivalNewBestTitle => 'Nouveau meilleur score !';
+
+  @override
+  String get survivalNewBestMessage => 'Enregistre ce score sous un nom.';
+
+  @override
+  String get survivalPlayerName => 'Nom du joueur';
+
+  @override
+  String survivalRankLabel(int rank) {
+    return 'Rang n°$rank';
+  }
 
   @override
   String get timesUp => 'Temps écoulé!';
@@ -330,12 +339,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get premium => 'Premium';
 
   @override
-  String get feedbackInvitation =>
-      'N\'hésitez pas à me contacter pour demander de nouveaux thèmes ou me faire part de vos commentaires';
+  String get feedbackInvitation => 'N\'hésitez pas à me contacter pour demander de nouveaux thèmes ou me faire part de vos commentaires';
 
   @override
-  String get iapNotImplemented =>
-      'Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!';
+  String get iapNotImplemented => 'Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!';
 
   @override
   String get storePacksTitle => 'Packs de questions';
@@ -352,12 +359,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get storeRestoring => 'Restauration...';
 
   @override
-  String get storeUnavailableOnDevice =>
-      'Les achats ne sont actuellement pas disponibles sur cet appareil.';
+  String get storeUnavailableOnDevice => 'Les achats ne sont actuellement pas disponibles sur cet appareil.';
 
   @override
-  String get storeUnlockExplanation =>
-      'Chaque pack achete peut etre utilise pour debloquer des themes premium supplementaires.';
+  String get storeUnlockExplanation => 'Chaque pack achete peut etre utilise pour debloquer des themes premium supplementaires.';
 
   @override
   String storeLockedPaidThemesCount(int count) {
@@ -385,8 +390,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get storeProductUnavailable =>
-      'Ce pack n\'est pas encore disponible a l\'achat.';
+  String get storeProductUnavailable => 'Ce pack n\'est pas encore disponible a l\'achat.';
 
   @override
   String get storePurchaseFlowFailed => 'Impossible de demarrer l\'achat.';
@@ -430,8 +434,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get unlockThemeNoCredits =>
-      'Il faut au moins 1 crédit pour débloquer ce thème.';
+  String get unlockThemeNoCredits => 'Il faut au moins 1 crédit pour débloquer ce thème.';
 
   @override
   String get openStore => 'Ouvrir la boutique';
@@ -442,16 +445,13 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get noPremiumThemesToUnlock =>
-      'Tous les thèmes premium sont déjà débloqués.';
+  String get noPremiumThemesToUnlock => 'Tous les thèmes premium sont déjà débloqués.';
 
   @override
-  String get tapLockedThemeToUnlock =>
-      'Touchez un thème premium verrouillé pour le débloquer avec 1 crédit.';
+  String get tapLockedThemeToUnlock => 'Touchez un thème premium verrouillé pour le débloquer avec 1 crédit.';
 
   @override
-  String get errorLoadingCredits =>
-      "Impossible d'actualiser le solde de crédits.";
+  String get errorLoadingCredits => 'Impossible d\'actualiser le solde de crédits.';
 
   @override
   String get emailOrUsername => 'Email ou nom d\'utilisateur';
