@@ -52,6 +52,76 @@ class _SurvivalHighScoreEntry {
   }
 }
 
+class _BestScoreNameDialog extends StatefulWidget {
+  const _BestScoreNameDialog({
+    required this.initialName,
+    required this.title,
+    required this.message,
+    required this.fieldLabel,
+    required this.saveLabel,
+  });
+
+  final String initialName;
+  final String title;
+  final String message;
+  final String fieldLabel;
+  final String saveLabel;
+
+  @override
+  State<_BestScoreNameDialog> createState() => _BestScoreNameDialogState();
+}
+
+class _BestScoreNameDialogState extends State<_BestScoreNameDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialName);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(widget.message),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _controller,
+            autofocus: true,
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(
+              labelText: widget.fieldLabel,
+              border: const OutlineInputBorder(),
+            ),
+            onSubmitted: (value) {
+              Navigator.of(context).pop(value.trim());
+            },
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(_controller.text.trim());
+          },
+          child: Text(widget.saveLabel),
+        ),
+      ],
+    );
+  }
+}
+
 class ResultsScreen extends StatefulWidget {
   final int score;
   final int totalQuestions;
@@ -166,7 +236,7 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
       _currentSurvivalRank = currentRank;
     });
 
-    if (currentRank == 0) {
+    if (currentRank != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) {
           return;
@@ -209,45 +279,19 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
       return;
     }
 
-    final controller = TextEditingController(text: currentEntry.name);
     final selectedName = await showDialog<String>(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(loc.survivalNewBestTitle),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(loc.survivalNewBestMessage),
-              const SizedBox(height: 16),
-              TextField(
-                controller: controller,
-                autofocus: true,
-                textInputAction: TextInputAction.done,
-                decoration: InputDecoration(
-                  labelText: loc.survivalPlayerName,
-                  border: const OutlineInputBorder(),
-                ),
-                onSubmitted: (value) {
-                  Navigator.of(dialogContext).pop(value.trim());
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop(controller.text.trim());
-              },
-              child: Text(loc.save),
-            ),
-          ],
+      builder: (_) {
+        return _BestScoreNameDialog(
+          initialName: currentEntry!.name,
+          title: loc.survivalNewBestTitle,
+          message: loc.survivalNewBestMessage,
+          fieldLabel: loc.survivalPlayerName,
+          saveLabel: loc.save,
         );
       },
     );
-    controller.dispose();
 
     if (!mounted) {
       return;
@@ -316,9 +360,13 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
             return Transform.scale(
               scale: _scaleAnimation.value,
               child: Icon(
-                widget.survivalFailed ? Icons.cancel : Icons.check_circle,
+                widget.gameMode == 'survival'
+                    ? Icons.emoji_events
+                    : (widget.survivalFailed ? Icons.cancel : Icons.check_circle),
                 size: 80,
-                color: widget.survivalFailed ? Colors.red[600] : Colors.green[600],
+                color: widget.gameMode == 'survival'
+                    ? Colors.amber[700]
+                    : (widget.survivalFailed ? Colors.red[600] : Colors.green[600]),
               ),
             );
           },
