@@ -129,6 +129,9 @@ class ResultsScreen extends StatefulWidget {
   final int? duration; // Duration in seconds (for timed mode)
   final bool survivalFailed; // Whether game ended due to failure
   final String theme; // Theme name
+  final int? dailyCurrentStreak;
+  final int? dailyTarget;
+  final bool dailyRewardGranted;
 
   const ResultsScreen({
     super.key,
@@ -138,6 +141,9 @@ class ResultsScreen extends StatefulWidget {
     this.duration,
     this.survivalFailed = false,
     this.theme = '',
+    this.dailyCurrentStreak,
+    this.dailyTarget,
+    this.dailyRewardGranted = false,
   });
 
   @override
@@ -362,11 +368,15 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
               child: Icon(
                 widget.gameMode == 'survival'
                     ? Icons.emoji_events
-                    : (widget.survivalFailed ? Icons.cancel : Icons.check_circle),
+                    : (widget.gameMode == 'daily'
+                        ? Icons.calendar_today
+                        : (widget.survivalFailed ? Icons.cancel : Icons.check_circle)),
                 size: 80,
                 color: widget.gameMode == 'survival'
                     ? Colors.amber[700]
-                    : (widget.survivalFailed ? Colors.red[600] : Colors.green[600]),
+                    : (widget.gameMode == 'daily'
+                        ? Colors.blue[700]
+                        : (widget.survivalFailed ? Colors.red[600] : Colors.green[600])),
               ),
             );
           },
@@ -397,6 +407,9 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
     }
     if (widget.gameMode == 'timed') {
       return loc.timesUp;
+    }
+    if (widget.gameMode == 'daily') {
+      return 'Daily challenge';
     }
     return loc.quizComplete;
   }
@@ -598,6 +611,75 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
           ),
         ],
       ],
+    );
+  }
+
+  Widget _buildDailyProgressSection() {
+    final int target = (widget.dailyTarget ?? 10) <= 0 ? 10 : (widget.dailyTarget ?? 10);
+    final int progress = (widget.dailyCurrentStreak ?? 0).clamp(0, target);
+    final double ratio = target == 0 ? 0 : (progress / target).clamp(0, 1);
+
+    return SlideTransition(
+      position: _slideAnimation,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.blue[50],
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.blue[100]!),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Progression quotidienne',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[900],
+                  ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Text(
+                  '$progress/$target',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue[800],
+                      ),
+                ),
+                const Spacer(),
+                Text(
+                  widget.dailyRewardGranted ? '+1 credit debloque' : 'Prochain palier: +1 credit',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: widget.dailyRewardGranted ? Colors.amber[900] : Colors.grey[700],
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: ratio),
+              duration: const Duration(milliseconds: 650),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, _) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: LinearProgressIndicator(
+                    value: value,
+                    minHeight: 10,
+                    backgroundColor: Colors.white,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      widget.dailyRewardGranted ? Colors.amber : Colors.blue,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -807,6 +889,8 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
                   const SizedBox(height: 28),
                   if (widget.gameMode == 'survival')
                     _buildSurvivalSection()
+                  else if (widget.gameMode == 'daily')
+                    _buildDailyProgressSection()
                   else
                     _buildDetailStats(context),
                   const SizedBox(height: 36),

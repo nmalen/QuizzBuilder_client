@@ -6,6 +6,8 @@ import '../providers/catalog_provider.dart';
 import '../models/question.dart';
 import '../models/theme.dart' as theme_model;
 import '../db/local_db.dart';
+import '../providers/auth_provider.dart';
+import '../services/daily_challenge_service.dart';
 import '../widgets/gradient_background.dart';
 import 'results_screen.dart';
 
@@ -35,16 +37,40 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
   bool isLoading = true;
   String? error;
   bool survivalFailed = false;
+  bool dailyFailed = false;
+  DailyChallengeService? _dailyService;
+  bool _dailyCompletionSubmitted = false;
+  DailyChallengeCompletion? _dailyCompletion;
 
   @override
   void initState() {
     super.initState();
     gameMode = widget.gameMode;
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _dailyService = DailyChallengeService(authService: authProvider.authService);
     _loadQuestions();
   }
 
   Future<void> _loadQuestions() async {
     try {
+      if (gameMode == 'daily') {
+        final status = await _dailyService!.getStatus();
+        if (!status.canPlayToday) {
+          setState(() {
+            error = 'Daily challenge already completed today.';
+            isLoading = false;
+          });
+          return;
+        }
+
+        final quiz = await _dailyService!.getQuestions();
+        setState(() {
+          questions = quiz.questions;
+          isLoading = false;
+        });
+        return;
+      }
+
       final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
       final catalog = Provider.of<CatalogProvider>(context, listen: false);
 
@@ -72,6 +98,46 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         error = e.toString();
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _completeDailyIfNeeded(bool isCurrentAnswerCorrect) async {
+    if (gameMode != 'daily' || _dailyCompletionSubmitted || currentQuestionIndex != questions.length - 1) {
+      return;
+    }
+
+    _dailyCompletionSubmitted = true;
+    final bool success = !dailyFailed && isCurrentAnswerCorrect && score == questions.length;
+
+    try {
+      final completion = await _dailyService!.complete(success: success);
+      _dailyCompletion = completion;
+      if (!mounted) {
+        return;
+      }
+
+      final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+      await builder.refreshThemeAccess();
+      if (!mounted) {
+        return;
+      }
+
+      if (completion.rewardGranted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Defi quotidien valide: +1 credit offert.'),
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Resultat quotidien non synchronise.'),
+        ),
+      );
     }
   }
 
@@ -133,6 +199,9 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         gameMode: gameMode,
         survivalFailed: survivalFailed,
         theme: '',
+        dailyCurrentStreak: _dailyCompletion?.currentStreak,
+        dailyTarget: _dailyCompletion?.target,
+        dailyRewardGranted: _dailyCompletion?.rewardGranted ?? false,
       );
     }
 
@@ -297,11 +366,19 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
               // Next/Finish button
               if (answered)
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final bool isCurrentAnswerCorrect =
+                        selectedAnswerIndex != null && selectedAnswerIndex! + 1 == currentQuestion.correctAnswer;
+
+                    if (gameMode == 'daily' && !isCurrentAnswerCorrect) {
+                      dailyFailed = true;
+                    }
+
+                    await _completeDailyIfNeeded(isCurrentAnswerCorrect);
+
                     setState(() {
-                      if (gameMode == 'survival' && (selectedAnswerIndex == null || selectedAnswerIndex! + 1 != currentQuestion.correctAnswer)) {
+                      if (gameMode == 'survival' && !isCurrentAnswerCorrect) {
                         survivalFailed = true;
-                        // End game immediately
                         return;
                       }
                       currentQuestionIndex++;
@@ -316,6 +393,8 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                   child: Text(
                     (gameMode == 'survival')
                         ? (selectedAnswerIndex == null || selectedAnswerIndex! + 1 != currentQuestion.correctAnswer ? AppLocalizations.of(context)!.done : AppLocalizations.of(context)!.next)
+                      : (gameMode == 'daily')
+                        ? (currentQuestionIndex < questions.length - 1 ? AppLocalizations.of(context)!.next : AppLocalizations.of(context)!.done)
                         : (currentQuestionIndex < questions.length - 1 ? AppLocalizations.of(context)!.next : AppLocalizations.of(context)!.done),
                     style: const TextStyle(
                       color: Colors.white,

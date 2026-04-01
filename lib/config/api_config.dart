@@ -13,6 +13,9 @@ class ApiConfig {
   static const String userCreditsMeEndpoint = '/user-credits/me/';
   static const String creditPurchasesVerifyEndpoint = '/credit-purchases/verify/';
   static const String creditPurchasesRestoreEndpoint = '/credit-purchases/restore/';
+  static const String dailyChallengeStatusEndpoint = '/daily-challenge/status/';
+  static const String dailyChallengeQuestionsEndpoint = '/daily-challenge/questions/';
+  static const String dailyChallengeCompleteEndpoint = '/daily-challenge/complete/';
   static const String authRegisterEndpoint = '/auth/registration/';
   static const String authLoginEndpoint = '/auth/login/';
   static const String authLogoutEndpoint = '/auth/logout/';
