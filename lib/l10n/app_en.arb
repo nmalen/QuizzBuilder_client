@@ -132,6 +132,7 @@
   "selectNumberOfQuestions": "Select number of questions (5-20)",
   "selectNumberOfPlayers": "Select number of players (1-4)",
   "selectQuestionsLevels": "Select questions level(s)",
+  "dailyPathToFreeCredit": "Path to the next free credit",
   "players": "Players",
   "startGame": "Start Game",
   "continueText": "Continue",

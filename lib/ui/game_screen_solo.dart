@@ -202,6 +202,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         dailyCurrentStreak: _dailyCompletion?.currentStreak,
         dailyTarget: _dailyCompletion?.target,
         dailyRewardGranted: _dailyCompletion?.rewardGranted ?? false,
+        dailyRewardsGranted: _dailyCompletion?.rewardsGranted,
       );
     }
 

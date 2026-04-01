@@ -223,6 +223,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get selectQuestionsLevels => 'Sélectionnez le(s) niveau(x) de question(s)';
 
   @override
+  String get dailyPathToFreeCredit => 'Parcours jusqu\'au prochain credit gratuit';
+
+  @override
   String get players => 'Joueurs';
 
   @override

@@ -132,6 +132,7 @@ class ResultsScreen extends StatefulWidget {
   final int? dailyCurrentStreak;
   final int? dailyTarget;
   final bool dailyRewardGranted;
+  final int? dailyRewardsGranted;
 
   const ResultsScreen({
     super.key,
@@ -144,6 +145,7 @@ class ResultsScreen extends StatefulWidget {
     this.dailyCurrentStreak,
     this.dailyTarget,
     this.dailyRewardGranted = false,
+    this.dailyRewardsGranted,
   });
 
   @override
@@ -618,6 +620,9 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
     final int target = (widget.dailyTarget ?? 10) <= 0 ? 10 : (widget.dailyTarget ?? 10);
     final int progress = (widget.dailyCurrentStreak ?? 0).clamp(0, target);
     final double ratio = target == 0 ? 0 : (progress / target).clamp(0, 1);
+    final int rewardsGranted = widget.dailyRewardsGranted ?? 0;
+    final int totalSuccesses = (rewardsGranted * target) + progress;
+    final bool showNextRewardHint = !widget.dailyRewardGranted && (totalSuccesses % target == target - 1);
 
     return SlideTransition(
       position: _slideAnimation,
@@ -649,13 +654,14 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
                       ),
                 ),
                 const Spacer(),
-                Text(
-                  widget.dailyRewardGranted ? '+1 credit debloque' : 'Prochain palier: +1 credit',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: widget.dailyRewardGranted ? Colors.amber[900] : Colors.grey[700],
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
+                if (widget.dailyRewardGranted || showNextRewardHint)
+                  Text(
+                    widget.dailyRewardGranted ? '+1 credit debloque' : 'Prochain palier: +1 credit',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: widget.dailyRewardGranted ? Colors.amber[900] : Colors.grey[700],
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
               ],
             ),
             const SizedBox(height: 8),

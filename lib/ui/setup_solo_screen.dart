@@ -146,8 +146,14 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                     child: RadioListTile<String>(
                       value: 'standard',
                       activeColor: Colors.white,
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
                       title: Text(
                         AppLocalizations.of(context)!.standardMode,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -156,8 +162,14 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                     child: RadioListTile<String>(
                       value: 'survival',
                       activeColor: Colors.white,
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
                       title: Text(
                         AppLocalizations.of(context)!.survivalMode,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -166,8 +178,14 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                     child: RadioListTile<String>(
                       value: 'daily',
                       activeColor: Colors.white,
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
                       title: const Text(
                         'Quotidien',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -229,9 +247,6 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
     final int normalizedProgress =
         status.currentStreak.clamp(0, normalizedTarget);
     final bool rewardReady = normalizedProgress >= normalizedTarget;
-    final double progressRatio = normalizedTarget == 0
-      ? 0
-      : (normalizedProgress / normalizedTarget).clamp(0, 1);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -266,50 +281,6 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                   color: status.canPlayToday ? Colors.greenAccent : Colors.orangeAccent,
                   fontWeight: FontWeight.w600,
                 ),
-          ),
-          const SizedBox(height: 12),
-          TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 0, end: progressRatio),
-            duration: const Duration(milliseconds: 700),
-            curve: Curves.easeOutCubic,
-            builder: (context, value, _) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        'Progression actuelle',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '$normalizedProgress/$normalizedTarget',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(999),
-                    child: LinearProgressIndicator(
-                      value: value,
-                      minHeight: 10,
-                      backgroundColor: Colors.white24,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        rewardReady ? Colors.amberAccent : Colors.greenAccent,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
           ),
           const SizedBox(height: 12),
           AnimatedContainer(
@@ -358,7 +329,7 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            'Parcours numerote vers le prochain credit',
+            AppLocalizations.of(context)!.dailyPathToFreeCredit,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,

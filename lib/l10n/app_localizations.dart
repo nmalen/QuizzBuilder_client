@@ -503,6 +503,12 @@ abstract class AppLocalizations {
   /// **'Select questions level(s)'**
   String get selectQuestionsLevels;
 
+  /// No description provided for @dailyPathToFreeCredit.
+  ///
+  /// In en, this message translates to:
+  /// **'Path to the next free credit'**
+  String get dailyPathToFreeCredit;
+
   /// No description provided for @players.
   ///
   /// In en, this message translates to:

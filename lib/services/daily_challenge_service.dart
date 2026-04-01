@@ -69,12 +69,14 @@ class DailyChallengeCompletion {
     required this.currentStreak,
     required this.target,
     required this.newCreditBalance,
+    required this.rewardsGranted,
   });
 
   final bool rewardGranted;
   final int currentStreak;
   final int target;
   final int newCreditBalance;
+  final int rewardsGranted;
 
   factory DailyChallengeCompletion.fromJson(Map<String, dynamic> json) {
     return DailyChallengeCompletion(
@@ -82,6 +84,7 @@ class DailyChallengeCompletion {
       currentStreak: (json['current_streak'] as num?)?.toInt() ?? 0,
       target: (json['target'] as num?)?.toInt() ?? 10,
       newCreditBalance: (json['new_credit_balance'] as num?)?.toInt() ?? 0,
+      rewardsGranted: (json['rewards_granted'] as num?)?.toInt() ?? 0,
     );
   }
 }

@@ -223,6 +223,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectQuestionsLevels => 'Select questions level(s)';
 
   @override
+  String get dailyPathToFreeCredit => 'Path to the next free credit';
+
+  @override
   String get players => 'Players';
 
   @override
