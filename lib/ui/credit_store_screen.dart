@@ -708,11 +708,9 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                                           const SizedBox(width: 12),
                                           Expanded(
                                             child: Text(
-                                              product?.title.isNotEmpty == true
-                                                  ? product!.title
-                                                  : l10n.storeQuestionPackCount(
-                                                      pack.credits,
-                                                    ),
+                                              l10n.storeCreditCount(
+                                                pack.credits,
+                                              ),
                                               style: theme.textTheme.titleLarge
                                                   ?.copyWith(
                                                     fontWeight: FontWeight.bold,
@@ -736,16 +734,13 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 8),
-                                if (product?.description.isNotEmpty ==
-                                    true) ...[
-                                  Text(
-                                    product!.description,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
+                                Text(
+                                  l10n.storeCreditPackDescription(pack.credits),
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
                                   ),
-                                  const SizedBox(height: 12),
-                                ],
+                                ),
+                                const SizedBox(height: 12),
                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton.icon(

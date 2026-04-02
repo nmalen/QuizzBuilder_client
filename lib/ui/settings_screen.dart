@@ -11,6 +11,10 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
+    final isEnglish = Localizations.localeOf(context).languageCode == 'en';
+    final websiteUrl = isEnglish
+        ? 'https://www.quizzbuilder.fr/en'
+        : 'https://www.quizzbuilder.fr';
 
     return Scaffold(
       appBar: AppBar(
@@ -86,6 +90,31 @@ class SettingsScreen extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.grey[800],
                           ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(Icons.public, size: 18, color: Colors.grey),
+                            const SizedBox(width: 8),
+                            InkWell(
+                              onTap: () async {
+                                final Uri websiteUri = Uri.parse(websiteUrl);
+                                if (await canLaunchUrl(websiteUri)) {
+                                  await launchUrl(
+                                    websiteUri,
+                                    mode: LaunchMode.externalApplication,
+                                  );
+                                }
+                              },
+                              child: Text(
+                                websiteUrl.replaceFirst('https://', ''),
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.blue,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 16),
                         Text(

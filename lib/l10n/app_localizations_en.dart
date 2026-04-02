@@ -352,7 +352,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String storeCurrentBalance(String packs) {
-    return 'Available packs: $packs';
+    return 'Available credit(s): $packs';
   }
 
   @override
@@ -366,6 +366,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get storeUnlockExplanation => 'Each purchased pack can be used to unlock additional premium themes.';
+
+  @override
+  String storeCreditPackDescription(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Unlock up to $count premium themes',
+      one: 'Unlock $count premium theme',
+    );
+    return '$_temp0';
+  }
 
   @override
   String storeLockedPaidThemesCount(int count) {
@@ -416,6 +427,17 @@ class AppLocalizationsEn extends AppLocalizations {
       locale: localeName,
       other: '$count question packs',
       one: '$count question pack',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String storeCreditCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count credits',
+      one: '$count credit',
     );
     return '$_temp0';
   }
@@ -494,4 +516,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String player(int number) {
     return 'Player $number';
   }
+
+  @override
+  String get dailyMode => 'Daily';
+
+  @override
+  String get dailyStatusLoadError => 'Unable to load daily status.';
+
+  @override
+  String get dailyChallenge => 'Daily challenge';
+
+  @override
+  String dailyProgress(int currentStreak, int target) {
+    return 'Progress: $currentStreak/$target without error';
+  }
+
+  @override
+  String dailyRewardsGranted(int count) {
+    return 'Free credits unlocked: $count';
+  }
+
+  @override
+  String get dailyAvailableToday => 'Available today';
+
+  @override
+  String get dailyAlreadyPlayedToday => 'Already played today';
+
+  @override
+  String get dailyTierReached => 'Milestone reached: +1 credit ready to unlock';
+
+  @override
+  String dailyTierTarget(int target) {
+    return 'Credit milestone: reached at ${target}th success';
+  }
+
+  @override
+  String get dailyTierHint => 'The credit milestone is highlighted in gold.';
 }

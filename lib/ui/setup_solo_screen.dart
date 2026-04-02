@@ -182,12 +182,12 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                       dense: true,
                       contentPadding: EdgeInsets.zero,
                       visualDensity: VisualDensity.compact,
-                      title: const Text(
-                        'Quotidien',
+                      title: Text(
+                        AppLocalizations.of(context)!.dailyMode,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         softWrap: false,
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),
@@ -204,7 +204,7 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: Text(
-                    'Impossible de charger le statut quotidien.',
+                    AppLocalizations.of(context)!.dailyStatusLoadError,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
                     textAlign: TextAlign.center,
                   ),
@@ -276,7 +276,7 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Defi quotidien',
+            AppLocalizations.of(context)!.dailyChallenge,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -284,15 +284,17 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Progression: ${status.currentStreak}/${status.target} sans erreur',
+            AppLocalizations.of(context)!.dailyProgress(status.currentStreak, status.target),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
           ),
           Text(
-            'Credits gratuits debloques: ${status.rewardsGranted}',
+            AppLocalizations.of(context)!.dailyRewardsGranted(status.rewardsGranted),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
           ),
           Text(
-            status.canPlayToday ? 'Disponible aujourd\'hui' : 'Deja joue aujourd\'hui',
+            status.canPlayToday
+                ? AppLocalizations.of(context)!.dailyAvailableToday
+                : AppLocalizations.of(context)!.dailyAlreadyPlayedToday,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: status.canPlayToday ? Colors.greenAccent : Colors.orangeAccent,
                   fontWeight: FontWeight.w600,
@@ -332,8 +334,8 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                 Expanded(
                   child: Text(
                     rewardReady
-                        ? 'Palier atteint: +1 credit pret a etre debloque'
-                      : 'Palier credit: atteint au ${normalizedTarget}eme succes',
+                        ? AppLocalizations.of(context)!.dailyTierReached
+                        : AppLocalizations.of(context)!.dailyTierTarget(normalizedTarget),
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: rewardReady ? Colors.black : Colors.white,
                           fontWeight: FontWeight.w700,
@@ -411,7 +413,7 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Le palier credit est mis en evidence en dore.',
+            AppLocalizations.of(context)!.dailyTierHint,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.amberAccent,
                   fontWeight: FontWeight.w600,

@@ -143,7 +143,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get version => 'QuizzBuilder v0.21.3';
 
   @override
-  String get aboutText => 'Une plateforme de quiz interactive pour tester vos connaissances.';
+  String get aboutText => 'Une plateforme de quizz interactive pour tester vos connaissances.';
 
   @override
   String get storeFeatureComing => 'La fonctionnalité de boutique arrive bientôt!';
@@ -223,7 +223,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get selectQuestionsLevels => 'Sélectionnez le(s) niveau(x) de question(s)';
 
   @override
-  String get dailyPathToFreeCredit => 'Parcours jusqu\'au prochain credit gratuit';
+  String get dailyPathToFreeCredit => 'Parcours jusqu\'au prochain crédit gratuit';
 
   @override
   String get players => 'Joueurs';
@@ -352,7 +352,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String storeCurrentBalance(String packs) {
-    return 'Packs disponibles : $packs';
+    return 'Crédit(s) disponible(s) : $packs';
   }
 
   @override
@@ -365,38 +365,49 @@ class AppLocalizationsFr extends AppLocalizations {
   String get storeUnavailableOnDevice => 'Les achats ne sont actuellement pas disponibles sur cet appareil.';
 
   @override
-  String get storeUnlockExplanation => 'Chaque pack achete peut etre utilise pour debloquer des themes premium supplementaires.';
+  String get storeUnlockExplanation => 'Chaque pack acheté peut être utilisé pour débloquer des thèmes premium supplémentaires.';
+
+  @override
+  String storeCreditPackDescription(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Débloquer jusqu\'\u00e0 $count thèmes premium',
+      one: 'Débloquer $count thème premium',
+    );
+    return '$_temp0';
+  }
 
   @override
   String storeLockedPaidThemesCount(int count) {
-    return 'Themes premium non encore debloques : $count';
+    return 'Thèmes premium non encore débloqués : $count';
   }
 
   @override
   String storePurchaseSuccess(String granted, String balance) {
-    return 'Pack ajoute : +$granted (disponibles : $balance)';
+    return 'Pack ajouté : +$granted (disponibles : $balance)';
   }
 
   @override
   String storeRestoreSuccess(String balance) {
-    return 'Restauration terminee. Packs disponibles : $balance.';
+    return 'Restauration terminée. Packs disponibles : $balance.';
   }
 
   @override
   String storeVerificationFailed(String error) {
-    return 'Verification echouee : $error';
+    return 'Vérification échouée : $error';
   }
 
   @override
   String storeRestoreFailed(String error) {
-    return 'Restauration echouee : $error';
+    return 'Restauration échouée : $error';
   }
 
   @override
-  String get storeProductUnavailable => 'Ce pack n\'est pas encore disponible a l\'achat.';
+  String get storeProductUnavailable => 'Ce pack n\'est pas encore disponible à l\'achat.';
 
   @override
-  String get storePurchaseFlowFailed => 'Impossible de demarrer l\'achat.';
+  String get storePurchaseFlowFailed => 'Impossible de démarrer l\'achat.';
 
   @override
   String storeUnknownProductId(String productId) {
@@ -421,8 +432,19 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String storeCreditCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count crédits',
+      one: '$count crédit',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String storePackTooLargeForRemaining(String remaining) {
-    return 'Ce pack est trop grand pour vos debloquages restants ($remaining).';
+    return 'Ce pack est trop grand pour vos déblocages restants ($remaining).';
   }
 
   @override
@@ -494,4 +516,40 @@ class AppLocalizationsFr extends AppLocalizations {
   String player(int number) {
     return 'Joueur $number';
   }
+
+  @override
+  String get dailyMode => 'Quotidien';
+
+  @override
+  String get dailyStatusLoadError => 'Impossible de charger le statut quotidien.';
+
+  @override
+  String get dailyChallenge => 'Défi quotidien';
+
+  @override
+  String dailyProgress(int currentStreak, int target) {
+    return 'Progression : $currentStreak/$target sans erreur';
+  }
+
+  @override
+  String dailyRewardsGranted(int count) {
+    return 'Crédits gratuits débloqués : $count';
+  }
+
+  @override
+  String get dailyAvailableToday => 'Disponible aujourd\'hui';
+
+  @override
+  String get dailyAlreadyPlayedToday => 'Déjà joué aujourd\'hui';
+
+  @override
+  String get dailyTierReached => 'Palier atteint : +1 crédit prêt à être débloqué';
+
+  @override
+  String dailyTierTarget(int target) {
+    return 'Palier crédit : atteint au ${target}e succès';
+  }
+
+  @override
+  String get dailyTierHint => 'Le palier crédit est mis en évidence en doré.';
 }

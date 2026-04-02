@@ -32,10 +32,13 @@ class _GameModeScreenState extends State<GameModeScreen> {
               return ListView(
                 shrinkWrap: true,
                 children: [
+                  const SizedBox(height: 20),
                   Text(
                     AppLocalizations.of(context)!.chooseYourChallenge,
+                    textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 32),

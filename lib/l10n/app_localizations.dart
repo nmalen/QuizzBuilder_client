@@ -785,6 +785,9 @@ abstract class AppLocalizations {
   /// **'Each purchased pack can be used to unlock additional premium themes.'**
   String get storeUnlockExplanation;
 
+  /// No description provided for @storeCreditPackDescription.
+  String storeCreditPackDescription(int count);
+
   /// No description provided for @storeLockedPaidThemesCount.
   ///
   /// In en, this message translates to:
@@ -850,6 +853,9 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{{count} question pack} other{{count} question packs}}'**
   String storeQuestionPackCount(int count);
+
+  /// No description provided for @storeCreditCount.
+  String storeCreditCount(int count);
 
   /// No description provided for @storePackTooLargeForRemaining.
   ///
@@ -976,6 +982,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Player {number}'**
   String player(int number);
+
+  /// No description provided for @dailyMode.
+  String get dailyMode;
+
+  /// No description provided for @dailyStatusLoadError.
+  String get dailyStatusLoadError;
+
+  /// No description provided for @dailyChallenge.
+  String get dailyChallenge;
+
+  /// No description provided for @dailyProgress.
+  String dailyProgress(int currentStreak, int target);
+
+  /// No description provided for @dailyRewardsGranted.
+  String dailyRewardsGranted(int count);
+
+  /// No description provided for @dailyAvailableToday.
+  String get dailyAvailableToday;
+
+  /// No description provided for @dailyAlreadyPlayedToday.
+  String get dailyAlreadyPlayedToday;
+
+  /// No description provided for @dailyTierReached.
+  String get dailyTierReached;
+
+  /// No description provided for @dailyTierTarget.
+  String dailyTierTarget(int target);
+
+  /// No description provided for @dailyTierHint.
+  String get dailyTierHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

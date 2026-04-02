@@ -182,7 +182,7 @@
   "feedbackInvitation": "Feel free to contact me to request new themes or share your feedback",
   "iapNotImplemented": "In-app purchases are not yet implemented. This feature is coming soon!",
   "storePacksTitle": "Question Packs",
-  "storeCurrentBalance": "Available packs: {packs}",
+  "storeCurrentBalance": "Available credit(s): {packs}",
   "@storeCurrentBalance": {
     "placeholders": {
       "packs": {
@@ -195,6 +195,15 @@
   "storeRestoring": "Restoring...",
   "storeUnavailableOnDevice": "Purchases are currently unavailable on this device.",
   "storeUnlockExplanation": "Each purchased pack can be used to unlock additional premium themes.",
+  "storeCreditPackDescription": "{count, plural, one{Unlock {count} premium theme} other{Unlock up to {count} premium themes}}",
+  "@storeCreditPackDescription": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
   "storeLockedPaidThemesCount": "Premium themes not yet unlocked: {count}",
   "@storeLockedPaidThemesCount": {
     "placeholders": {
@@ -259,6 +268,15 @@
   "storeProcessing": "Processing...",
   "storeQuestionPackCount": "{count, plural, one{{count} question pack} other{{count} question packs}}",
   "@storeQuestionPackCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "storeCreditCount": "{count, plural, one{{count} credit} other{{count} credits}}",
+  "@storeCreditCount": {
     "placeholders": {
       "count": {
         "type": "int",
@@ -338,5 +356,31 @@
         "example": "1"
       }
     }
-  }
+  },
+  "dailyMode": "Daily",
+  "dailyStatusLoadError": "Unable to load daily status.",
+  "dailyChallenge": "Daily challenge",
+  "dailyProgress": "Progress: {currentStreak}/{target} without error",
+  "@dailyProgress": {
+    "placeholders": {
+      "currentStreak": { "type": "int", "example": "3" },
+      "target": { "type": "int", "example": "10" }
+    }
+  },
+  "dailyRewardsGranted": "Free credits unlocked: {count}",
+  "@dailyRewardsGranted": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "dailyAvailableToday": "Available today",
+  "dailyAlreadyPlayedToday": "Already played today",
+  "dailyTierReached": "Milestone reached: +1 credit ready to unlock",
+  "dailyTierTarget": "Credit milestone: reached at {target}th success",
+  "@dailyTierTarget": {
+    "placeholders": {
+      "target": { "type": "int", "example": "10" }
+    }
+  },
+  "dailyTierHint": "The credit milestone is highlighted in gold."
 }

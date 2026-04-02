@@ -36,6 +36,13 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   bool _loadingCounts = false;
   bool _isUnlocking = false;
 
+  String _unlockableCreditsMessage(BuildContext context, int creditBalance) {
+    final l10n = AppLocalizations.of(context)!;
+    return l10n.storeCurrentBalance(
+      l10n.storeQuestionPackCount(creditBalance),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -80,9 +87,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
               Text(l10n.unlockThemePrompt(themeName)),
               const SizedBox(height: 12),
               Text(
-                l10n.storeCurrentBalance(
-                  l10n.storeQuestionPackCount(builder.creditBalance),
-                ),
+                _unlockableCreditsMessage(context, builder.creditBalance),
               ),
               if (!hasCredits) ...[
                 const SizedBox(height: 12),
@@ -390,15 +395,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.storeCurrentBalance(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.storeQuestionPackCount(
-                                          builder.creditBalance,
-                                        ),
-                                      ),
+                                      _unlockableCreditsMessage(context, builder.creditBalance),
                                       style: Theme.of(context)
                                           .textTheme
                                           .titleSmall
@@ -738,7 +735,9 @@ class _ThemeSelectTile extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    theme.isFree ? 'FREE' : 'PREMIUM',
+                    theme.isFree
+                        ? AppLocalizations.of(context)!.free
+                        : AppLocalizations.of(context)!.premium,
                     style: TextStyle(
                       color: theme.isFree
                           ? Colors.green

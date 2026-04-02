@@ -97,7 +97,7 @@
   "language": "Langue",
   "about": "À propos",
   "version": "QuizzBuilder v0.21.3",
-  "aboutText": "Une plateforme de quiz interactive pour tester vos connaissances.",
+  "aboutText": "Une plateforme de quizz interactive pour tester vos connaissances.",
   "storeFeatureComing": "La fonctionnalité de boutique arrive bientôt!",
   "errorLoadingCategories": "Erreur lors du chargement des catégories",
   "errorLoadingThemes": "Erreur lors du chargement des thèmes",
@@ -132,7 +132,7 @@
   "selectNumberOfQuestions": "Sélectionnez le nombre de questions (5-20)",
   "selectNumberOfPlayers": "Sélectionnez le nombre de joueurs (1-4)",
   "selectQuestionsLevels": "Sélectionnez le(s) niveau(x) de question(s)",
-  "dailyPathToFreeCredit": "Parcours jusqu'au prochain credit gratuit",
+  "dailyPathToFreeCredit": "Parcours jusqu'au prochain crédit gratuit",
   "players": "Joueurs",
   "startGame": "Démarrer la partie",
   "continueText": "Continuer",
@@ -182,7 +182,7 @@
   "feedbackInvitation": "N'hésitez pas à me contacter pour demander de nouveaux thèmes ou me faire part de vos commentaires",
   "iapNotImplemented": "Les achats intégrés ne sont pas encore implémentés. Cette fonctionnalité arrive bientôt!",
   "storePacksTitle": "Packs de questions",
-  "storeCurrentBalance": "Packs disponibles : {packs}",
+  "storeCurrentBalance": "Crédit(s) disponible(s) : {packs}",
   "@storeCurrentBalance": {
     "placeholders": {
       "packs": {
@@ -194,8 +194,17 @@
   "storeRestorePurchases": "Restaurer les achats",
   "storeRestoring": "Restauration...",
   "storeUnavailableOnDevice": "Les achats ne sont actuellement pas disponibles sur cet appareil.",
-  "storeUnlockExplanation": "Chaque pack achete peut etre utilise pour debloquer des themes premium supplementaires.",
-  "storeLockedPaidThemesCount": "Themes premium non encore debloques : {count}",
+  "storeUnlockExplanation": "Chaque pack acheté peut être utilisé pour débloquer des thèmes premium supplémentaires.",
+  "storeCreditPackDescription": "{count, plural, one{D\u00e9bloquer {count} th\u00e8me premium} other{D\u00e9bloquer jusqu'\u00e0 {count} th\u00e8mes premium}}",
+  "@storeCreditPackDescription": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "storeLockedPaidThemesCount": "Thèmes premium non encore débloqués : {count}",
   "@storeLockedPaidThemesCount": {
     "placeholders": {
       "count": {
@@ -204,7 +213,7 @@
       }
     }
   },
-  "storePurchaseSuccess": "Pack ajoute : +{granted} (disponibles : {balance})",
+  "storePurchaseSuccess": "Pack ajouté : +{granted} (disponibles : {balance})",
   "@storePurchaseSuccess": {
     "placeholders": {
       "granted": {
@@ -217,7 +226,7 @@
       }
     }
   },
-  "storeRestoreSuccess": "Restauration terminee. Packs disponibles : {balance}.",
+  "storeRestoreSuccess": "Restauration terminée. Packs disponibles : {balance}.",
   "@storeRestoreSuccess": {
     "placeholders": {
       "balance": {
@@ -226,7 +235,7 @@
       }
     }
   },
-  "storeVerificationFailed": "Verification echouee : {error}",
+  "storeVerificationFailed": "Vérification échouée : {error}",
   "@storeVerificationFailed": {
     "placeholders": {
       "error": {
@@ -235,7 +244,7 @@
       }
     }
   },
-  "storeRestoreFailed": "Restauration echouee : {error}",
+  "storeRestoreFailed": "Restauration échouée : {error}",
   "@storeRestoreFailed": {
     "placeholders": {
       "error": {
@@ -244,8 +253,8 @@
       }
     }
   },
-  "storeProductUnavailable": "Ce pack n'est pas encore disponible a l'achat.",
-  "storePurchaseFlowFailed": "Impossible de demarrer l'achat.",
+  "storeProductUnavailable": "Ce pack n'est pas encore disponible à l'achat.",
+  "storePurchaseFlowFailed": "Impossible de démarrer l'achat.",
   "storeUnknownProductId": "Identifiant produit inconnu : {productId}",
   "@storeUnknownProductId": {
     "placeholders": {
@@ -266,7 +275,16 @@
       }
     }
   },
-  "storePackTooLargeForRemaining": "Ce pack est trop grand pour vos debloquages restants ({remaining}).",
+  "storeCreditCount": "{count, plural, one{{count} cr\u00e9dit} other{{count} cr\u00e9dits}}",
+  "@storeCreditCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "storePackTooLargeForRemaining": "Ce pack est trop grand pour vos déblocages restants ({remaining}).",
   "@storePackTooLargeForRemaining": {
     "placeholders": {
       "remaining": {
@@ -338,5 +356,31 @@
         "example": "1"
       }
     }
-  }
+  },
+  "dailyMode": "Quotidien",
+  "dailyStatusLoadError": "Impossible de charger le statut quotidien.",
+  "dailyChallenge": "Défi quotidien",
+  "dailyProgress": "Progression : {currentStreak}/{target} sans erreur",
+  "@dailyProgress": {
+    "placeholders": {
+      "currentStreak": { "type": "int", "example": "3" },
+      "target": { "type": "int", "example": "10" }
+    }
+  },
+  "dailyRewardsGranted": "Crédits gratuits débloqués : {count}",
+  "@dailyRewardsGranted": {
+    "placeholders": {
+      "count": { "type": "int", "example": "2" }
+    }
+  },
+  "dailyAvailableToday": "Disponible aujourd'hui",
+  "dailyAlreadyPlayedToday": "Déjà joué aujourd'hui",
+  "dailyTierReached": "Palier atteint : +1 crédit prêt à être débloqué",
+  "dailyTierTarget": "Palier crédit : atteint au {target}e succès",
+  "@dailyTierTarget": {
+    "placeholders": {
+      "target": { "type": "int", "example": "10" }
+    }
+  },
+  "dailyTierHint": "Le palier crédit est mis en évidence en doré."
 }

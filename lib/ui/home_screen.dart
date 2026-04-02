@@ -217,19 +217,19 @@ class _HomeScreenState extends State<HomeScreen> {
                             _StatItem(
                               icon: Icons.school,
                               label: AppLocalizations.of(context)!.categories,
-                              value: _formatStatValue(catalogProvider.stats?.totalCategoriesPurchased, catalogProvider.isStatsLoading),
+                              value: _formatStatValue(catalogProvider.stats?.totalCategories, catalogProvider.isStatsLoading),
                             ),
                             Container(height: 40, width: 1, color: Colors.grey.shade300),
                             _StatItem(
                               icon: Icons.bookmark,
                               label: AppLocalizations.of(context)!.themes,
-                              value: _formatStatValue(catalogProvider.stats?.totalThemesPurchased, catalogProvider.isStatsLoading),
+                              value: _formatStatValue(catalogProvider.stats?.totalThemes, catalogProvider.isStatsLoading),
                             ),
                             Container(height: 40, width: 1, color: Colors.grey.shade300),
                             _StatItem(
                               icon: Icons.help_center,
                               label: AppLocalizations.of(context)!.questions,
-                              value: _formatStatValue(catalogProvider.stats?.totalQuestionsPurchased, catalogProvider.isStatsLoading),
+                              value: _formatStatValue(catalogProvider.stats?.totalQuestions, catalogProvider.isStatsLoading),
                             ),
                           ],
                         ),
