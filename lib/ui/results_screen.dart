@@ -336,6 +336,15 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
   }
 
   String _getPerformanceMessage(BuildContext context) {
+    final bool isDailyFailure = widget.gameMode == 'daily' && widget.score < widget.totalQuestions;
+    if (isDailyFailure) {
+      final String languageCode = Localizations.localeOf(context).languageCode;
+      if (languageCode == 'fr') {
+        return 'Pas grave ! Reessaie le defi quotidien demain.';
+      }
+      return 'No worries! Try the daily challenge again tomorrow.';
+    }
+
     final loc = AppLocalizations.of(context)!;
     final percentage = double.parse(_getPercentage());
     if (percentage >= 90) return loc.outstanding;
@@ -682,6 +691,72 @@ class _ResultsScreenState extends State<ResultsScreen> with TickerProviderStateM
                   ),
                 );
               },
+            ),
+            const SizedBox(height: 14),
+            Text(
+              AppLocalizations.of(context)!.dailyPathToFreeCredit,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[800],
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: List<Widget>.generate(target, (index) {
+                final int step = index + 1;
+                final bool reached = step <= progress;
+                final bool isRewardMilestone = step == target;
+
+                final Color bgColor;
+                final Color borderColor;
+                final Color textColor;
+
+                if (isRewardMilestone) {
+                  bgColor = reached
+                      ? Colors.amber.withValues(alpha: 0.9)
+                      : Colors.amber.withValues(alpha: 0.2);
+                  borderColor = Colors.amber;
+                  textColor = reached ? Colors.black : Colors.amber[900]!;
+                } else if (reached) {
+                  bgColor = Colors.blue.withValues(alpha: 0.85);
+                  borderColor = Colors.blue;
+                  textColor = Colors.white;
+                } else {
+                  bgColor = Colors.grey.withValues(alpha: 0.12);
+                  borderColor = Colors.grey[350]!;
+                  textColor = Colors.grey[700]!;
+                }
+
+                return Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: borderColor,
+                      width: isRewardMilestone ? 2 : 1.2,
+                    ),
+                  ),
+                  child: isRewardMilestone
+                      ? Icon(
+                          reached ? Icons.workspace_premium : Icons.lock_open,
+                          size: 15,
+                          color: textColor,
+                        )
+                      : Text(
+                          '$step',
+                          style: TextStyle(
+                            color: textColor,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11,
+                          ),
+                        ),
+                );
+              }),
             ),
           ],
         ),

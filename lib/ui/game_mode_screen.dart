@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/gradient_background.dart';
 import '../l10n/app_localizations.dart';
 import 'selected_themes_screen.dart';
+import 'setup_solo_screen.dart';
 
 class GameModeScreen extends StatefulWidget {
   const GameModeScreen({super.key});
@@ -51,8 +52,7 @@ class _GameModeScreenState extends State<GameModeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                const SelectedThemesScreen(gameMode: 'solo'),
+                            builder: (_) => const SetupSoloScreen(),
                           ),
                         );
                       },

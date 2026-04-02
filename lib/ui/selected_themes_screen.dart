@@ -8,13 +8,22 @@ import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
 import '../widgets/gradient_background.dart';
 import 'credit_store_screen.dart';
-import 'setup_solo_screen.dart';
+import 'game_screen_solo.dart';
 import 'setup_multiplayer_screen.dart';
 
 class SelectedThemesScreen extends StatefulWidget {
   final String gameMode;
+  final String? soloGameMode;
+  final int? soloQuestionCount;
+  final List<String>? soloSelectedDifficulties;
 
-  const SelectedThemesScreen({super.key, required this.gameMode});
+  const SelectedThemesScreen({
+    super.key,
+    required this.gameMode,
+    this.soloGameMode,
+    this.soloQuestionCount,
+    this.soloSelectedDifficulties,
+  });
 
   @override
   State<SelectedThemesScreen> createState() => _SelectedThemesScreenState();
@@ -30,7 +39,9 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedDifficulties = ['easy'];
+    _selectedDifficulties = widget.soloSelectedDifficulties != null && widget.soloSelectedDifficulties!.isNotEmpty
+        ? List<String>.from(widget.soloSelectedDifficulties!)
+        : ['easy'];
     _loadSavedDifficulties();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<QuizzBuilderProvider>(
@@ -620,8 +631,10 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => SetupSoloScreen(
-                                      selectedDifficulties: List<String>.from(
+                                    builder: (_) => GameScreenSolo(
+                                      questionCount: widget.soloQuestionCount ?? 10,
+                                      gameMode: widget.soloGameMode ?? 'standard',
+                                      difficulties: List<String>.from(
                                         _selectedDifficulties,
                                       ),
                                     ),

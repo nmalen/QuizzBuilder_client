@@ -5,6 +5,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../services/daily_challenge_service.dart';
 import 'game_screen_solo.dart';
+import 'selected_themes_screen.dart';
 
 
 class SetupSoloScreen extends StatefulWidget {
@@ -216,13 +217,28 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
               onPressed: _gameMode == 'daily' && _dailyStatus != null && !_dailyStatus!.canPlayToday
                   ? null
                   : () {
+                if (_gameMode == 'daily') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => GameScreenSolo(
+                        questionCount: 10,
+                        gameMode: _gameMode,
+                        difficulties: List<String>.from(_selectedDifficulties),
+                      ),
+                    ),
+                  );
+                  return;
+                }
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => GameScreenSolo(
-                      questionCount: _gameMode == 'daily' ? 10 : _questionCount,
-                      gameMode: _gameMode,
-                      difficulties: List<String>.from(_selectedDifficulties),
+                    builder: (_) => SelectedThemesScreen(
+                      gameMode: 'solo',
+                      soloGameMode: _gameMode,
+                      soloQuestionCount: _questionCount,
+                      soloSelectedDifficulties: List<String>.from(_selectedDifficulties),
                     ),
                   ),
                 );

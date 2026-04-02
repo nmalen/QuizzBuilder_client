@@ -102,7 +102,13 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
   }
 
   Future<void> _completeDailyIfNeeded(bool isCurrentAnswerCorrect) async {
-    if (gameMode != 'daily' || _dailyCompletionSubmitted || currentQuestionIndex != questions.length - 1) {
+    if (gameMode != 'daily' || _dailyCompletionSubmitted) {
+      return;
+    }
+
+    // In daily mode we submit immediately on first failure, or on last question if still successful.
+    final bool isLastQuestion = currentQuestionIndex == questions.length - 1;
+    if (isCurrentAnswerCorrect && !isLastQuestion) {
       return;
     }
 
@@ -192,7 +198,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
       );
     }
 
-    if (currentQuestionIndex >= questions.length || survivalFailed) {
+    if (currentQuestionIndex >= questions.length || survivalFailed || dailyFailed) {
       return ResultsScreen(
         score: score,
         totalQuestions: questions.length,
@@ -209,15 +215,19 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
     final languageCode = Localizations.localeOf(context).languageCode;
     final currentQuestion = questions[currentQuestionIndex];
     final answers = currentQuestion.getAnswers(languageCode);
+    final bool blockBackNavigation = gameMode == 'survival' || gameMode == 'daily';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.soloMode),
-        elevation: 0,
-      ),
-      body: GradientBackground(
-        child: SingleChildScrollView(
-          child: Padding(
+    return WillPopScope(
+      onWillPop: () async => !blockBackNavigation,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.soloMode),
+          elevation: 0,
+          automaticallyImplyLeading: !blockBackNavigation,
+        ),
+        body: GradientBackground(
+          child: SingleChildScrollView(
+            child: Padding(
             padding: const EdgeInsets.fromLTRB(24, 4, 24, 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -330,14 +340,30 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: ElevatedButton(
-                    onPressed: answered ? null : () {
+                    onPressed: answered ? null : () async {
+                      final bool isCurrentAnswerCorrect = index + 1 == currentQuestion.correctAnswer;
+
                       setState(() {
                         selectedAnswerIndex = index;
                         answered = true;
-                        if (index + 1 == currentQuestion.correctAnswer) {
+                        if (isCurrentAnswerCorrect) {
                           score++;
                         }
                       });
+
+                      if (gameMode == 'daily' && !isCurrentAnswerCorrect) {
+                        dailyFailed = true;
+                        await _completeDailyIfNeeded(false);
+                        if (!mounted) {
+                          return;
+                        }
+                        setState(() {
+                          // Force immediate transition to results on first error in daily mode.
+                          currentQuestionIndex = questions.length;
+                          answered = false;
+                          selectedAnswerIndex = null;
+                        });
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
@@ -437,7 +463,8 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
               const SizedBox(height: 24),
             ],
           ),
-        ),
+            ),
+          ),
         ),
       ),
     );
