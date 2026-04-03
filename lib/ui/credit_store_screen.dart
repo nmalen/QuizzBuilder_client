@@ -118,15 +118,25 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
         if (ids.isNotEmpty) {
           final response = await _inAppPurchase.queryProductDetails(ids);
           products = response.productDetails;
-          if (response.error != null || response.notFoundIDs.isNotEmpty) {
-            storeError = null;
+          if (response.error != null) {
+            storeError = 'Store query failed: ${response.error!.message}';
+          } else if (response.notFoundIDs.isNotEmpty) {
+            storeError =
+                'Store products not found: ${response.notFoundIDs.join(', ')}';
+          } else if (products.isEmpty) {
+            storeError =
+                'No Store products returned for configured pack product IDs.';
           }
+        } else {
+          storeError = 'No iOS product IDs configured for active credit packs.';
         }
+      } else if (!available) {
+        storeError = 'In-app purchase store is unavailable on this device.';
       }
 
       if (!mounted) return;
       setState(() {
-        _storeAvailable = available && products.isNotEmpty;
+        _storeAvailable = available;
         _packs = filteredPacks;
         _products = products;
         _creditBalance = credits.balance;
@@ -339,8 +349,10 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
     required PurchaseDetails purchase,
     required String packageName,
   }) {
-    final localVerificationData = purchase.verificationData.localVerificationData;
-    final serverVerificationData = purchase.verificationData.serverVerificationData;
+    final localVerificationData =
+        purchase.verificationData.localVerificationData;
+    final serverVerificationData =
+        purchase.verificationData.serverVerificationData;
     final localMap = _tryDecodeJsonMap(localVerificationData);
 
     // Android requires the purchase token for backend verification.
@@ -356,7 +368,8 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       'purchaseToken': purchaseToken,
       if (purchase.purchaseID != null && purchase.purchaseID!.isNotEmpty)
         'orderId': purchase.purchaseID,
-      if (localMap['purchaseTime'] != null) 'purchaseTime': localMap['purchaseTime'],
+      if (localMap['purchaseTime'] != null)
+        'purchaseTime': localMap['purchaseTime'],
       if (localMap['purchaseState'] != null)
         'purchaseState': localMap['purchaseState'],
     };
@@ -383,7 +396,8 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
   }
 
   String? _tokenFromMap(Map<String, dynamic> data) {
-    final token = data['purchaseToken'] ?? data['token'] ?? data['purchase_token'];
+    final token =
+        data['purchaseToken'] ?? data['token'] ?? data['purchase_token'];
     if (token is String) {
       final trimmed = token.trim();
       if (trimmed.isNotEmpty) {
@@ -642,7 +656,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                         ],
                       ),
                     ),
-                  if (_error != null && _storeAvailable)
+                  if (_error != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -665,7 +679,8 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                         final canBuyThisPack =
                             !_purchaseInProgress &&
                             _storeAvailable &&
-                            !isPackTooLarge;
+                            !isPackTooLarge &&
+                            product != null;
                         final displayPrice =
                             product?.price ??
                             _fallbackPrices[pack.credits] ??
