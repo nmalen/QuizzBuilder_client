@@ -94,7 +94,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get account => 'Account';
+
+  @override
   String get logoutConfirm => 'Are you sure you want to logout?';
+
+  @override
+  String get optOutButton => 'Opt out';
+
+  @override
+  String get optOutDescription => 'Request deletion of your account and all associated data.';
+
+  @override
+  String get optOutConfirmTitle => 'Confirm opt out';
+
+  @override
+  String get optOutConfirmMessage => 'Are you sure you want to opt out? All of your user data, including your purchases, will be deleted within 30 days.';
+
+  @override
+  String get optOutConfirmAction => 'Confirm request';
+
+  @override
+  String get optOutSuccess => 'Your deletion request has been recorded. A confirmation email has been sent.';
+
+  @override
+  String get optOutAlreadyRequested => 'Your account is already scheduled for deletion.';
+
+  @override
+  String get optOutError => 'Unable to request account deletion right now. Please try again.';
+
+  @override
+  String get pendingDeletionTitle => 'Pending deletion request';
+
+  @override
+  String get pendingDeletionMessage => 'A pending account deletion request is active. If you want to revert this process, contact the admin at admin@ndsh-software.fr.';
 
   @override
   String get cancel => 'Cancel';

@@ -17,6 +17,10 @@ class User {
   final bool? emailVerified;
   @JsonKey(name: 'created_at')
   final String? createdAt;
+  @JsonKey(name: 'deletion_requested')
+  final bool? deletionRequested;
+  @JsonKey(name: 'deletion_requested_at')
+  final String? deletionRequestedAt;
 
   User({
     required this.id,
@@ -27,6 +31,8 @@ class User {
     this.isActive,
     this.emailVerified,
     this.createdAt,
+    this.deletionRequested,
+    this.deletionRequestedAt,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

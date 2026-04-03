@@ -94,7 +94,40 @@ class AppLocalizationsFr extends AppLocalizations {
   String get settings => 'Paramètres';
 
   @override
+  String get account => 'Compte';
+
+  @override
   String get logoutConfirm => 'Êtes-vous sûr de vouloir vous déconnecter?';
+
+  @override
+  String get optOutButton => 'Se retirer';
+
+  @override
+  String get optOutDescription => 'Demander la suppression de votre compte et de toutes les données associées.';
+
+  @override
+  String get optOutConfirmTitle => 'Confirmer la demande';
+
+  @override
+  String get optOutConfirmMessage => 'Êtes-vous sûr de vouloir vous retirer ? Toutes vos données utilisateur, y compris vos achats, seront supprimées dans un délai de 30 jours.';
+
+  @override
+  String get optOutConfirmAction => 'Confirmer';
+
+  @override
+  String get optOutSuccess => 'Votre demande de suppression a été enregistrée. Un email de confirmation a été envoyé.';
+
+  @override
+  String get optOutAlreadyRequested => 'Votre compte est déjà programmé pour suppression.';
+
+  @override
+  String get optOutError => 'Impossible de demander la suppression du compte pour le moment. Veuillez réessayer.';
+
+  @override
+  String get pendingDeletionTitle => 'Demande de suppression en attente';
+
+  @override
+  String get pendingDeletionMessage => 'Une demande de suppression de compte est active. Si vous souhaitez annuler ce processus, contactez l\'administrateur a admin@ndsh-software.fr.';
 
   @override
   String get cancel => 'Annuler';
@@ -372,7 +405,7 @@ class AppLocalizationsFr extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Débloquer jusqu\'\u00e0 $count thèmes premium',
+      other: 'Débloquer jusqu\'à $count thèmes premium',
       one: 'Débloquer $count thème premium',
     );
     return '$_temp0';

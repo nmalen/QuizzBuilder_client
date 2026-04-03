@@ -17,12 +17,45 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _pendingDeletionDialogShown = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CatalogProvider>(context, listen: false).loadStatistics();
+      _maybeShowPendingDeletionWarning();
     });
+  }
+
+  void _maybeShowPendingDeletionWarning() {
+    if (_pendingDeletionDialogShown || !mounted) {
+      return;
+    }
+
+    final user = Provider.of<AuthProvider>(context, listen: false).user;
+    if (user?.deletionRequested != true) {
+      return;
+    }
+
+    _pendingDeletionDialogShown = true;
+    final localizations = AppLocalizations.of(context)!;
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(localizations.pendingDeletionTitle),
+          content: Text(localizations.pendingDeletionMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(localizations.ok),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -78,229 +111,289 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context).primaryColor,
-                    Theme.of(context).primaryColor.withValues(alpha: 0.7),
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Theme.of(context).primaryColor,
+                      Theme.of(context).primaryColor.withValues(alpha: 0.7),
+                    ],
+                  ),
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const Icon(Icons.person, size: 60, color: Colors.white),
+                    const SizedBox(height: 12),
+                    Text(
+                      AppLocalizations.of(
+                        context,
+                      )!.welcomeMessage(user?.displayName ?? 'User'),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      AppLocalizations.of(context)!.readyToTest,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                    ),
                   ],
                 ),
               ),
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  const Icon(Icons.person, size: 60, color: Colors.white),
-                  const SizedBox(height: 12),
-                  Text(
-                    AppLocalizations.of(context)!.welcomeMessage(user?.displayName ?? 'User'),
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+              const SizedBox(height: 16),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    _ActionButton(
+                      icon: Icons.quiz,
+                      title: AppLocalizations.of(context)!.playQuiz,
+                      subtitle: AppLocalizations.of(context)!.playQuizSubtitle,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const GameModeScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _ActionButton(
+                      icon: Icons.shopping_cart,
+                      title: AppLocalizations.of(context)!.store,
+                      subtitle: AppLocalizations.of(context)!.storeSubtitle,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CreditStoreScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.availableContent,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    AppLocalizations.of(context)!.readyToTest,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  _ActionButton(
-                    icon: Icons.quiz,
-                    title: AppLocalizations.of(context)!.playQuiz,
-                    subtitle: AppLocalizations.of(context)!.playQuizSubtitle,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const GameModeScreen()),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  _ActionButton(
-                    icon: Icons.shopping_cart,
-                    title: AppLocalizations.of(context)!.store,
-                    subtitle: AppLocalizations.of(context)!.storeSubtitle,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const CreditStoreScreen()),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.availableContent,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      IconButton(
-                        tooltip: 'Refresh',
-                        onPressed: catalogProvider.isStatsLoading
-                            ? null
-                            : () {
-                                catalogProvider.loadStatistics();
-                              },
-                        icon: catalogProvider.isStatsLoading
-                            ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Theme.of(context).primaryColor,
+                        IconButton(
+                          tooltip: 'Refresh',
+                          onPressed: catalogProvider.isStatsLoading
+                              ? null
+                              : () {
+                                  catalogProvider.loadStatistics();
+                                },
+                          icon: catalogProvider.isStatsLoading
+                              ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).primaryColor,
+                                    ),
                                   ),
-                                ),
-                              )
-                            : const Icon(Icons.refresh),
+                                )
+                              : const Icon(Icons.refresh),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withValues(alpha: 0.15),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.15),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.lock_open,
+                                color: Theme.of(context).primaryColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                AppLocalizations.of(context)!.userContent,
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            AppLocalizations.of(context)!.userContentSubtitle,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[700]),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _StatItem(
+                                icon: Icons.school,
+                                label: AppLocalizations.of(context)!.categories,
+                                value: _formatStatValue(
+                                  catalogProvider.stats?.totalCategories,
+                                  catalogProvider.isStatsLoading,
+                                ),
+                              ),
+                              Container(
+                                height: 40,
+                                width: 1,
+                                color: Colors.grey.shade300,
+                              ),
+                              _StatItem(
+                                icon: Icons.bookmark,
+                                label: AppLocalizations.of(context)!.themes,
+                                value: _formatStatValue(
+                                  catalogProvider.stats?.totalThemes,
+                                  catalogProvider.isStatsLoading,
+                                ),
+                              ),
+                              Container(
+                                height: 40,
+                                width: 1,
+                                color: Colors.grey.shade300,
+                              ),
+                              _StatItem(
+                                icon: Icons.help_center,
+                                label: AppLocalizations.of(context)!.questions,
+                                value: _formatStatValue(
+                                  catalogProvider.stats?.totalQuestions,
+                                  catalogProvider.isStatsLoading,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.lock_open, color: Theme.of(context).primaryColor, size: 20),
-                            const SizedBox(width: 6),
-                            Text(
-                              AppLocalizations.of(context)!.userContent,
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          AppLocalizations.of(context)!.userContentSubtitle,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _StatItem(
-                              icon: Icons.school,
-                              label: AppLocalizations.of(context)!.categories,
-                              value: _formatStatValue(catalogProvider.stats?.totalCategories, catalogProvider.isStatsLoading),
-                            ),
-                            Container(height: 40, width: 1, color: Colors.grey.shade300),
-                            _StatItem(
-                              icon: Icons.bookmark,
-                              label: AppLocalizations.of(context)!.themes,
-                              value: _formatStatValue(catalogProvider.stats?.totalThemes, catalogProvider.isStatsLoading),
-                            ),
-                            Container(height: 40, width: 1, color: Colors.grey.shade300),
-                            _StatItem(
-                              icon: Icons.help_center,
-                              label: AppLocalizations.of(context)!.questions,
-                              value: _formatStatValue(catalogProvider.stats?.totalQuestions, catalogProvider.isStatsLoading),
-                            ),
-                          ],
-                        ),
-                      ],
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withValues(alpha: 0.15),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.auto_awesome,
+                                color: Theme.of(context).primaryColor,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.quizzBuilderContent,
+                                style: Theme.of(context).textTheme.titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.quizzBuilderContentSubtitle,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[700]),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _StatItem(
+                                icon: Icons.school,
+                                label: AppLocalizations.of(context)!.categories,
+                                value: _formatStatValue(
+                                  catalogProvider.stats?.totalCategoriesAll,
+                                  catalogProvider.isStatsLoading,
+                                ),
+                              ),
+                              Container(
+                                height: 40,
+                                width: 1,
+                                color: Colors.grey.shade300,
+                              ),
+                              _StatItem(
+                                icon: Icons.bookmark,
+                                label: AppLocalizations.of(context)!.themes,
+                                value: _formatStatValue(
+                                  catalogProvider.stats?.totalThemesAll,
+                                  catalogProvider.isStatsLoading,
+                                ),
+                              ),
+                              Container(
+                                height: 40,
+                                width: 1,
+                                color: Colors.grey.shade300,
+                              ),
+                              _StatItem(
+                                icon: Icons.help_center,
+                                label: AppLocalizations.of(context)!.questions,
+                                value: _formatStatValue(
+                                  catalogProvider.stats?.totalQuestionsAll,
+                                  catalogProvider.isStatsLoading,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withValues(alpha: 0.15),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.auto_awesome, color: Theme.of(context).primaryColor, size: 20),
-                            const SizedBox(width: 6),
-                            Text(
-                              AppLocalizations.of(context)!.quizzBuilderContent,
-                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          AppLocalizations.of(context)!.quizzBuilderContentSubtitle,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _StatItem(
-                              icon: Icons.school,
-                              label: AppLocalizations.of(context)!.categories,
-                              value: _formatStatValue(catalogProvider.stats?.totalCategoriesAll, catalogProvider.isStatsLoading),
-                            ),
-                            Container(height: 40, width: 1, color: Colors.grey.shade300),
-                            _StatItem(
-                              icon: Icons.bookmark,
-                              label: AppLocalizations.of(context)!.themes,
-                              value: _formatStatValue(catalogProvider.stats?.totalThemesAll, catalogProvider.isStatsLoading),
-                            ),
-                            Container(height: 40, width: 1, color: Colors.grey.shade300),
-                            _StatItem(
-                              icon: Icons.help_center,
-                              label: AppLocalizations.of(context)!.questions,
-                              value: _formatStatValue(catalogProvider.stats?.totalQuestionsAll, catalogProvider.isStatsLoading),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -350,7 +443,11 @@ class _ActionButton extends StatelessWidget {
                 color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Theme.of(context).primaryColor, size: 20),
+              child: Icon(
+                icon,
+                color: Theme.of(context).primaryColor,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -359,12 +456,16 @@ class _ActionButton extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
                   ),
                 ],
               ),
@@ -398,16 +499,16 @@ class _StatItem extends StatelessWidget {
         Text(
           value,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
-              ),
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).primaryColor,
+          ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
           textAlign: TextAlign.center,
         ),
       ],

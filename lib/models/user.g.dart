@@ -15,6 +15,8 @@ User _$UserFromJson(Map<String, dynamic> json) => User(
   isActive: json['is_active'] as bool?,
   emailVerified: json['email_verified'] as bool?,
   createdAt: json['created_at'] as String?,
+  deletionRequested: json['deletion_requested'] as bool?,
+  deletionRequestedAt: json['deletion_requested_at'] as String?,
 );
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -26,4 +28,6 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
   'is_active': instance.isActive,
   'email_verified': instance.emailVerified,
   'created_at': instance.createdAt,
+  'deletion_requested': instance.deletionRequested,
+  'deletion_requested_at': instance.deletionRequestedAt,
 };

@@ -257,11 +257,77 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
   /// No description provided for @logoutConfirm.
   ///
   /// In en, this message translates to:
   /// **'Are you sure you want to logout?'**
   String get logoutConfirm;
+
+  /// No description provided for @optOutButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Opt out'**
+  String get optOutButton;
+
+  /// No description provided for @optOutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Request deletion of your account and all associated data.'**
+  String get optOutDescription;
+
+  /// No description provided for @optOutConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm opt out'**
+  String get optOutConfirmTitle;
+
+  /// No description provided for @optOutConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to opt out? All of your user data, including your purchases, will be deleted within 30 days.'**
+  String get optOutConfirmMessage;
+
+  /// No description provided for @optOutConfirmAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm request'**
+  String get optOutConfirmAction;
+
+  /// No description provided for @optOutSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Your deletion request has been recorded. A confirmation email has been sent.'**
+  String get optOutSuccess;
+
+  /// No description provided for @optOutAlreadyRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is already scheduled for deletion.'**
+  String get optOutAlreadyRequested;
+
+  /// No description provided for @optOutError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to request account deletion right now. Please try again.'**
+  String get optOutError;
+
+  /// No description provided for @pendingDeletionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending deletion request'**
+  String get pendingDeletionTitle;
+
+  /// No description provided for @pendingDeletionMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A pending account deletion request is active. If you want to revert this process, contact the admin at admin@ndsh-software.fr.'**
+  String get pendingDeletionMessage;
 
   /// No description provided for @cancel.
   ///
@@ -758,7 +824,7 @@ abstract class AppLocalizations {
   /// No description provided for @storeCurrentBalance.
   ///
   /// In en, this message translates to:
-  /// **'Available packs: {packs}'**
+  /// **'Available credit(s): {packs}'**
   String storeCurrentBalance(String packs);
 
   /// No description provided for @storeRestorePurchases.
@@ -786,6 +852,9 @@ abstract class AppLocalizations {
   String get storeUnlockExplanation;
 
   /// No description provided for @storeCreditPackDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Unlock {count} premium theme} other{Unlock up to {count} premium themes}}'**
   String storeCreditPackDescription(int count);
 
   /// No description provided for @storeLockedPaidThemesCount.
@@ -855,6 +924,9 @@ abstract class AppLocalizations {
   String storeQuestionPackCount(int count);
 
   /// No description provided for @storeCreditCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} credit} other{{count} credits}}'**
   String storeCreditCount(int count);
 
   /// No description provided for @storePackTooLargeForRemaining.
@@ -984,33 +1056,63 @@ abstract class AppLocalizations {
   String player(int number);
 
   /// No description provided for @dailyMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
   String get dailyMode;
 
   /// No description provided for @dailyStatusLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load daily status.'**
   String get dailyStatusLoadError;
 
   /// No description provided for @dailyChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily challenge'**
   String get dailyChallenge;
 
   /// No description provided for @dailyProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress: {currentStreak}/{target} without error'**
   String dailyProgress(int currentStreak, int target);
 
   /// No description provided for @dailyRewardsGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Free credits unlocked: {count}'**
   String dailyRewardsGranted(int count);
 
   /// No description provided for @dailyAvailableToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Available today'**
   String get dailyAvailableToday;
 
   /// No description provided for @dailyAlreadyPlayedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Already played today'**
   String get dailyAlreadyPlayedToday;
 
   /// No description provided for @dailyTierReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Milestone reached: +1 credit ready to unlock'**
   String get dailyTierReached;
 
   /// No description provided for @dailyTierTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit milestone: reached at {target}th success'**
   String dailyTierTarget(int target);
 
   /// No description provided for @dailyTierHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The credit milestone is highlighted in gold.'**
   String get dailyTierHint;
 }
 

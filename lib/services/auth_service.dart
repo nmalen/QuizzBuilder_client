@@ -59,21 +59,25 @@ class AuthService {
       debugPrint('[REGISTER] Request:');
       debugPrint('URL: $baseUrl${ApiConfig.authRegisterEndpoint}');
       debugPrint('Headers: \\n${ApiConfig.defaultHeaders}');
-      debugPrint('Body: {email: $email, username: $username, password1: $password1, password2: $password2}');
-
-      final response = await http.post(
-        Uri.parse('$baseUrl${ApiConfig.authRegisterEndpoint}'),
-        headers: ApiConfig.defaultHeaders,
-        body: jsonEncode({
-          'email': email,
-          'username': username,
-          'password1': password1,
-          'password2': password2,
-        }),
-      ).timeout(
-        ApiConfig.connectionTimeout,
-        onTimeout: () => throw Exception('Connection timeout'),
+      debugPrint(
+        'Body: {email: $email, username: $username, password1: $password1, password2: $password2}',
       );
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl${ApiConfig.authRegisterEndpoint}'),
+            headers: ApiConfig.defaultHeaders,
+            body: jsonEncode({
+              'email': email,
+              'username': username,
+              'password1': password1,
+              'password2': password2,
+            }),
+          )
+          .timeout(
+            ApiConfig.connectionTimeout,
+            onTimeout: () => throw Exception('Connection timeout'),
+          );
 
       debugPrint('[REGISTER] Response status: \\n${response.statusCode}');
       debugPrint('[REGISTER] Response body: \\n${response.body}');
@@ -88,7 +92,9 @@ class AuthService {
         }
         return {
           'success': true,
-          'message': backendMsg.isNotEmpty ? backendMsg : 'Registration successful. Please verify your email.',
+          'message': backendMsg.isNotEmpty
+              ? backendMsg
+              : 'Registration successful. Please verify your email.',
         };
       } else {
         final errorData = jsonDecode(response.body);
@@ -101,14 +107,23 @@ class AuthService {
             final details = err['details'];
             if (details is Map && details.containsKey('email')) {
               final emailErrors = details['email'];
-              if (emailErrors is List && emailErrors.any((e) => e.toString().toLowerCase().contains('already registered'))) {
+              if (emailErrors is List &&
+                  emailErrors.any(
+                    (e) => e.toString().toLowerCase().contains(
+                      'already registered',
+                    ),
+                  )) {
                 message = 'An account with this email already exists.';
               } else {
                 message = emailErrors.join(' ');
               }
             } else if (details is Map && details.containsKey('username')) {
               final usernameErrors = details['username'];
-              if (usernameErrors is List && usernameErrors.any((e) => e.toString().toLowerCase().contains('already exists'))) {
+              if (usernameErrors is List &&
+                  usernameErrors.any(
+                    (e) =>
+                        e.toString().toLowerCase().contains('already exists'),
+                  )) {
                 message = 'This username is already taken.';
               } else {
                 message = usernameErrors.join(' ');
@@ -122,18 +137,11 @@ class AuthService {
         } else if (errorData.containsKey('detail')) {
           message = errorData['detail'].toString();
         }
-        return {
-          'success': false,
-          'message': message,
-          'errors': errorData,
-        };
+        return {'success': false, 'message': message, 'errors': errorData};
       }
     } catch (e) {
       debugPrint('[REGISTER] Exception: $e');
-      return {
-        'success': false,
-        'message': 'Error: ${e.toString()}',
-      };
+      return {'success': false, 'message': 'Error: ${e.toString()}'};
     }
   }
 
@@ -143,25 +151,33 @@ class AuthService {
     required String password,
   }) async {
     try {
-      debugPrint('[LOGIN] Attempting login to: $baseUrl${ApiConfig.authLoginEndpoint}');
-      debugPrint('[LOGIN] Identifier: $identifier');
-      
-      final response = await http.post(
-        Uri.parse('$baseUrl${ApiConfig.authLoginEndpoint}'),
-        headers: ApiConfig.defaultHeaders,
-        // Send both keys so the backend can match either email or username
-        body: jsonEncode({
-          'email': identifier,
-          'username': identifier,
-          'password': password,
-        }),
-      ).timeout(
-        ApiConfig.connectionTimeout,
-        onTimeout: () {
-          debugPrint('[LOGIN] Connection timeout after ${ApiConfig.connectionTimeout.inSeconds}s');
-          throw TimeoutException('Connection timeout - server not responding');
-        },
+      debugPrint(
+        '[LOGIN] Attempting login to: $baseUrl${ApiConfig.authLoginEndpoint}',
       );
+      debugPrint('[LOGIN] Identifier: $identifier');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl${ApiConfig.authLoginEndpoint}'),
+            headers: ApiConfig.defaultHeaders,
+            // Send both keys so the backend can match either email or username
+            body: jsonEncode({
+              'email': identifier,
+              'username': identifier,
+              'password': password,
+            }),
+          )
+          .timeout(
+            ApiConfig.connectionTimeout,
+            onTimeout: () {
+              debugPrint(
+                '[LOGIN] Connection timeout after ${ApiConfig.connectionTimeout.inSeconds}s',
+              );
+              throw TimeoutException(
+                'Connection timeout - server not responding',
+              );
+            },
+          );
 
       debugPrint('[LOGIN] Response status: ${response.statusCode}');
       debugPrint('[LOGIN] Response body: ${response.body}');
@@ -191,10 +207,7 @@ class AuthService {
         };
       } else if (response.statusCode == 401) {
         debugPrint('[LOGIN] Authentication failed - invalid credentials');
-        return {
-          'success': false,
-          'message': 'Invalid email or password',
-        };
+        return {'success': false, 'message': 'Invalid email or password'};
       } else {
         debugPrint('[LOGIN] Login failed with status ${response.statusCode}');
         final errorData = jsonDecode(response.body);
@@ -208,13 +221,15 @@ class AuthService {
       debugPrint('[LOGIN] Timeout error: $e');
       return {
         'success': false,
-        'message': 'Connection timeout. Please check your internet connection and try again.',
+        'message':
+            'Connection timeout. Please check your internet connection and try again.',
       };
     } on SocketException catch (e) {
       debugPrint('[LOGIN] Network error: $e');
       return {
         'success': false,
-        'message': 'Cannot reach server. Please check your internet connection.',
+        'message':
+            'Cannot reach server. Please check your internet connection.',
       };
     } on HandshakeException catch (e) {
       debugPrint('[LOGIN] SSL/TLS error: $e');
@@ -224,16 +239,10 @@ class AuthService {
       };
     } on FormatException catch (e) {
       debugPrint('[LOGIN] JSON parsing error: $e');
-      return {
-        'success': false,
-        'message': 'Invalid response from server.',
-      };
+      return {'success': false, 'message': 'Invalid response from server.'};
     } catch (e) {
       debugPrint('[LOGIN] Unexpected error: $e');
-      return {
-        'success': false,
-        'message': 'Error: ${e.toString()}',
-      };
+      return {'success': false, 'message': 'Error: ${e.toString()}'};
     }
   }
 
@@ -243,14 +252,16 @@ class AuthService {
       final refreshToken = await getRefreshToken();
       if (refreshToken == null) return false;
 
-      final response = await http.post(
-        Uri.parse('$baseUrl${ApiConfig.authRefreshEndpoint}'),
-        headers: ApiConfig.defaultHeaders,
-        body: jsonEncode({'refresh': refreshToken}),
-      ).timeout(
-        ApiConfig.connectionTimeout,
-        onTimeout: () => throw Exception('Connection timeout'),
-      );
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl${ApiConfig.authRefreshEndpoint}'),
+            headers: ApiConfig.defaultHeaders,
+            body: jsonEncode({'refresh': refreshToken}),
+          )
+          .timeout(
+            ApiConfig.connectionTimeout,
+            onTimeout: () => throw Exception('Connection timeout'),
+          );
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
@@ -276,6 +287,70 @@ class AuthService {
     await _secureStorage.delete(key: _accessTokenKey);
     await _secureStorage.delete(key: _refreshTokenKey);
     await _prefs.remove(_userKey);
+  }
+
+  /// Request account deletion for the authenticated user.
+  Future<Map<String, dynamic>> requestAccountDeletion() async {
+    try {
+      final headers = await getAuthHeaders();
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl${ApiConfig.authAccountDeletionEndpoint}'),
+            headers: headers,
+          )
+          .timeout(
+            ApiConfig.connectionTimeout,
+            onTimeout: () => throw TimeoutException('Connection timeout'),
+          );
+
+      if (response.statusCode == 401) {
+        final refreshed = await refreshAccessToken();
+        if (refreshed) {
+          return requestAccountDeletion();
+        }
+      }
+
+      final responseData = response.body.isEmpty
+          ? <String, dynamic>{}
+          : jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'message': responseData['message']?.toString(),
+          'deletion_requested_at': responseData['deletion_requested_at']
+              ?.toString(),
+          'scheduled_deletion_date': responseData['scheduled_deletion_date']
+              ?.toString(),
+          'already_requested':
+              responseData['message'] ==
+              'Account deletion has already been requested.',
+        };
+      }
+
+      return {
+        'success': false,
+        'message':
+            responseData['detail']?.toString() ??
+            responseData['message']?.toString() ??
+            'Request failed',
+      };
+    } on TimeoutException {
+      return {
+        'success': false,
+        'message': 'Connection timeout. Please try again.',
+      };
+    } on SocketException {
+      return {
+        'success': false,
+        'message':
+            'Cannot reach server. Please check your internet connection.',
+      };
+    } on FormatException {
+      return {'success': false, 'message': 'Invalid response from server.'};
+    } catch (e) {
+      return {'success': false, 'message': 'Error: ${e.toString()}'};
+    }
   }
 
   /// Get authorization header
