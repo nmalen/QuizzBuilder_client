@@ -217,8 +217,8 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
     final answers = currentQuestion.getAnswers(languageCode);
     final bool blockBackNavigation = gameMode == 'survival' || gameMode == 'daily';
 
-    return WillPopScope(
-      onWillPop: () async => !blockBackNavigation,
+    return PopScope(
+      canPop: !blockBackNavigation,
       child: Scaffold(
         appBar: AppBar(
           title: Text(AppLocalizations.of(context)!.soloMode),
