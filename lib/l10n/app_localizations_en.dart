@@ -100,25 +100,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoutConfirm => 'Are you sure you want to logout?';
 
   @override
-  String get optOutButton => 'Opt out';
+  String get optOutButton => 'Delete account';
 
   @override
   String get optOutDescription => 'Request deletion of your account and all associated data.';
 
   @override
-  String get optOutConfirmTitle => 'Confirm opt out';
+  String get optOutConfirmTitle => 'Confirm account deletion';
 
   @override
-  String get optOutConfirmMessage => 'Are you sure you want to opt out? All of your user data, including your purchases, will be deleted within 30 days.';
+  String get optOutConfirmMessage => 'Are you sure you want to delete your account? All of your user data, including your purchases, will be deleted within 30 days. After confirmation, you will no longer be able to access the application.';
+
+  @override
+  String get optOutRecordedTitle => 'Request recorded';
 
   @override
   String get optOutConfirmAction => 'Confirm request';
 
   @override
-  String get optOutSuccess => 'Your deletion request has been recorded. A confirmation email has been sent.';
+  String get optOutSuccess => 'Your deletion request has been recorded. A confirmation email has been sent. You will now be logged out.';
 
   @override
-  String get optOutAlreadyRequested => 'Your account is already scheduled for deletion.';
+  String get optOutAlreadyRequested => 'Your account is already scheduled for deletion. You will now be logged out.';
 
   @override
   String get optOutError => 'Unable to request account deletion right now. Please try again.';
@@ -128,6 +131,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pendingDeletionMessage => 'A pending account deletion request is active. If you want to revert this process, contact the admin at admin@ndsh-software.fr.';
+
+  @override
+  String get pendingDeletionLoginBlockedMessage => 'A pending account deletion request is active. Login is disabled. Contact the admin at admin@ndsh-software.fr to restore access.';
 
   @override
   String get cancel => 'Cancel';

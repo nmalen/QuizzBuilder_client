@@ -272,7 +272,7 @@ abstract class AppLocalizations {
   /// No description provided for @optOutButton.
   ///
   /// In en, this message translates to:
-  /// **'Opt out'**
+  /// **'Delete account'**
   String get optOutButton;
 
   /// No description provided for @optOutDescription.
@@ -284,14 +284,20 @@ abstract class AppLocalizations {
   /// No description provided for @optOutConfirmTitle.
   ///
   /// In en, this message translates to:
-  /// **'Confirm opt out'**
+  /// **'Confirm account deletion'**
   String get optOutConfirmTitle;
 
   /// No description provided for @optOutConfirmMessage.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to opt out? All of your user data, including your purchases, will be deleted within 30 days.'**
+  /// **'Are you sure you want to delete your account? All of your user data, including your purchases, will be deleted within 30 days. After confirmation, you will no longer be able to access the application.'**
   String get optOutConfirmMessage;
+
+  /// No description provided for @optOutRecordedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Request recorded'**
+  String get optOutRecordedTitle;
 
   /// No description provided for @optOutConfirmAction.
   ///
@@ -302,13 +308,13 @@ abstract class AppLocalizations {
   /// No description provided for @optOutSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Your deletion request has been recorded. A confirmation email has been sent.'**
+  /// **'Your deletion request has been recorded. A confirmation email has been sent. You will now be logged out.'**
   String get optOutSuccess;
 
   /// No description provided for @optOutAlreadyRequested.
   ///
   /// In en, this message translates to:
-  /// **'Your account is already scheduled for deletion.'**
+  /// **'Your account is already scheduled for deletion. You will now be logged out.'**
   String get optOutAlreadyRequested;
 
   /// No description provided for @optOutError.
@@ -328,6 +334,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A pending account deletion request is active. If you want to revert this process, contact the admin at admin@ndsh-software.fr.'**
   String get pendingDeletionMessage;
+
+  /// No description provided for @pendingDeletionLoginBlockedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'A pending account deletion request is active. Login is disabled. Contact the admin at admin@ndsh-software.fr to restore access.'**
+  String get pendingDeletionLoginBlockedMessage;
 
   /// No description provided for @cancel.
   ///

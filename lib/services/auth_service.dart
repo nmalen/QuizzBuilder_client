@@ -214,6 +214,7 @@ class AuthService {
         return {
           'success': false,
           'message': errorData['detail']?.toString() ?? errorData.toString(),
+          'error_code': errorData['code']?.toString(),
           'raw': errorData,
         };
       }

@@ -100,25 +100,28 @@ class AppLocalizationsFr extends AppLocalizations {
   String get logoutConfirm => 'Êtes-vous sûr de vouloir vous déconnecter?';
 
   @override
-  String get optOutButton => 'Se retirer';
+  String get optOutButton => 'Suppression du compte';
 
   @override
   String get optOutDescription => 'Demander la suppression de votre compte et de toutes les données associées.';
 
   @override
-  String get optOutConfirmTitle => 'Confirmer la demande';
+  String get optOutConfirmTitle => 'Confirmer la suppression du compte';
 
   @override
-  String get optOutConfirmMessage => 'Êtes-vous sûr de vouloir vous retirer ? Toutes vos données utilisateur, y compris vos achats, seront supprimées dans un délai de 30 jours.';
+  String get optOutConfirmMessage => 'Êtes-vous sûr de vouloir supprimer votre compte ? Toutes vos données utilisateur, y compris vos achats, seront supprimées dans un délai de 30 jours. Après confirmation, vous ne pourrez plus accéder à l\'application.';
+
+  @override
+  String get optOutRecordedTitle => 'Demande enregistrée';
 
   @override
   String get optOutConfirmAction => 'Confirmer';
 
   @override
-  String get optOutSuccess => 'Votre demande de suppression a été enregistrée. Un email de confirmation a été envoyé.';
+  String get optOutSuccess => 'Votre demande de suppression a été enregistrée. Un email de confirmation a été envoyé. Vous allez maintenant être déconnecté.';
 
   @override
-  String get optOutAlreadyRequested => 'Votre compte est déjà programmé pour suppression.';
+  String get optOutAlreadyRequested => 'Votre compte est déjà programmé pour suppression. Vous allez maintenant être déconnecté.';
 
   @override
   String get optOutError => 'Impossible de demander la suppression du compte pour le moment. Veuillez réessayer.';
@@ -128,6 +131,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pendingDeletionMessage => 'Une demande de suppression de compte est active. Si vous souhaitez annuler ce processus, contactez l\'administrateur a admin@ndsh-software.fr.';
+
+  @override
+  String get pendingDeletionLoginBlockedMessage => 'Une demande de suppression de compte est active. La connexion est désactivée. Contactez l\'administrateur à admin@ndsh-software.fr pour rétablir l\'accès.';
 
   @override
   String get cancel => 'Annuler';

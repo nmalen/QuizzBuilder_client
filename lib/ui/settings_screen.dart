@@ -37,15 +37,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final success = result['success'] == true;
     final alreadyRequested = result['already_requested'] == true;
 
+    if (success) {
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: Text(
+              alreadyRequested
+                  ? localizations.optOutRecordedTitle
+                  : localizations.optOutRecordedTitle,
+            ),
+            content: Text(
+              alreadyRequested
+                  ? localizations.optOutAlreadyRequested
+                  : localizations.optOutSuccess,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: Text(localizations.ok),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      await authProvider.logout();
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          success
-              ? alreadyRequested
-                    ? localizations.optOutAlreadyRequested
-                    : localizations.optOutSuccess
-              : localizations.optOutError,
-        ),
+        content: Text(localizations.optOutError),
       ),
     );
   }

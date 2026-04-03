@@ -383,7 +383,11 @@ class _AuthScreenState extends State<AuthScreen> {
                                   ),
                                 ),
                                 child: Text(
-                                  authProvider.error!,
+                                  authProvider.errorCode ==
+                                          'account_pending_deletion'
+                                      ? AppLocalizations.of(context)!
+                                          .pendingDeletionLoginBlockedMessage
+                                      : authProvider.error!,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 14,

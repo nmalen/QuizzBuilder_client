@@ -8,6 +8,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool _isLoading = false;
   String? _error;
+  String? _errorCode;
   String? _lastMessage;
   String? _successMessage;
 
@@ -18,6 +19,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String? get errorCode => _errorCode;
   String? get lastMessage => _lastMessage;
   String? get successMessage => _successMessage;
   AuthService get authService => _authService;
@@ -31,6 +33,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> initialize() async {
     _isLoading = true;
     _error = null;
+    _errorCode = null;
     notifyListeners();
 
     try {
@@ -96,8 +99,10 @@ class AuthProvider extends ChangeNotifier {
       _user = result['user'];
       _isLoggedIn = true;
       _error = null;
+      _errorCode = null;
     } else {
       _error = result['message'];
+      _errorCode = result['error_code']?.toString();
       _isLoggedIn = false;
     }
 
@@ -114,6 +119,7 @@ class AuthProvider extends ChangeNotifier {
     _user = null;
     _isLoggedIn = false;
     _error = null;
+    _errorCode = null;
 
     _isLoading = false;
     notifyListeners();
