@@ -255,6 +255,68 @@ class AuthService {
     }
   }
 
+  /// Request a password reset email for the provided account email.
+  Future<Map<String, dynamic>> requestPasswordReset({
+    required String email,
+  }) async {
+    try {
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl${ApiConfig.authPasswordResetEndpoint}'),
+            headers: ApiConfig.defaultHeaders,
+            body: jsonEncode({'email': email}),
+          )
+          .timeout(
+            ApiConfig.connectionTimeout,
+            onTimeout: () => throw TimeoutException('Connection timeout'),
+          );
+
+      final responseData = response.body.isNotEmpty
+          ? jsonDecode(response.body)
+          : <String, dynamic>{};
+
+      if (response.statusCode == 200) {
+        return {
+          'success': true,
+          'message': responseData['detail']?.toString() ??
+              'If an account exists for this email, a reset link has been sent.',
+        };
+      }
+
+      final backendError = responseData is Map<String, dynamic>
+          ? responseData['error'] as Map<String, dynamic>?
+          : null;
+
+      return {
+        'success': false,
+        'message':
+            backendError?['message']?.toString() ??
+            responseData['detail']?.toString() ??
+            'Unable to process password reset right now.',
+      };
+    } on TimeoutException {
+      return {
+        'success': false,
+        'message': 'Connection timeout. Please try again.',
+      };
+    } on SocketException {
+      return {
+        'success': false,
+        'message': 'Cannot reach server. Please check your internet connection.',
+      };
+    } on FormatException {
+      return {
+        'success': false,
+        'message': 'Invalid response from server.',
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Error: ${e.toString()}',
+      };
+    }
+  }
+
   /// Refresh access token using refresh token
   Future<bool> refreshAccessToken() async {
     try {

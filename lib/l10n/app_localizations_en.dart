@@ -229,6 +229,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get register => 'Register';
 
   @override
+  String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get forgotPasswordTitle => 'Reset password';
+
+  @override
+  String get forgotPasswordMessage => 'Enter the email address linked to your account. If it exists, you will receive a reset link by email.';
+
+  @override
+  String get sendResetLink => 'Send reset link';
+
+  @override
+  String get passwordResetEmailSent => 'If an account exists for this email, a password reset link has been sent.';
+
+  @override
+  String get passwordResetInvalidEmail => 'Please enter a valid email address.';
+
+  @override
+  String get passwordResetError => 'Unable to request a password reset right now. Please try again.';
+
+  @override
   String get email => 'Email';
 
   @override

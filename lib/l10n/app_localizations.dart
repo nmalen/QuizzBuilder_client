@@ -515,6 +515,48 @@ abstract class AppLocalizations {
   /// **'Register'**
   String get register;
 
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot password?'**
+  String get forgotPassword;
+
+  /// No description provided for @forgotPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get forgotPasswordTitle;
+
+  /// No description provided for @forgotPasswordMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the email address linked to your account. If it exists, you will receive a reset link by email.'**
+  String get forgotPasswordMessage;
+
+  /// No description provided for @sendResetLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get sendResetLink;
+
+  /// No description provided for @passwordResetEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for this email, a password reset link has been sent.'**
+  String get passwordResetEmailSent;
+
+  /// No description provided for @passwordResetInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get passwordResetInvalidEmail;
+
+  /// No description provided for @passwordResetError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to request a password reset right now. Please try again.'**
+  String get passwordResetError;
+
   /// No description provided for @email.
   ///
   /// In en, this message translates to:

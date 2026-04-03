@@ -112,6 +112,80 @@ class _AuthScreenState extends State<AuthScreen> {
     });
   }
 
+  bool _isValidEmail(String value) {
+    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value);
+  }
+
+  Future<void> _handleForgotPassword() async {
+    final localizations = AppLocalizations.of(context)!;
+    String dialogEmail = _emailController.text.contains('@')
+        ? _emailController.text.trim()
+        : '';
+
+    final submittedEmail = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(localizations.forgotPasswordTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(localizations.forgotPasswordMessage),
+            const SizedBox(height: 16),
+            TextFormField(
+              initialValue: dialogEmail,
+              onChanged: (value) => dialogEmail = value,
+              keyboardType: TextInputType.emailAddress,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: localizations.email,
+                border: const OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(localizations.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              final email = dialogEmail.trim();
+              if (!_isValidEmail(email)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(localizations.passwordResetInvalidEmail)),
+                );
+                return;
+              }
+              Navigator.of(ctx).pop(email);
+            },
+            child: Text(localizations.sendResetLink),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted || submittedEmail == null || submittedEmail.isEmpty) {
+      return;
+    }
+
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.requestPasswordReset(email: submittedEmail);
+    if (!mounted) {
+      return;
+    }
+
+    final message = success
+        ? (authProvider.lastMessage?.isNotEmpty == true
+              ? authProvider.lastMessage!
+              : localizations.passwordResetEmailSent)
+        : (authProvider.error?.isNotEmpty == true
+              ? authProvider.error!
+              : localizations.passwordResetError);
+    _showSnack(message);
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -589,6 +663,23 @@ class _AuthScreenState extends State<AuthScreen> {
                                       letterSpacing: 0.2,
                                     ),
                                   ),
+                                  if (_isLogin)
+                                    Align(
+                                      alignment: Alignment.centerRight,
+                                      child: TextButton(
+                                        onPressed: authProvider.isLoading
+                                            ? null
+                                            : _handleForgotPassword,
+                                        child: Text(
+                                          AppLocalizations.of(context)!
+                                              .forgotPassword,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   const SizedBox(height: 16),
 
                                   // Confirm Password Field (Register only)

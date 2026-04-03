@@ -60,6 +60,7 @@ class AuthProvider extends ChangeNotifier {
   }) async {
     _isLoading = true;
     _error = null;
+    _errorCode = null;
     notifyListeners();
 
     final result = await _authService.register(
@@ -89,6 +90,7 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> login({required String identifier, required String password}) async {
     _isLoading = true;
     _error = null;
+    _errorCode = null;
     notifyListeners();
 
     final result = await _authService.login(identifier: identifier, password: password);
@@ -104,6 +106,28 @@ class AuthProvider extends ChangeNotifier {
       _error = result['message'];
       _errorCode = result['error_code']?.toString();
       _isLoggedIn = false;
+    }
+
+    notifyListeners();
+    return result['success'];
+  }
+
+  /// Request a password reset email.
+  Future<bool> requestPasswordReset({required String email}) async {
+    _isLoading = true;
+    _error = null;
+    _errorCode = null;
+    notifyListeners();
+
+    final result = await _authService.requestPasswordReset(email: email);
+
+    _isLoading = false;
+
+    if (result['success']) {
+      _error = null;
+      _lastMessage = result['message'];
+    } else {
+      _error = result['message'];
     }
 
     notifyListeners();
