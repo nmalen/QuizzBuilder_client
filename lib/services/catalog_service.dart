@@ -33,6 +33,24 @@ class CatalogService {
 
   CatalogService({required this.authService});
 
+  /// Support both legacy list responses and DRF paginated responses.
+  List<dynamic> _decodeListPayload(String responseBody) {
+    final decoded = jsonDecode(responseBody);
+
+    if (decoded is List) {
+      return decoded;
+    }
+
+    if (decoded is Map<String, dynamic>) {
+      final results = decoded['results'];
+      if (results is List) {
+        return results;
+      }
+    }
+
+    throw const FormatException('Unexpected API payload format');
+  }
+
   /// Helper to perform authorized GET with one retry after token refresh on 401
   Future<http.Response> _authorizedGet(String url) async {
     final headers = await authService.getAuthHeaders();
@@ -65,7 +83,7 @@ class CatalogService {
     try {
       final response = await _authorizedGet('$baseUrl${ApiConfig.categoriesEndpoint}');
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = _decodeListPayload(response.body);
         final categories = data.map((item) => Category.fromJson(item as Map<String, dynamic>)).toList();
         // Cache to local DB
         await LocalDb.insertCategories(categories);
@@ -90,7 +108,7 @@ class CatalogService {
     try {
       final response = await _authorizedGet('$baseUrl${ApiConfig.themesEndpoint}?category=$categoryId');
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = _decodeListPayload(response.body);
         final themes = data.map((item) => Theme.fromJson(item as Map<String, dynamic>)).toList();
         // Cache to local DB
         await LocalDb.insertThemes(themes);
@@ -113,7 +131,7 @@ class CatalogService {
     try {
       final response = await _authorizedGet('$baseUrl${ApiConfig.questionsEndpoint}?theme=$themeId');
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = _decodeListPayload(response.body);
         final questions = data.map((item) => Question.fromJson(item as Map<String, dynamic>)).toList();
         // Cache to local DB
         await LocalDb.insertQuestions(questions);
@@ -143,7 +161,7 @@ class CatalogService {
       final response = await _authorizedGet(url);
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
+        final List<dynamic> data = _decodeListPayload(response.body);
         return data.map((item) => Theme.fromJson(item as Map<String, dynamic>)).toList();
       } else {
         throw Exception('Failed to load themes: ${response.statusCode}');
