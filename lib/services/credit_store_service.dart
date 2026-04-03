@@ -13,6 +13,24 @@ class CreditStoreService {
 
   CreditStoreService({required this.authService});
 
+  /// Support both legacy list responses and paginated payloads.
+  List<dynamic> _decodeListPayload(String responseBody) {
+    final decoded = jsonDecode(responseBody);
+
+    if (decoded is List) {
+      return decoded;
+    }
+
+    if (decoded is Map<String, dynamic>) {
+      final results = decoded['results'];
+      if (results is List) {
+        return results;
+      }
+    }
+
+    throw const FormatException('Unexpected API payload format');
+  }
+
   Future<http.Response> _authorizedGet(String url) async {
     final headers = await authService.getAuthHeaders();
     http.Response response = await http
@@ -74,7 +92,7 @@ class CreditStoreService {
       throw Exception('Failed to load credit packs: ${response.statusCode}');
     }
 
-    final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
+    final List<dynamic> data = _decodeListPayload(response.body);
     return data
         .map((item) => CreditPack.fromJson(item as Map<String, dynamic>))
         .where((pack) => pack.isActive)
@@ -102,7 +120,7 @@ class CreditStoreService {
       throw Exception('Failed to load entitlements: ${response.statusCode}');
     }
 
-    final List<dynamic> data = jsonDecode(response.body) as List<dynamic>;
+    final List<dynamic> data = _decodeListPayload(response.body);
     return data
         .map((item) => (item as Map<String, dynamic>)['theme'])
         .whereType<num>()

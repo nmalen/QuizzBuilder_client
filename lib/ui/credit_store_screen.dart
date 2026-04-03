@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/credit_pack.dart';
+import '../models/theme.dart' as app_theme;
 import '../providers/auth_provider.dart';
 import '../services/catalog_service.dart';
 import '../services/credit_store_service.dart';
@@ -91,7 +92,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
       final packs = results[0] as List<CreditPack>;
       final credits = results[1] as dynamic;
       final stats = results[2] as dynamic;
-      final allThemes = results[3] as List<dynamic>;
+      final allThemes = results[3] as List<app_theme.Theme>;
 
       final filteredPacks =
           packs
