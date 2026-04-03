@@ -211,10 +211,18 @@ class AuthService {
       } else {
         debugPrint('[LOGIN] Login failed with status ${response.statusCode}');
         final errorData = jsonDecode(response.body);
+        final backendError = errorData is Map<String, dynamic>
+            ? errorData['error'] as Map<String, dynamic>?
+            : null;
         return {
           'success': false,
-          'message': errorData['detail']?.toString() ?? errorData.toString(),
-          'error_code': errorData['code']?.toString(),
+          'message':
+              backendError?['message']?.toString() ??
+              errorData['detail']?.toString() ??
+              errorData.toString(),
+          'error_code':
+              backendError?['code']?.toString() ??
+              errorData['code']?.toString(),
           'raw': errorData,
         };
       }
