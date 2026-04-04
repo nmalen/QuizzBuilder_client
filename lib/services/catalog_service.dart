@@ -100,6 +100,47 @@ class CatalogService {
     throw const FormatException('Unexpected API payload format');
   }
 
+  /// Return all items from a paginated or non-paginated endpoint.
+  Future<List<dynamic>> _fetchAllPages(String initialUrl) async {
+    final items = <dynamic>[];
+    String? nextUrl = initialUrl;
+
+    while (nextUrl != null && nextUrl.isNotEmpty) {
+      final response = await _authorizedGet(nextUrl);
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to load paginated data: ${response.statusCode}');
+      }
+
+      final decoded = jsonDecode(response.body);
+
+      if (decoded is List) {
+        items.addAll(decoded);
+        break;
+      }
+
+      if (decoded is Map<String, dynamic>) {
+        final results = decoded['results'];
+        if (results is List) {
+          items.addAll(results);
+        }
+
+        final next = decoded['next'];
+        if (next is String && next.trim().isNotEmpty) {
+          final parsed = Uri.parse(next);
+          nextUrl = parsed.hasScheme ? next : Uri.parse(baseUrl).resolve(next).toString();
+        } else {
+          nextUrl = null;
+        }
+        continue;
+      }
+
+      throw const FormatException('Unexpected paginated payload format');
+    }
+
+    return items;
+  }
+
   /// Helper to perform authorized GET with one retry after token refresh on 401
   Future<http.Response> _authorizedGet(String url) async {
     final headers = await authService.getAuthHeaders();
@@ -178,19 +219,15 @@ class CatalogService {
   /// Fetch questions for a theme with local caching
   Future<List<Question>> getQuestionsByTheme(int themeId) async {
     try {
-      final response = await _authorizedGet('$baseUrl${ApiConfig.questionsEndpoint}?theme=$themeId');
-      if (response.statusCode == 200) {
-        final List<dynamic> data = _decodeListPayload(response.body);
-        final questions = data.map((item) => Question.fromJson(item as Map<String, dynamic>)).toList();
-        // Cache to local DB
-        await LocalDb.insertQuestions(questions);
-        return questions;
-      } else {
-        // On error, try local cache
-        final cached = await LocalDb.getQuestionsByTheme(themeId);
-        if (cached.isNotEmpty) return cached;
-        throw Exception('Failed to load questions: ${response.statusCode}');
-      }
+      final data = await _fetchAllPages(
+        '$baseUrl${ApiConfig.questionsEndpoint}?theme=$themeId',
+      );
+      final questions = data
+          .map((item) => Question.fromJson(item as Map<String, dynamic>))
+          .toList();
+      // Cache to local DB
+      await LocalDb.insertQuestions(questions);
+      return questions;
     } catch (e) {
       // On error, try local cache
       final cached = await LocalDb.getQuestionsByTheme(themeId);
