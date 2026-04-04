@@ -14,16 +14,35 @@ class CatalogService {
     /// Report a question error (flag for verification)
     Future<void> reportQuestionError(int questionId) async {
       final url = '$baseUrl/questions/flag/';
-      final headers = await authService.getAuthHeaders();
+        final requestUri = Uri.parse(url);
       final body = jsonEncode({'question_id': questionId});
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          ...headers,
-          'Content-Type': 'application/json',
-        },
-        body: body,
-      );
+        http.Response response;
+
+        Future<http.Response> sendReportRequest(Map<String, String> headers) {
+          return http.post(
+            requestUri,
+            headers: {
+              ...headers,
+              'Content-Type': 'application/json',
+            },
+            body: body,
+          ).timeout(
+            ApiConfig.connectionTimeout,
+            onTimeout: () => throw Exception('Connection timeout'),
+          );
+        }
+
+        final headers = await authService.getAuthHeaders();
+        response = await sendReportRequest(headers);
+
+        if (response.statusCode == 401) {
+          final refreshed = await authService.refreshAccessToken();
+          if (refreshed) {
+            final retryHeaders = await authService.getAuthHeaders();
+            response = await sendReportRequest(retryHeaders);
+          }
+        }
+
       if (response.statusCode == 200) {
         return;
       }
