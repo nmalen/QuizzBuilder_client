@@ -24,10 +24,59 @@ class CatalogService {
         },
         body: body,
       );
-      if (response.statusCode != 200) {
-        throw Exception('Failed to report question error: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        return;
       }
+
+      if (response.statusCode == 400 && _isAlreadyFlaggedResponse(response.body)) {
+        // Keep the action idempotent from the user perspective.
+        return;
+      }
+
+      final errorDetail = _extractApiErrorMessage(response.body);
+      if (errorDetail != null) {
+        throw Exception(
+          'Failed to report question error: ${response.statusCode} ($errorDetail)',
+        );
+      }
+
+      throw Exception('Failed to report question error: ${response.statusCode}');
     }
+
+  bool _isAlreadyFlaggedResponse(String responseBody) {
+    final message = _extractApiErrorMessage(responseBody)?.toLowerCase();
+    if (message == null) {
+      return false;
+    }
+
+    return message.contains('already flagged') ||
+        message.contains('already reported');
+  }
+
+  String? _extractApiErrorMessage(String responseBody) {
+    if (responseBody.trim().isEmpty) {
+      return null;
+    }
+
+    try {
+      final decoded = jsonDecode(responseBody);
+      if (decoded is Map<String, dynamic>) {
+        final error = decoded['error'];
+        if (error is String && error.trim().isNotEmpty) {
+          return error.trim();
+        }
+
+        final message = decoded['message'];
+        if (message is String && message.trim().isNotEmpty) {
+          return message.trim();
+        }
+      }
+    } catch (_) {
+      // Ignore parsing errors and fallback to generic error handling.
+    }
+
+    return null;
+  }
   final String baseUrl = ApiConfig.baseUrl;
   final AuthService authService;
 
