@@ -9,6 +9,8 @@ part of 'question.dart';
 Question _$QuestionFromJson(Map<String, dynamic> json) => Question(
   id: (json['id'] as num).toInt(),
   theme: (json['theme'] as num).toInt(),
+  themeNameEn: json['theme_name_en'] as String?,
+  themeNameFr: json['theme_name_fr'] as String?,
   questionEn: json['question_en'] as String,
   questionFr: json['question_fr'] as String,
   answer1En: json['answer_1_en'] as String,
@@ -28,6 +30,8 @@ Question _$QuestionFromJson(Map<String, dynamic> json) => Question(
 Map<String, dynamic> _$QuestionToJson(Question instance) => <String, dynamic>{
   'id': instance.id,
   'theme': instance.theme,
+  'theme_name_en': instance.themeNameEn,
+  'theme_name_fr': instance.themeNameFr,
   'question_en': instance.questionEn,
   'question_fr': instance.questionFr,
   'answer_1_en': instance.answer1En,

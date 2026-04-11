@@ -311,9 +311,18 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                     FutureBuilder<theme_model.Theme?>(
                       future: LocalDb.getThemeById(currentQuestion.theme),
                       builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data != null) {
+                        final inlineThemeName = currentQuestion.getThemeName(
+                          languageCode,
+                        );
+                        final resolvedThemeName =
+                            inlineThemeName ?? snapshot.data?.getName(languageCode);
+
+                        if (resolvedThemeName == null ||
+                            resolvedThemeName.trim().isEmpty) {
                           return Text(
-                            snapshot.data!.getName(languageCode),
+                            languageCode == 'fr'
+                                ? 'Thème #${currentQuestion.theme}'
+                                : 'Theme #${currentQuestion.theme}',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Colors.grey[600],
                               fontStyle: FontStyle.italic,
@@ -321,7 +330,15 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                             textAlign: TextAlign.center,
                           );
                         }
-                        return const SizedBox.shrink();
+
+                        return Text(
+                          resolvedThemeName,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                            fontStyle: FontStyle.italic,
+                          ),
+                          textAlign: TextAlign.center,
+                        );
                       },
                     ),
                     const SizedBox(height: 12),

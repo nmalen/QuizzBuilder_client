@@ -7,6 +7,10 @@ class Question {
   final int id;
   @JsonKey(name: 'theme')
   final int theme;
+  @JsonKey(name: 'theme_name_en')
+  final String? themeNameEn;
+  @JsonKey(name: 'theme_name_fr')
+  final String? themeNameFr;
   @JsonKey(name: 'question_en')
   final String questionEn;
   @JsonKey(name: 'question_fr')
@@ -38,6 +42,8 @@ class Question {
   Question({
     required this.id,
     required this.theme,
+    this.themeNameEn,
+    this.themeNameFr,
     required this.questionEn,
     required this.questionFr,
     required this.answer1En,
@@ -72,5 +78,13 @@ class Question {
   String getCorrectAnswer(String languageCode) {
     final answers = getAnswers(languageCode);
     return answers[correctAnswer - 1];
+  }
+
+  String? getThemeName(String languageCode) {
+    final value = languageCode == 'fr' ? themeNameFr : themeNameEn;
+    if (value == null || value.trim().isEmpty) {
+      return null;
+    }
+    return value;
   }
 }
