@@ -166,7 +166,10 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    catalog.error ?? 'Unknown error',
+                    catalog.error ??
+                        (Localizations.localeOf(context).languageCode == 'fr'
+                            ? 'Erreur inconnue'
+                            : 'Unknown error'),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
@@ -187,7 +190,7 @@ class _QuizzBuilderThemesScreenState extends State<QuizzBuilderThemesScreen> {
           }
 
           if (catalog.themes.isEmpty) {
-            return const Center(child: Text('No themes available'));
+            return Center(child: Text(AppLocalizations.of(context)!.noThemes));
           }
 
           final activeThemes = catalog.themes.where((t) => t.isActive).toList();

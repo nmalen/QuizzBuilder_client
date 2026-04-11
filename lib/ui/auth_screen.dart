@@ -26,6 +26,10 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isLogin = true;
   final _formKey = GlobalKey<FormState>();
 
+  String _localized(BuildContext context, String en, String fr) {
+    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +62,11 @@ class _AuthScreenState extends State<AuthScreen> {
                   const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(context)?.registrationSuccessful ??
-                        'Registration successful! An email will be sent to you to activate your account. Please check your inbox and click the link to validate your registration.',
+                        _localized(
+                          context,
+                          'Registration successful! An email will be sent to you to activate your account. Please check your inbox and click the link to validate your registration.',
+                          'Inscription réussie ! Un email vous sera envoyé pour activer votre compte. Veuillez vérifier votre boîte mail et cliquer sur le lien de validation.',
+                        ),
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 14),
                   ),
@@ -95,16 +103,17 @@ class _AuthScreenState extends State<AuthScreen> {
     debugPrint('[AuthScreen] _showSnack called with: $message');
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      final localizations = AppLocalizations.of(context);
       debugPrint('[AuthScreen] showing alert dialog');
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Success'),
+          title: Text(localizations?.appTitle ?? 'QuizzBuilder'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('OK'),
+              child: Text(localizations?.ok ?? 'OK'),
             ),
           ],
         ),
@@ -214,7 +223,13 @@ class _AuthScreenState extends State<AuthScreen> {
         } else {
           // Show error message when login fails
           final error = context.read<AuthProvider>().error;
-          final message = error ?? 'Login failed. Please try again.';
+          final message =
+              error ??
+              _localized(
+                context,
+                'Login failed. Please try again.',
+                'Échec de la connexion. Veuillez réessayer.',
+              );
           debugPrint('[AuthScreen] login failed, showing error: "$message"');
           _showSnack(message);
         }
@@ -247,7 +262,11 @@ class _AuthScreenState extends State<AuthScreen> {
           message = (backendMsg != null && backendMsg.isNotEmpty)
               ? backendMsg
               : (AppLocalizations.of(context)?.registrationSuccessful ??
-                    'Registration successful! Please check your email and click the link to validate your registration.');
+                    _localized(
+                      context,
+                      'Registration successful! Please check your email and click the link to validate your registration.',
+                      'Inscription réussie ! Veuillez vérifier votre email et cliquer sur le lien de validation.',
+                    ));
           // Switch to login mode and show snackbar without leaving the screen
           if (mounted) {
             debugPrint('[AuthScreen] toggling to login and resetting form');
@@ -267,9 +286,19 @@ class _AuthScreenState extends State<AuthScreen> {
           if (error != null && error.toLowerCase().contains('email')) {
             message =
                 AppLocalizations.of(context)?.emailAlreadyExists ??
-                'An account with this email already exists.';
+                _localized(
+                  context,
+                  'An account with this email already exists.',
+                  'Un compte avec cet email existe déjà.',
+                );
           } else {
-            message = error ?? 'Registration failed. Please try again.';
+            message =
+                error ??
+                _localized(
+                  context,
+                  'Registration failed. Please try again.',
+                  'Échec de l’inscription. Veuillez réessayer.',
+                );
           }
           debugPrint(
             '[AuthScreen] registration failed, calling _showSnack with error: "$message"',
@@ -280,43 +309,76 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  String? _validateIdentifier(String? value) {
+  String? _validateIdentifier(BuildContext context, String? value) {
     if (value == null || value.isEmpty) {
-      return 'Email or username is required';
+      return _localized(
+        context,
+        'Email or username is required',
+        'Email ou nom d\'utilisateur requis',
+      );
     }
     final isEmail = value.contains('@');
     if (isEmail && !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-      return 'Please enter a valid email';
+      return AppLocalizations.of(context)?.passwordResetInvalidEmail ??
+          _localized(
+            context,
+            'Please enter a valid email',
+            'Veuillez saisir une adresse email valide',
+          );
     }
     return null;
   }
 
-  String? _validatePassword(String? value) {
+  String? _validatePassword(BuildContext context, String? value) {
     if (value == null || value.isEmpty) {
-      return 'Password is required';
+      return _localized(
+        context,
+        'Password is required',
+        'Mot de passe requis',
+      );
     }
     if (value.length < 8) {
-      return 'Password must be at least 8 characters';
+      return _localized(
+        context,
+        'Password must be at least 8 characters',
+        'Le mot de passe doit contenir au moins 8 caractères',
+      );
     }
     return null;
   }
 
-  String? _validateUsername(String? value) {
+  String? _validateUsername(BuildContext context, String? value) {
     if (value == null || value.isEmpty) {
-      return 'Username is required';
+      return _localized(
+        context,
+        'Username is required',
+        'Nom d\'utilisateur requis',
+      );
     }
     if (value.length < 3) {
-      return 'Username must be at least 3 characters';
+      return _localized(
+        context,
+        'Username must be at least 3 characters',
+        'Le nom d\'utilisateur doit contenir au moins 3 caractères',
+      );
     }
     return null;
   }
 
-  String? _validatePasswordMatch(String? value) {
+  String? _validatePasswordMatch(BuildContext context, String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
+      return _localized(
+        context,
+        'Please confirm your password',
+        'Veuillez confirmer votre mot de passe',
+      );
     }
     if (value != _passwordController.text) {
-      return 'Passwords do not match';
+      return _localized(
+        context,
+        'Passwords do not match',
+        'Les mots de passe ne correspondent pas',
+      );
     }
     return null;
   }
@@ -480,7 +542,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   TextFormField(
                                     controller: _emailController,
                                     keyboardType: TextInputType.emailAddress,
-                                    validator: _validateIdentifier,
+                                    validator: (value) =>
+                                        _validateIdentifier(context, value),
                                     enabled: !authProvider.isLoading,
                                     decoration: InputDecoration(
                                       hintText: _isLogin
@@ -536,7 +599,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   if (!_isLogin) ...[
                                     TextFormField(
                                       controller: _usernameController,
-                                      validator: _validateUsername,
+                                      validator: (value) =>
+                                          _validateUsername(context, value),
                                       enabled: !authProvider.isLoading,
                                       decoration: InputDecoration(
                                         hintText: AppLocalizations.of(
@@ -600,7 +664,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   TextFormField(
                                     controller: _passwordController,
                                     obscureText: _obscurePassword,
-                                    validator: _validatePassword,
+                                    validator: (value) =>
+                                        _validatePassword(context, value),
                                     enabled: !authProvider.isLoading,
                                     decoration: InputDecoration(
                                       hintText: AppLocalizations.of(
@@ -687,7 +752,10 @@ class _AuthScreenState extends State<AuthScreen> {
                                     TextFormField(
                                       controller: _password2Controller,
                                       obscureText: _obscurePassword2,
-                                      validator: _validatePasswordMatch,
+                                      validator: (value) => _validatePasswordMatch(
+                                        context,
+                                        value,
+                                      ),
                                       enabled: !authProvider.isLoading,
                                       decoration: InputDecoration(
                                         hintText: AppLocalizations.of(

@@ -42,6 +42,10 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
   bool _dailyCompletionSubmitted = false;
   DailyChallengeCompletion? _dailyCompletion;
 
+  String _localized(BuildContext context, String en, String fr) {
+    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,7 +61,11 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         final status = await _dailyService!.getStatus();
         if (!status.canPlayToday) {
           setState(() {
-            error = 'Daily challenge already completed today.';
+            error = _localized(
+              context,
+              'Daily challenge already completed today.',
+              'Défi quotidien déjà terminé aujourd\'hui.',
+            );
             isLoading = false;
           });
           return;
@@ -131,7 +139,13 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
       if (completion.rewardGranted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Defi quotidien valide: +1 credit offert.'),
+            content: Text(
+              _localized(
+                context,
+                'Daily challenge completed: +1 free credit.',
+                'Défi quotidien validé : +1 crédit offert.',
+              ),
+            ),
           ),
         );
       }
@@ -140,8 +154,14 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Resultat quotidien non synchronise.'),
+        SnackBar(
+          content: Text(
+            _localized(
+              context,
+              'Daily result could not be synced.',
+              'Résultat quotidien non synchronisé.',
+            ),
+          ),
         ),
       );
     }
@@ -165,11 +185,13 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 6),
-              Text('Error loading questions: $error'),
+              Text(
+                '${AppLocalizations.of(context)!.errorLoadingThemes}: $error',
+              ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Go Back'),
+                child: Text(AppLocalizations.of(context)!.goBack),
               ),
             ],
           ),
@@ -186,11 +208,11 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
             children: [
               Icon(Icons.inbox, size: 64, color: Colors.grey),
               const SizedBox(height: 16),
-              const Text('No questions found'),
+              Text(AppLocalizations.of(context)!.noQuestionsFound),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Go Back'),
+                child: Text(AppLocalizations.of(context)!.goBack),
               ),
             ],
           ),
@@ -244,7 +266,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Text(
-                        'Score: $score',
+                        '${AppLocalizations.of(context)!.score}: $score',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Colors.green[800],
                               fontWeight: FontWeight.bold,
@@ -279,7 +301,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Question ${currentQuestionIndex + 1}/${questions.length}',
+                      '${AppLocalizations.of(context)!.question} ${currentQuestionIndex + 1}/${questions.length}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),

@@ -36,6 +36,10 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
   bool isLoading = true;
   String? error;
 
+  String _localized(BuildContext context, String en, String fr) {
+    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -61,7 +65,11 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
       final int requiredQuestions = widget.playerCount * widget.questionCount;
       if (filtered.length < requiredQuestions) {
         setState(() {
-          error = 'Not enough unique questions available for $requiredQuestions total questions ($widget.playerCount players × ${widget.questionCount} questions each). Please select fewer players, reduce questions per player, or add more questions.';
+          error = _localized(
+            context,
+            'Not enough unique questions for $requiredQuestions total questions ($widget.playerCount players x ${widget.questionCount} questions each). Please select fewer players, reduce questions per player, or add more questions.',
+            'Pas assez de questions uniques pour $requiredQuestions questions au total ($widget.playerCount joueurs x ${widget.questionCount} questions chacun). Réduisez le nombre de joueurs, de questions par joueur, ou ajoutez plus de questions.',
+          );
           isLoading = false;
         });
         return;
@@ -197,7 +205,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Question ${currentQuestionIndex + 1} / ${widget.questionCount}',
+                      '${AppLocalizations.of(context)!.question} ${currentQuestionIndex + 1} / ${widget.questionCount}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -309,8 +317,8 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                   ),
                   child: Text(
                     currentQuestionIndex == widget.questionCount - 1 && currentPlayerIndex == widget.playerCount - 1
-                        ? 'Finish'
-                        : 'Continue',
+                        ? AppLocalizations.of(context)!.done
+                        : AppLocalizations.of(context)!.continueText,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -371,6 +379,7 @@ class _PlayerScore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       decoration: BoxDecoration(
@@ -385,7 +394,7 @@ class _PlayerScore extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Player $playerNumber',
+            loc.player(playerNumber),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: isActive ? Colors.white : Colors.black87,
@@ -393,7 +402,7 @@ class _PlayerScore extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Score: $score',
+            '${loc.score}: $score',
             style: TextStyle(
               color: isActive ? Colors.white : Colors.black54,
             ),
