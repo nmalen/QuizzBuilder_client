@@ -10,7 +10,12 @@ import 'selected_themes_screen.dart';
 
 class SetupSoloScreen extends StatefulWidget {
   final List<String> selectedDifficulties;
-  const SetupSoloScreen({super.key, this.selectedDifficulties = const ['easy', 'medium', 'hard']});
+  final String initialGameMode;
+  const SetupSoloScreen({
+    super.key,
+    this.selectedDifficulties = const ['easy', 'medium', 'hard'],
+    this.initialGameMode = 'standard',
+  });
 
   @override
   State<SetupSoloScreen> createState() => _SetupSoloScreenState();
@@ -28,6 +33,10 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
   void initState() {
     super.initState();
     _selectedDifficulties = List<String>.from(widget.selectedDifficulties);
+    _gameMode = widget.initialGameMode;
+    if (_gameMode == 'daily') {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadDailyStatus());
+    }
   }
 
   Future<void> _loadDailyStatus() async {

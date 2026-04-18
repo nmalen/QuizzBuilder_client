@@ -41,7 +41,15 @@ class AuthProvider extends ChangeNotifier {
       
       if (await _authService.isLoggedIn()) {
         _user = await _authService.getStoredUser();
-        _isLoggedIn = true;
+
+        // Validate session on app startup to avoid stale access tokens.
+        final refreshed = await _authService.refreshAccessToken();
+        if (refreshed) {
+          _isLoggedIn = true;
+        } else {
+          _isLoggedIn = false;
+          _user = null;
+        }
       }
     } catch (e) {
       _error = 'Initialization error: ${e.toString()}';

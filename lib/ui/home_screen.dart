@@ -8,6 +8,7 @@ import '../widgets/gradient_background.dart';
 import 'credit_store_screen.dart';
 import 'game_mode_screen.dart';
 import 'settings_screen.dart';
+import 'setup_solo_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -126,8 +127,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    const Icon(Icons.person, size: 60, color: Colors.white),
-                    const SizedBox(height: 12),
                     Text(
                       AppLocalizations.of(
                         context,
@@ -154,6 +153,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
+                    _ActionButton(
+                      icon: Icons.today,
+                      title: AppLocalizations.of(context)!.dailyChallenge,
+                      subtitle: AppLocalizations.of(context)!.dailyAvailableToday,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SetupSoloScreen(
+                              initialGameMode: 'daily',
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
                     _ActionButton(
                       icon: Icons.quiz,
                       title: AppLocalizations.of(context)!.playQuiz,
@@ -197,10 +212,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           AppLocalizations.of(context)!.availableContent,
                           style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                         ),
                         IconButton(
                           tooltip: 'Refresh',
+                          color: Colors.white,
+                          disabledColor: Colors.white54,
                           onPressed: catalogProvider.isStatsLoading
                               ? null
                               : () {
@@ -212,9 +232,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Theme.of(context).primaryColor,
-                                    ),
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
+                                          Colors.white,
+                                        ),
                                   ),
                                 )
                               : const Icon(Icons.refresh),

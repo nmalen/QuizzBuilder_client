@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../widgets/gradient_background.dart';
 import '../l10n/app_localizations.dart';
+import '../providers/auth_provider.dart';
+import 'auth_screen.dart';
 import 'selected_themes_screen.dart';
 import 'setup_solo_screen.dart';
 
@@ -15,6 +19,30 @@ class _GameModeScreenState extends State<GameModeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) {
+        return;
+      }
+
+      final authProvider = context.read<AuthProvider>();
+      if (!authProvider.isLoggedIn) {
+        return;
+      }
+
+      final refreshed = await authProvider.refreshToken();
+      if (!mounted || refreshed) {
+        return;
+      }
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => const AuthScreen(
+            infoMessage: 'Session expired. Please sign in again.',
+          ),
+        ),
+        (route) => false,
+      );
+    });
   }
 
   @override
