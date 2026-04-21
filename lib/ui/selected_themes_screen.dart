@@ -182,6 +182,9 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
     final selectedThemes = builder.selectedThemes
         .where((t) => t.isActive)
         .toList();
+    final normalizedDifficulties = _selectedDifficulties
+        .map((d) => d.trim().toLowerCase())
+        .toSet();
     Map<int, int> themeCounts = {};
     int total = 0;
     for (final theme in selectedThemes) {
@@ -191,9 +194,10 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
       }
       try {
         final questions = await catalogProvider.loadQuestionsByTheme(theme.id);
-        final filtered = questions
-            .where((q) => _selectedDifficulties.contains(q.difficulty))
-            .toList();
+        final filtered = questions.where((q) {
+          final difficulty = q.difficulty.trim().toLowerCase();
+          return normalizedDifficulties.contains(difficulty);
+        }).toList();
         themeCounts[theme.id] = filtered.length;
         total += filtered.length;
       } catch (e) {
@@ -243,6 +247,9 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
             final activeThemes = catalogProvider.themes
                 .where((t) => t.isActive)
                 .toList();
+            final selectedTotalQuestions = builder.selectedThemes
+                .where((t) => t.isActive)
+                .fold<int>(0, (sum, t) => sum + t.questionsCount);
 
             return SingleChildScrollView(
               child: Padding(
@@ -552,7 +559,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                         ),
                                       )
                                     : Text(
-                                        '$_totalFilteredQuestions ${_totalFilteredQuestions == 1 ? AppLocalizations.of(context)!.question : AppLocalizations.of(context)!.questions}',
+                                        '$_totalFilteredQuestions/$selectedTotalQuestions',
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyMedium
@@ -575,7 +582,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                       ),
                                     )
                                   : Text(
-                                      '${_filteredQuestionsCount[theme.id] ?? 0}',
+                                      '${_filteredQuestionsCount[theme.id] ?? 0}/${theme.questionsCount}',
                                     );
                               return _ThemeSelectTile(
                                 theme: theme,
