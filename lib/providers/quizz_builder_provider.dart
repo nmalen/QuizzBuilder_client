@@ -292,6 +292,9 @@ class QuizzBuilderProvider extends ChangeNotifier {
         'nameEn': value.nameEn,
         'nameFr': value.nameFr,
         'questionsCount': value.questionsCount,
+        'easyQuestionsCount': value.easyQuestionsCount,
+        'mediumQuestionsCount': value.mediumQuestionsCount,
+        'hardQuestionsCount': value.hardQuestionsCount,
         'isFree': value.isFree,
         'isActive': value.isActive,
         'category': value.category,
@@ -339,6 +342,12 @@ class QuizzBuilderProvider extends ChangeNotifier {
         final id = int.tryParse(key);
         if (id != null && value is Map) {
           final questions = (value['questionsCount'] as num?)?.toInt() ?? 0;
+          final easyQuestions =
+            (value['easyQuestionsCount'] as num?)?.toInt() ?? 0;
+          final mediumQuestions =
+            (value['mediumQuestionsCount'] as num?)?.toInt() ?? 0;
+          final hardQuestions =
+            (value['hardQuestionsCount'] as num?)?.toInt() ?? 0;
           _selectedThemeQuestionCounts[id] = questions;
           _selectedThemesMeta[id] = theme_model.Theme(
             id: id,
@@ -350,6 +359,9 @@ class QuizzBuilderProvider extends ChangeNotifier {
             isFree: (value['isFree'] as bool?) ?? true,
             isActive: (value['isActive'] as bool?) ?? true,
             questionsCount: questions,
+            easyQuestionsCount: easyQuestions,
+            mediumQuestionsCount: mediumQuestions,
+            hardQuestionsCount: hardQuestions,
             sourceUrl: null,
           );
         }

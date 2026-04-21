@@ -16,6 +16,9 @@ Theme _$ThemeFromJson(Map<String, dynamic> json) => Theme(
   isFree: json['is_free'] as bool,
   isActive: json['is_active'] as bool,
   questionsCount: (json['questions_count'] as num).toInt(),
+  easyQuestionsCount: (json['easy_questions_count'] as num?)?.toInt() ?? 0,
+  mediumQuestionsCount: (json['medium_questions_count'] as num?)?.toInt() ?? 0,
+  hardQuestionsCount: (json['hard_questions_count'] as num?)?.toInt() ?? 0,
   sourceUrl: json['source_url'] as String?,
 );
 
@@ -29,5 +32,8 @@ Map<String, dynamic> _$ThemeToJson(Theme instance) => <String, dynamic>{
   'is_free': instance.isFree,
   'is_active': instance.isActive,
   'questions_count': instance.questionsCount,
+  'easy_questions_count': instance.easyQuestionsCount,
+  'medium_questions_count': instance.mediumQuestionsCount,
+  'hard_questions_count': instance.hardQuestionsCount,
   'source_url': instance.sourceUrl,
 };

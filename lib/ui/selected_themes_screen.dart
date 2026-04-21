@@ -35,6 +35,11 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   int _totalFilteredQuestions = 0;
   bool _loadingCounts = false;
   bool _isUnlocking = false;
+  Future<void>? _pendingCountsUpdate;
+  String? _activeCountsSignature;
+  String? _lastCompletedCountsSignature;
+  bool _queuedCountsRefresh = false;
+  bool _hasLoadedCounts = false;
 
   String _unlockableCreditsMessage(BuildContext context, int creditBalance) {
     final l10n = AppLocalizations.of(context)!;
@@ -168,16 +173,54 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
     await prefs.setStringList('selected_difficulties', _selectedDifficulties);
   }
 
+  String _buildCountsSignature() {
+    final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+    final themeIds = builder.selectedThemes
+        .where((t) => t.isActive)
+        .map((t) => t.id)
+        .toList()
+      ..sort();
+    final difficulties = _selectedDifficulties
+        .map((d) => d.trim().toLowerCase())
+        .toList()
+      ..sort();
+    return '${themeIds.join(',')}|${difficulties.join(',')}';
+  }
+
   // Removed _updateFilteredCounts from didChangeDependencies to prevent infinite loop
 
   Future<void> _updateFilteredCounts() async {
+    final signature = _buildCountsSignature();
+    if (_pendingCountsUpdate != null) {
+      if (_activeCountsSignature != signature) {
+        _queuedCountsRefresh = true;
+      }
+      return _pendingCountsUpdate!;
+    }
+
+    if (_hasLoadedCounts && _lastCompletedCountsSignature == signature) {
+      return;
+    }
+
+    final future = _runCountsUpdate(signature);
+    _pendingCountsUpdate = future;
+
+    try {
+      await future;
+    } finally {
+      _pendingCountsUpdate = null;
+      if (_queuedCountsRefresh && mounted) {
+        _queuedCountsRefresh = false;
+        await _updateFilteredCounts();
+      }
+    }
+  }
+
+  Future<void> _runCountsUpdate(String signature) async {
+    _activeCountsSignature = signature;
     setState(() {
       _loadingCounts = true;
     });
-    final catalogProvider = Provider.of<CatalogProvider>(
-      context,
-      listen: false,
-    );
     final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
     final selectedThemes = builder.selectedThemes
         .where((t) => t.isActive)
@@ -192,23 +235,19 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
         themeCounts[theme.id] = 0;
         continue;
       }
-      try {
-        final questions = await catalogProvider.loadQuestionsByTheme(theme.id);
-        final filtered = questions.where((q) {
-          final difficulty = q.difficulty.trim().toLowerCase();
-          return normalizedDifficulties.contains(difficulty);
-        }).toList();
-        themeCounts[theme.id] = filtered.length;
-        total += filtered.length;
-      } catch (e) {
-        debugPrint('Failed to load questions for theme id=${theme.id}: $e');
-        themeCounts[theme.id] = 0;
-      }
+      final filteredCount = theme.getFilteredQuestionCount(normalizedDifficulties);
+      themeCounts[theme.id] = filteredCount;
+      total += filteredCount;
+    }
+    if (!mounted) {
+      return;
     }
     setState(() {
       _filteredQuestionsCount = themeCounts;
       _totalFilteredQuestions = total;
       _loadingCounts = false;
+      _hasLoadedCounts = true;
+      _lastCompletedCountsSignature = signature;
     });
   }
 

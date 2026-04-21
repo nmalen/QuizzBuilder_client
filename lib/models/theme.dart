@@ -20,6 +20,12 @@ class Theme {
   final bool isActive;
   @JsonKey(name: 'questions_count')
   final int questionsCount;
+  @JsonKey(name: 'easy_questions_count')
+  final int easyQuestionsCount;
+  @JsonKey(name: 'medium_questions_count')
+  final int mediumQuestionsCount;
+  @JsonKey(name: 'hard_questions_count')
+  final int hardQuestionsCount;
   @JsonKey(name: 'source_url')
   final String? sourceUrl;
 
@@ -33,6 +39,9 @@ class Theme {
     required this.isFree,
     required this.isActive,
     required this.questionsCount,
+    this.easyQuestionsCount = 0,
+    this.mediumQuestionsCount = 0,
+    this.hardQuestionsCount = 0,
     required this.sourceUrl,
   });
 
@@ -46,5 +55,23 @@ class Theme {
 
   String? getDescription(String languageCode) {
     return languageCode == 'fr' ? descriptionFr : descriptionEn;
+  }
+
+  int getFilteredQuestionCount(Iterable<String> difficulties) {
+    final normalized = difficulties
+        .map((difficulty) => difficulty.trim().toLowerCase())
+        .toSet();
+
+    var total = 0;
+    if (normalized.contains('easy')) {
+      total += easyQuestionsCount;
+    }
+    if (normalized.contains('medium')) {
+      total += mediumQuestionsCount;
+    }
+    if (normalized.contains('hard')) {
+      total += hardQuestionsCount;
+    }
+    return total;
   }
 }
