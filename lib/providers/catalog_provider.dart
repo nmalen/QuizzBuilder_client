@@ -11,6 +11,8 @@ class CatalogProvider extends ChangeNotifier {
       await _catalogService.reportQuestionError(questionId);
     }
   final CatalogService _catalogService;
+  final Map<int, List<Question>> _questionsByTheme = {};
+  final Map<int, Future<List<Question>>> _questionRequests = {};
 
   List<Category> _categories = [];
   List<theme_model.Theme> _themes = [];
@@ -122,6 +124,19 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearQuestionCache([Iterable<int>? themeIds]) {
+    if (themeIds == null) {
+      _questionsByTheme.clear();
+      _questionRequests.clear();
+      return;
+    }
+
+    for (final themeId in themeIds) {
+      _questionsByTheme.remove(themeId);
+      _questionRequests.remove(themeId);
+    }
+  }
+
   /// Load catalog statistics
   Future<void> loadStatistics() async {
     _isStatsLoading = true;
@@ -173,8 +188,32 @@ class CatalogProvider extends ChangeNotifier {
 
   /// Load questions for a specific theme
   Future<List<Question>> loadQuestionsByTheme(int themeId) async {
+    final cached = _questionsByTheme[themeId];
+    if (cached != null && cached.isNotEmpty) {
+      return cached;
+    }
+
+    final inFlight = _questionRequests[themeId];
+    if (inFlight != null) {
+      return inFlight;
+    }
+
+    final request = _catalogService
+        .getQuestionsByTheme(themeId)
+        .then((questions) {
+          _questionsByTheme[themeId] = questions;
+          _questionRequests.remove(themeId);
+          return questions;
+        })
+        .catchError((error) {
+          _questionRequests.remove(themeId);
+          throw error;
+        });
+
+    _questionRequests[themeId] = request;
+
     try {
-      final questions = await _catalogService.getQuestionsByTheme(themeId);
+      final questions = await request;
       return questions;
     } catch (e) {
       throw Exception('Failed to load questions: $e');
