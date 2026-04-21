@@ -38,10 +38,17 @@ class QuizzBuilderProvider extends ChangeNotifier {
 
     for (final theme in allThemes) {
       final catId = int.tryParse(theme.category?.toString() ?? '');
-      if (catId != null &&
-          activeCategoryIds.contains(catId) &&
-          !isSelected(theme.id) &&
-          isThemeEntitled(theme) &&
+      if (catId == null || !activeCategoryIds.contains(catId)) {
+        continue;
+      }
+
+      if (isSelected(theme.id)) {
+        _selectedThemeQuestionCounts[theme.id] = theme.questionsCount;
+        _selectedThemesMeta[theme.id] = theme;
+        continue;
+      }
+
+      if (isThemeEntitled(theme) &&
           theme.isActive &&
           !_manuallyUnselectedThemeIds.contains(theme.id)) {
         _selectedThemeIds.add(theme.id);
