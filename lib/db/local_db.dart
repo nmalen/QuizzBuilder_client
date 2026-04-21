@@ -18,7 +18,13 @@ class LocalDb {
     final path = join(dbPath, 'quizzbuilder.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await db.execute('ALTER TABLE questions ADD COLUMN theme_name_en TEXT');
+          await db.execute('ALTER TABLE questions ADD COLUMN theme_name_fr TEXT');
+        }
+      },
       onCreate: (db, version) async {
         await db.execute('''
           CREATE TABLE categories (
@@ -44,6 +50,8 @@ class LocalDb {
           CREATE TABLE questions (
             id INTEGER PRIMARY KEY,
             theme INTEGER,
+            theme_name_en TEXT,
+            theme_name_fr TEXT,
             question_en TEXT,
             question_fr TEXT,
             answer_1_en TEXT,
