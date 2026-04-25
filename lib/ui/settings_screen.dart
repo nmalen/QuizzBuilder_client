@@ -17,6 +17,31 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDeletionLoading = false;
 
+  Future<void> _openExternalLink(
+    Uri uri, {
+    required String failureMessage,
+    required List<LaunchMode> modes,
+  }) async {
+    try {
+      for (final mode in modes) {
+        final opened = await launchUrl(uri, mode: mode);
+        if (opened) {
+          return;
+        }
+      }
+    } catch (_) {
+      // Fall through and show user feedback below.
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(failureMessage)),
+    );
+  }
+
   Future<void> _requestAccountDeletion() async {
     setState(() {
       _isDeletionLoading = true;
@@ -198,12 +223,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             InkWell(
                               onTap: () async {
                                 final Uri websiteUri = Uri.parse(websiteUrl);
-                                if (await canLaunchUrl(websiteUri)) {
-                                  await launchUrl(
-                                    websiteUri,
-                                    mode: LaunchMode.externalApplication,
-                                  );
-                                }
+                                await _openExternalLink(
+                                  websiteUri,
+                                  failureMessage:
+                                      'Unable to open website on this device.',
+                                  modes: const [
+                                    LaunchMode.externalApplication,
+                                    LaunchMode.platformDefault,
+                                    LaunchMode.inAppBrowserView,
+                                  ],
+                                );
                               },
                               child: Text(
                                 websiteUrl.replaceFirst('https://', ''),
@@ -237,9 +266,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   scheme: 'mailto',
                                   path: 'admin@ndsh-software.fr',
                                 );
-                                if (await canLaunchUrl(emailLaunchUri)) {
-                                  await launchUrl(emailLaunchUri);
-                                }
+                                await _openExternalLink(
+                                  emailLaunchUri,
+                                  failureMessage:
+                                      'No email app is available on this device.',
+                                  modes: const [
+                                    LaunchMode.externalApplication,
+                                    LaunchMode.platformDefault,
+                                  ],
+                                );
                               },
                               child: Text(
                                 'admin@ndsh-software.fr',
