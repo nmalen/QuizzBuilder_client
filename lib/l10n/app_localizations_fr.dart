@@ -160,7 +160,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get multiplayerMode => 'Multijoueur';
 
   @override
-  String get multiplayerModeDesc => 'Bientôt disponible';
+  String get multiplayerModeDesc => 'Défiez vous de 1 à 4 joueurs ou par équipes';
 
   @override
   String themes_count(int count) {

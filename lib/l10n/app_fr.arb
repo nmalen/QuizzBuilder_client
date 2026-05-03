@@ -86,7 +86,7 @@
   "soloMode": "Solo",
   "soloModeDesc": "Défiez-vous seul",
   "multiplayerMode": "Multijoueur",
-  "multiplayerModeDesc": "Bientôt disponible",
+  "multiplayerModeDesc": "Défiez vous de 1 à 4 joueurs ou par équipes",
   "themes_count": "{count} thème",
   "@themes_count": {
     "description": "Theme count suffix",
