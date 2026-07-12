@@ -164,10 +164,10 @@ class DailyChallengeService {
     return DailyChallengeQuiz.fromJson(body);
   }
 
-  Future<DailyChallengeCompletion> complete({required bool success}) async {
+  Future<DailyChallengeCompletion> complete({required List<int> answers}) async {
     final response = await _authorizedPost(
       '$baseUrl${ApiConfig.dailyChallengeCompleteEndpoint}',
-      <String, dynamic>{'success': success},
+      <String, dynamic>{'answers': answers},
     );
     final Map<String, dynamic> body = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode != 200) {

@@ -41,6 +41,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
   DailyChallengeService? _dailyService;
   bool _dailyCompletionSubmitted = false;
   DailyChallengeCompletion? _dailyCompletion;
+  final List<int> _dailySelectedAnswers = [];
 
   String _localized(BuildContext context, String en, String fr) {
     return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
@@ -121,10 +122,9 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
     }
 
     _dailyCompletionSubmitted = true;
-    final bool success = !dailyFailed && isCurrentAnswerCorrect && score == questions.length;
 
     try {
-      final completion = await _dailyService!.complete(success: success);
+      final completion = await _dailyService!.complete(answers: _dailySelectedAnswers);
       _dailyCompletion = completion;
       if (!mounted) {
         return;
@@ -389,6 +389,10 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                           score++;
                         }
                       });
+
+                      if (gameMode == 'daily') {
+                        _dailySelectedAnswers.add(index + 1);
+                      }
 
                       if (gameMode == 'daily' && !isCurrentAnswerCorrect) {
                         dailyFailed = true;
