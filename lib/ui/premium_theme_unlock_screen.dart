@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/theme.dart' as theme_model;
 import '../providers/auth_provider.dart';
+import '../providers/catalog_provider.dart';
 import '../providers/connectivity_provider.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../services/catalog_service.dart';
@@ -71,6 +74,10 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
 
   Future<void> _unlockTheme(theme_model.Theme theme) async {
     final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+    final catalogProvider = Provider.of<CatalogProvider>(
+      context,
+      listen: false,
+    );
     final l10n = AppLocalizations.of(context)!;
 
     if (!context.read<ConnectivityProvider>().isOnline) {
@@ -89,6 +96,11 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
 
     try {
       final remaining = await builder.unlockThemeWithCredit(theme);
+      // Download the newly-unlocked theme's questions right away so it's
+      // playable offline without waiting for the next background sync.
+      unawaited(
+        catalogProvider.syncOfflineContent(isEntitled: builder.isThemeEntitled),
+      );
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(

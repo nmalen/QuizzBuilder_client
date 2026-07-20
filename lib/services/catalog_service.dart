@@ -255,6 +255,16 @@ class CatalogService {
     }
   }
 
+  /// Download and cache a theme's questions only if the local cache doesn't
+  /// already hold the expected number of questions. Used by the proactive
+  /// offline sync so re-running it doesn't re-download already-cached themes.
+  Future<void> syncQuestionsIfNeeded(int themeId, int expectedCount) async {
+    if (expectedCount <= 0) return;
+    final cachedCount = await LocalDb.getQuestionCountForTheme(themeId);
+    if (cachedCount >= expectedCount) return;
+    await getQuestionsByTheme(themeId);
+  }
+
   /// Fetch all themes (with optional free/paid filter)
   Future<List<Theme>> getAllThemes({bool? isFree}) async {
     try {

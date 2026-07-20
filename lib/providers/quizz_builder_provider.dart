@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../db/local_db.dart';
 import '../models/category.dart';
 import '../models/theme.dart' as theme_model;
 import '../services/auth_service.dart';
@@ -103,6 +105,9 @@ class QuizzBuilderProvider extends ChangeNotifier {
         ..addAll(results[0] as Set<int>);
       _creditBalance = (results[1] as dynamic).balance as int;
       validateAndCleanupEntitlements(notify: false);
+      // Persist so isThemeEntitled() still works offline after a restart,
+      // before any network refresh has had a chance to run again.
+      unawaited(LocalDb.setEntitledThemeIds(_entitledThemeIds));
     } catch (e) {
       _themeAccessError = e.toString();
     } finally {
@@ -118,6 +123,7 @@ class QuizzBuilderProvider extends ChangeNotifier {
         (result['credits_remaining'] as num?)?.toInt() ??
         (_creditBalance > 0 ? _creditBalance - 1 : 0);
     _themeAccessError = null;
+    unawaited(LocalDb.setEntitledThemeIds(_entitledThemeIds));
     notifyListeners();
     return _creditBalance;
   }
@@ -178,6 +184,13 @@ class QuizzBuilderProvider extends ChangeNotifier {
   // Initialization from persistent storage
   Future<void> initialize() async {
     await _loadFromPrefs();
+    // Fallback so isThemeEntitled() reflects the last known entitlements
+    // even before refreshThemeAccess() has run (e.g. cold start offline).
+    // A subsequent successful refreshThemeAccess() overwrites this.
+    final cachedEntitlements = await LocalDb.getEntitledThemeIds();
+    _entitledThemeIds
+      ..clear()
+      ..addAll(cachedEntitlements);
     notifyListeners();
   }
 

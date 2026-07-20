@@ -23,6 +23,7 @@ class CatalogProvider extends ChangeNotifier {
   String? _error;
   String? _statsError;
   CatalogStats? _stats;
+  bool _isSyncingOffline = false;
 
   CatalogProvider({required AuthService authService})
     : _catalogService = CatalogService(authService: authService);
@@ -37,6 +38,7 @@ class CatalogProvider extends ChangeNotifier {
   String? get error => _error;
   String? get statsError => _statsError;
   CatalogStats? get stats => _stats;
+  bool get isSyncingOffline => _isSyncingOffline;
 
   /// Load all categories
   Future<void> loadCategories() async {
@@ -217,6 +219,56 @@ class CatalogProvider extends ChangeNotifier {
       return questions;
     } catch (e) {
       throw Exception('Failed to load questions: $e');
+    }
+  }
+
+  /// Proactively downloads everything the player can access so it stays
+  /// playable offline: full catalog metadata (categories + themes, incl.
+  /// per-difficulty question counts, even for locked themes so offline
+  /// browsing/filtering doesn't show stale/zeroed counts) and, for every
+  /// theme [isEntitled] returns true for, its actual questions.
+  ///
+  /// Locked (non-entitled) paid themes only get their metadata cached —
+  /// their questions are never downloaded, so they correctly stay
+  /// unplayable offline.
+  ///
+  /// Best-effort and silent: meant to run in the background (app startup,
+  /// reconnect, after an unlock). Failures for individual themes don't
+  /// abort the rest of the sync, and a fully offline device just leaves
+  /// existing cached content untouched.
+  Future<void> syncOfflineContent({
+    required bool Function(theme_model.Theme theme) isEntitled,
+  }) async {
+    if (_isSyncingOffline) return;
+    _isSyncingOffline = true;
+
+    try {
+      final categories = await _catalogService.getCategories();
+      for (final category in categories) {
+        List<theme_model.Theme> themes;
+        try {
+          themes = await _catalogService.getThemesByCategory(category.id);
+        } catch (_) {
+          continue;
+        }
+
+        for (final theme in themes.where((t) => t.isActive)) {
+          if (!isEntitled(theme)) continue;
+          try {
+            await _catalogService.syncQuestionsIfNeeded(
+              theme.id,
+              theme.questionsCount,
+            );
+          } catch (_) {
+            // Best-effort: skip this theme, keep syncing the rest.
+          }
+        }
+      }
+    } catch (_) {
+      // No connectivity or catalog unreachable: nothing to do, cached
+      // content (if any) remains available offline as-is.
+    } finally {
+      _isSyncingOffline = false;
     }
   }
 }

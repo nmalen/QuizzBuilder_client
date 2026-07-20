@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,6 +78,10 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   Future<void> _promptUnlockTheme(theme_model.Theme theme) async {
     if (_isUnlocking) return;
     final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+    final catalogProvider = Provider.of<CatalogProvider>(
+      context,
+      listen: false,
+    );
     final l10n = AppLocalizations.of(context)!;
     final themeName = theme.getName(
       Localizations.localeOf(context).languageCode,
@@ -147,6 +153,11 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
       final remaining = await builder.unlockThemeWithCredit(theme);
       builder.toggleTheme(theme);
       await _updateFilteredCounts();
+      // Download the newly-unlocked theme's questions right away so it's
+      // playable offline without waiting for the next background sync.
+      unawaited(
+        catalogProvider.syncOfflineContent(isEntitled: builder.isThemeEntitled),
+      );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

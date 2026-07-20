@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -54,17 +56,72 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  bool? _wasOnline;
+  ConnectivityProvider? _connectivityProvider;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     // Initialize auth provider on app start
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AuthProvider>(context, listen: false).initialize();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final quizzBuilderProvider = Provider.of<QuizzBuilderProvider>(
+        context,
+        listen: false,
+      );
+      await authProvider.initialize();
       // Restore previous quiz selections (categories/themes)
-      Provider.of<QuizzBuilderProvider>(context, listen: false).initialize();
+      await quizzBuilderProvider.initialize();
+      if (!mounted) return;
+      unawaited(_syncAccessibleContentIfOnline());
     });
+
+    final connectivityProvider = Provider.of<ConnectivityProvider>(
+      context,
+      listen: false,
+    );
+    _connectivityProvider = connectivityProvider;
+    _wasOnline = connectivityProvider.isOnline;
+    connectivityProvider.addListener(_onConnectivityChanged);
+  }
+
+  void _onConnectivityChanged() {
+    if (!mounted) return;
+    final isOnline = _connectivityProvider?.isOnline ?? true;
+    final justReconnected = _wasOnline == false && isOnline;
+    _wasOnline = isOnline;
+    if (justReconnected) {
+      unawaited(_syncAccessibleContentIfOnline());
+    }
+  }
+
+  /// Downloads everything the logged-in player can access (free themes +
+  /// already-purchased/unlocked ones) so it stays playable offline. No-op
+  /// when offline or logged out; locked paid themes only get their catalog
+  /// metadata cached (via CatalogProvider.syncOfflineContent), never their
+  /// questions.
+  Future<void> _syncAccessibleContentIfOnline() async {
+    if (!mounted) return;
+    if (_connectivityProvider?.isOnline != true) return;
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (!authProvider.isLoggedIn) return;
+
+    final quizzBuilderProvider = Provider.of<QuizzBuilderProvider>(
+      context,
+      listen: false,
+    );
+    await quizzBuilderProvider.refreshThemeAccess();
+    if (!mounted) return;
+
+    final catalogProvider = Provider.of<CatalogProvider>(
+      context,
+      listen: false,
+    );
+    await catalogProvider.syncOfflineContent(
+      isEntitled: quizzBuilderProvider.isThemeEntitled,
+    );
   }
 
   @override
@@ -75,13 +132,16 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.isLoggedIn) {
-      authProvider.refreshToken();
+      authProvider.refreshToken().then((_) {
+        unawaited(_syncAccessibleContentIfOnline());
+      });
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _connectivityProvider?.removeListener(_onConnectivityChanged);
     super.dispose();
   }
 
