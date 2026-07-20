@@ -87,32 +87,47 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load themes for multiple categories and aggregate results
+  /// Load themes for multiple categories and aggregate results.
+  ///
+  /// Each category is fetched independently (network-first, falling back to
+  /// its own local cache) so that one category failing — e.g. offline and
+  /// never synced — doesn't discard themes already available for the
+  /// others. An error is only surfaced if every requested category failed.
   Future<void> loadThemesByCategories(List<int> categoryIds) async {
     _isLoading = true;
     _error = null;
     _errorStatusCode = null;
     notifyListeners();
 
-    try {
-      final Set<int> seen = {};
-      final List<theme_model.Theme> all = [];
-      for (final id in categoryIds) {
+    final Set<int> seen = {};
+    final List<theme_model.Theme> all = [];
+    Object? lastError;
+    var anySucceeded = false;
+
+    for (final id in categoryIds) {
+      try {
         final items = await _catalogService.getThemesByCategory(id);
+        anySucceeded = true;
         for (final t in items) {
           if (!seen.contains(t.id) && t.isActive) {
             seen.add(t.id);
             all.add(t);
           }
         }
+      } catch (e) {
+        lastError = e;
       }
-      _themes = all;
+    }
+
+    _themes = all;
+    if (!anySucceeded && categoryIds.isNotEmpty && lastError != null) {
+      _error = lastError.toString();
+      _errorStatusCode = lastError is ApiException
+          ? lastError.statusCode
+          : null;
+    } else {
       _error = null;
       _errorStatusCode = null;
-    } catch (e) {
-      _error = e.toString();
-      _errorStatusCode = e is ApiException ? e.statusCode : null;
-      _themes = [];
     }
 
     _isLoading = false;
