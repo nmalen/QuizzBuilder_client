@@ -12,8 +12,10 @@ import '../l10n/app_localizations.dart';
 import '../models/credit_pack.dart';
 import '../models/theme.dart' as app_theme;
 import '../providers/auth_provider.dart';
+import '../providers/connectivity_provider.dart';
 import '../services/catalog_service.dart';
 import '../services/credit_store_service.dart';
+import '../widgets/offline_banner.dart';
 import 'premium_theme_unlock_screen.dart';
 
 class CreditStoreScreen extends StatefulWidget {
@@ -184,6 +186,17 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
   Future<void> _buyPack(CreditPack pack) async {
     if (_purchaseInProgress) return;
+
+    if (!context.read<ConnectivityProvider>().isOnline) {
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.offlinePurchaseUnavailable),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     final product = _productForPack(pack);
     if (product == null) {
@@ -428,6 +441,17 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
   Future<void> _restorePurchases() async {
     if (_isRestoring) return;
 
+    if (!context.read<ConnectivityProvider>().isOnline) {
+      final l10n = AppLocalizations.of(context)!;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.offlinePurchaseUnavailable),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _isRestoring = true;
       _error = null;
@@ -480,6 +504,9 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isOnline = context.select<ConnectivityProvider, bool>(
+      (provider) => provider.isOnline,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -506,6 +533,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
+                  if (!isOnline) const OfflineBanner(),
                   Container(
                     width: double.infinity,
                     margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -604,7 +632,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                     child: SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
-                        onPressed: (_isRestoring || _loading)
+                        onPressed: (_isRestoring || _loading || !isOnline)
                             ? null
                             : _restorePurchases,
                         icon: _isRestoring
@@ -681,7 +709,8 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
                             !_purchaseInProgress &&
                             _storeAvailable &&
                             !isPackTooLarge &&
-                            product != null;
+                            product != null &&
+                            isOnline;
                         final displayPrice =
                             product?.price ??
                             _fallbackPrices[pack.credits] ??

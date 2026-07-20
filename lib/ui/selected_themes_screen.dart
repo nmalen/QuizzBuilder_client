@@ -6,7 +6,9 @@ import '../l10n/app_localizations.dart';
 import '../models/theme.dart' as theme_model;
 import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
+import '../providers/connectivity_provider.dart';
 import '../widgets/gradient_background.dart';
+import '../widgets/offline_banner.dart';
 import 'credit_store_screen.dart';
 import 'game_screen_solo.dart';
 import 'setup_multiplayer_screen.dart';
@@ -127,6 +129,16 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
       if (mounted) {
         await builder.refreshThemeAccess();
       }
+      return;
+    }
+
+    if (!context.read<ConnectivityProvider>().isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.offlinePurchaseUnavailable),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
@@ -296,6 +308,12 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (!context.watch<ConnectivityProvider>().isOnline) ...[
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 16),
+                        child: OfflineBanner(),
+                      ),
+                    ],
                     // Categories Section (supports multi-select)
                     Text(
                       AppLocalizations.of(context)!.selectCategory,

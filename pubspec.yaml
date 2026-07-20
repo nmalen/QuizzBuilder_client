@@ -25,7 +25,10 @@ dependencies:
   
   # HTTP & API
   http: ^1.1.0
-  
+
+  # Network connectivity detection
+  connectivity_plus: ^6.1.5
+
   # Local Storage
   path: ^1.9.1
   sqflite: ^2.3.0

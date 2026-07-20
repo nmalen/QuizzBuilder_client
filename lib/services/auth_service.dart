@@ -317,13 +317,19 @@ class AuthService {
     }
   }
 
-  /// Refresh access token using refresh token
+  /// Refresh access token using refresh token.
+  ///
+  /// Only clears the stored session when the server explicitly rejects the
+  /// refresh token (expired/invalid). A network failure (offline, timeout,
+  /// TLS issue) must not log the user out, so the cached session and locally
+  /// downloaded quizzes remain usable offline.
   Future<bool> refreshAccessToken() async {
-    try {
-      final refreshToken = await getRefreshToken();
-      if (refreshToken == null) return false;
+    final refreshToken = await getRefreshToken();
+    if (refreshToken == null) return false;
 
-      final response = await http
+    http.Response response;
+    try {
+      response = await http
           .post(
             Uri.parse('$baseUrl${ApiConfig.authRefreshEndpoint}'),
             headers: ApiConfig.defaultHeaders,
@@ -331,26 +337,31 @@ class AuthService {
           )
           .timeout(
             ApiConfig.connectionTimeout,
-            onTimeout: () => throw Exception('Connection timeout'),
+            onTimeout: () => throw TimeoutException('Connection timeout'),
           );
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        final newAccessToken = responseData['access'];
-
-        // Store new access token
-        await _secureStorage.write(key: _accessTokenKey, value: newAccessToken);
-
-        return true;
-      } else {
-        // Refresh token expired or invalid, clear storage
-        await logout();
-        return false;
-      }
+    } on TimeoutException {
+      return false;
+    } on SocketException {
+      return false;
+    } on HandshakeException {
+      return false;
     } catch (e) {
-      await logout();
       return false;
     }
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final newAccessToken = responseData['access'];
+
+      // Store new access token
+      await _secureStorage.write(key: _accessTokenKey, value: newAccessToken);
+
+      return true;
+    }
+
+    // Server explicitly rejected the refresh token: it's expired/invalid.
+    await logout();
+    return false;
   }
 
   /// Logout user and clear tokens

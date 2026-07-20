@@ -402,5 +402,8 @@
       "target": { "type": "int", "example": "10" }
     }
   },
-  "dailyTierHint": "Le palier crédit est mis en évidence en doré."
+  "dailyTierHint": "Le palier crédit est mis en évidence en doré.",
+  "offlineBannerMessage": "Vous êtes hors ligne. Vous pouvez toujours jouer aux quiz déjà téléchargés, mais les nouveaux téléchargements et les achats sont indisponibles.",
+  "offlineDownloadUnavailable": "Ce quiz n'est pas encore téléchargé et vous êtes hors ligne. Connectez-vous à internet pour le télécharger.",
+  "offlinePurchaseUnavailable": "Les achats sont indisponibles hors ligne. Connectez-vous à internet pour acheter ou débloquer du contenu."
 }

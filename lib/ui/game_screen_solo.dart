@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
+import '../providers/connectivity_provider.dart';
 import '../models/question.dart';
 import '../models/theme.dart' as theme_model;
 import '../db/local_db.dart';
@@ -103,8 +104,15 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      final isOnline = Provider.of<ConnectivityProvider>(
+        context,
+        listen: false,
+      ).isOnline;
       setState(() {
-        error = e.toString();
+        error = isOnline
+            ? e.toString()
+            : AppLocalizations.of(context)!.offlineDownloadUnavailable;
         isLoading = false;
       });
     }

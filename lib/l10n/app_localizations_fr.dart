@@ -612,4 +612,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dailyTierHint => 'Le palier crédit est mis en évidence en doré.';
+
+  @override
+  String get offlineBannerMessage => 'Vous êtes hors ligne. Vous pouvez toujours jouer aux quiz déjà téléchargés, mais les nouveaux téléchargements et les achats sont indisponibles.';
+
+  @override
+  String get offlineDownloadUnavailable => 'Ce quiz n\'est pas encore téléchargé et vous êtes hors ligne. Connectez-vous à internet pour le télécharger.';
+
+  @override
+  String get offlinePurchaseUnavailable => 'Les achats sont indisponibles hors ligne. Connectez-vous à internet pour acheter ou débloquer du contenu.';
 }

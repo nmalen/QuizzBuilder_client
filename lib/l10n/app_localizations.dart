@@ -1168,6 +1168,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The credit milestone is highlighted in gold.'**
   String get dailyTierHint;
+
+  /// No description provided for @offlineBannerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. You can still play quizzes you\'ve already downloaded, but new downloads and purchases are unavailable.'**
+  String get offlineBannerMessage;
+
+  /// No description provided for @offlineDownloadUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This quiz isn\'t downloaded yet and you\'re offline. Connect to the internet to download it.'**
+  String get offlineDownloadUnavailable;
+
+  /// No description provided for @offlinePurchaseUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases are unavailable offline. Connect to the internet to buy or unlock content.'**
+  String get offlinePurchaseUnavailable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

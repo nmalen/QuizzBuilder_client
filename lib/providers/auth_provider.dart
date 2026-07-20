@@ -38,17 +38,24 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await _authService.initialize();
-      
+
       if (await _authService.isLoggedIn()) {
         _user = await _authService.getStoredUser();
+        // Trust the cached session immediately so an offline user keeps
+        // access to their already-downloaded quizzes without re-logging in.
+        _isLoggedIn = true;
 
-        // Validate session on app startup to avoid stale access tokens.
+        // Refresh the access token in the background to avoid stale tokens.
+        // refreshAccessToken() only clears the session when the server
+        // explicitly rejects the refresh token; a network failure leaves
+        // the cached session untouched.
         final refreshed = await _authService.refreshAccessToken();
-        if (refreshed) {
-          _isLoggedIn = true;
-        } else {
-          _isLoggedIn = false;
-          _user = null;
+        if (!refreshed) {
+          final stillHasSession = await _authService.isLoggedIn();
+          _isLoggedIn = stillHasSession;
+          if (!stillHasSession) {
+            _user = null;
+          }
         }
       }
     } catch (e) {
@@ -157,12 +164,20 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Refresh access token
+  /// Refresh access token.
+  ///
+  /// Returns false both when the refresh failed due to a network issue
+  /// (session kept intact) and when the server explicitly invalidated the
+  /// session (session cleared). Callers that redirect to the login screen
+  /// on failure should check [isLoggedIn] afterwards to tell the two apart.
   Future<bool> refreshToken() async {
     final success = await _authService.refreshAccessToken();
     if (!success) {
-      _isLoggedIn = false;
-      _user = null;
+      final stillHasSession = await _authService.isLoggedIn();
+      if (!stillHasSession) {
+        _isLoggedIn = false;
+        _user = null;
+      }
     }
     notifyListeners();
     return success;

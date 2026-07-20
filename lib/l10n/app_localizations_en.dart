@@ -612,4 +612,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailyTierHint => 'The credit milestone is highlighted in gold.';
+
+  @override
+  String get offlineBannerMessage => 'You\'re offline. You can still play quizzes you\'ve already downloaded, but new downloads and purchases are unavailable.';
+
+  @override
+  String get offlineDownloadUnavailable => 'This quiz isn\'t downloaded yet and you\'re offline. Connect to the internet to download it.';
+
+  @override
+  String get offlinePurchaseUnavailable => 'Purchases are unavailable offline. Connect to the internet to buy or unlock content.';
 }

@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../models/theme.dart' as theme_model;
 import '../providers/auth_provider.dart';
+import '../providers/connectivity_provider.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../services/catalog_service.dart';
+import '../widgets/offline_banner.dart';
 
 class PremiumThemeUnlockScreen extends StatefulWidget {
   const PremiumThemeUnlockScreen({super.key});
@@ -71,6 +73,16 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
     final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
     final l10n = AppLocalizations.of(context)!;
 
+    if (!context.read<ConnectivityProvider>().isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.offlinePurchaseUnavailable),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     setState(() {
       _unlockingThemeId = theme.id;
     });
@@ -107,6 +119,9 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isOnline = context.select<ConnectivityProvider, bool>(
+      (provider) => provider.isOnline,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -152,6 +167,7 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
 
           return Column(
             children: [
+              if (!isOnline) const OfflineBanner(),
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -253,7 +269,8 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
                                     child: FilledButton.icon(
                                       onPressed:
                                           builder.creditBalance < 1 ||
-                                              isUnlocking
+                                              isUnlocking ||
+                                              !isOnline
                                           ? null
                                           : () => _unlockTheme(theme),
                                       icon: isUnlocking

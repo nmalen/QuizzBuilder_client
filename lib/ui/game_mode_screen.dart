@@ -34,6 +34,14 @@ class _GameModeScreenState extends State<GameModeScreen> {
         return;
       }
 
+      // refreshToken() only clears the session when the server explicitly
+      // rejected it. If the session is still considered valid, the failure
+      // was a network issue (e.g. offline) and the user should keep playing
+      // with locally downloaded quizzes instead of being forced to log in.
+      if (authProvider.isLoggedIn) {
+        return;
+      }
+
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (_) => const AuthScreen(

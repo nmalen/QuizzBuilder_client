@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
 import 'providers/auth_provider.dart';
 import 'providers/catalog_provider.dart';
+import 'providers/connectivity_provider.dart';
 import 'providers/quizz_builder_provider.dart';
 import 'providers/language_provider.dart';
 import 'services/auth_service.dart';
@@ -29,6 +30,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => AuthProvider(authService: authService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ConnectivityProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => CatalogProvider(authService: authService),
