@@ -114,6 +114,8 @@
   "storeFeatureComing": "La fonctionnalité de boutique arrive bientôt!",
   "errorLoadingCategories": "Erreur lors du chargement des catégories",
   "errorLoadingThemes": "Erreur lors du chargement des thèmes",
+  "errorTooManyRequests": "Trop de requêtes. Merci de patienter un instant puis réessayer.",
+  "errorGenericTryAgain": "Une erreur est survenue. Merci de réessayer.",
   "retry": "Réessayer",
   "noCategories": "Aucune catégorie disponible",
   "noThemes": "Aucun thème disponible",

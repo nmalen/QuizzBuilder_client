@@ -98,9 +98,7 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
       final remaining = await builder.unlockThemeWithCredit(theme);
       // Download the newly-unlocked theme's questions right away so it's
       // playable offline without waiting for the next background sync.
-      unawaited(
-        catalogProvider.syncOfflineContent(isEntitled: builder.isThemeEntitled),
-      );
+      unawaited(catalogProvider.syncThemeQuestions(theme));
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(

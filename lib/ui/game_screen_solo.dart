@@ -8,6 +8,7 @@ import '../models/question.dart';
 import '../models/theme.dart' as theme_model;
 import '../db/local_db.dart';
 import '../providers/auth_provider.dart';
+import '../services/api_exception.dart';
 import '../services/daily_challenge_service.dart';
 import '../widgets/gradient_background.dart';
 import 'results_screen.dart';
@@ -109,10 +110,15 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
         context,
         listen: false,
       ).isOnline;
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
-        error = isOnline
-            ? e.toString()
-            : AppLocalizations.of(context)!.offlineDownloadUnavailable;
+        if (!isOnline) {
+          error = l10n.offlineDownloadUnavailable;
+        } else if (e is ApiException && e.isRateLimited) {
+          error = l10n.errorTooManyRequests;
+        } else {
+          error = l10n.errorGenericTryAgain;
+        }
         isLoading = false;
       });
     }

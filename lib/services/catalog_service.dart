@@ -7,6 +7,7 @@ import '../models/category.dart';
 import '../models/theme.dart';
 import '../models/stats.dart';
 import '../models/question.dart';
+import 'api_exception.dart';
 import 'auth_service.dart';
 import '../db/local_db.dart';
 
@@ -128,7 +129,10 @@ class CatalogService {
       final response = await _authorizedGet(nextUrl);
 
       if (response.statusCode != 200) {
-        throw Exception('Failed to load paginated data: ${response.statusCode}');
+        throw ApiException(
+          'Failed to load paginated data: ${response.statusCode}',
+          statusCode: response.statusCode,
+        );
       }
 
       final decoded = jsonDecode(response.body);
@@ -197,17 +201,17 @@ class CatalogService {
         // Cache to local DB
         await LocalDb.insertCategories(categories);
         return categories;
-      } else {
-        // On error, try local cache
-        final cached = await LocalDb.getCategories();
-        if (cached.isNotEmpty) return cached;
-        throw Exception('Failed to load categories: ${response.statusCode}');
       }
+      throw ApiException(
+        'Failed to load categories: ${response.statusCode}',
+        statusCode: response.statusCode,
+      );
     } catch (e) {
       // On error, try local cache
       final cached = await LocalDb.getCategories();
       if (cached.isNotEmpty) return cached;
-      throw Exception('Error: ${e.toString()}');
+      if (e is ApiException) rethrow;
+      throw ApiException('Error: ${e.toString()}');
     }
   }
 
@@ -222,17 +226,17 @@ class CatalogService {
         // Cache to local DB
         await LocalDb.insertThemes(themes);
         return themes;
-      } else {
-        // On error, try local cache
-        final cached = await LocalDb.getThemesByCategory(categoryId);
-        if (cached.isNotEmpty) return cached;
-        throw Exception('Failed to load themes: ${response.statusCode}');
       }
+      throw ApiException(
+        'Failed to load themes: ${response.statusCode}',
+        statusCode: response.statusCode,
+      );
     } catch (e) {
       // On error, try local cache
       final cached = await LocalDb.getThemesByCategory(categoryId);
       if (cached.isNotEmpty) return cached;
-      throw Exception('Error: ${e.toString()}');
+      if (e is ApiException) rethrow;
+      throw ApiException('Error: ${e.toString()}');
     }
   }
   /// Fetch questions for a theme with local caching
@@ -251,7 +255,8 @@ class CatalogService {
       // On error, try local cache
       final cached = await LocalDb.getQuestionsByTheme(themeId);
       if (cached.isNotEmpty) return cached;
-      throw Exception('Error: ${e.toString()}');
+      if (e is ApiException) rethrow;
+      throw ApiException('Error: ${e.toString()}');
     }
   }
 

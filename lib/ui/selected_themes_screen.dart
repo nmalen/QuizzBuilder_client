@@ -155,9 +155,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
       await _updateFilteredCounts();
       // Download the newly-unlocked theme's questions right away so it's
       // playable offline without waiting for the next background sync.
-      unawaited(
-        catalogProvider.syncOfflineContent(isEntitled: builder.isThemeEntitled),
-      );
+      unawaited(catalogProvider.syncThemeQuestions(theme));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -551,7 +549,13 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              catalogProvider.error ?? 'Unknown error',
+                              catalogProvider.isRateLimited
+                                  ? AppLocalizations.of(
+                                      context,
+                                    )!.errorTooManyRequests
+                                  : AppLocalizations.of(
+                                      context,
+                                    )!.errorGenericTryAgain,
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: Colors.grey[600]),
                             ),

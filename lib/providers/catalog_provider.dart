@@ -3,6 +3,7 @@ import '../models/category.dart';
 import '../models/theme.dart' as theme_model;
 import '../models/stats.dart';
 import '../models/question.dart';
+import '../services/api_exception.dart';
 import '../services/catalog_service.dart';
 import '../services/auth_service.dart';
 
@@ -21,6 +22,7 @@ class CatalogProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isStatsLoading = false;
   String? _error;
+  int? _errorStatusCode;
   String? _statsError;
   CatalogStats? _stats;
   bool _isSyncingOffline = false;
@@ -36,6 +38,8 @@ class CatalogProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isStatsLoading => _isStatsLoading;
   String? get error => _error;
+  int? get errorStatusCode => _errorStatusCode;
+  bool get isRateLimited => _errorStatusCode == 429;
   String? get statsError => _statsError;
   CatalogStats? get stats => _stats;
   bool get isSyncingOffline => _isSyncingOffline;
@@ -44,13 +48,16 @@ class CatalogProvider extends ChangeNotifier {
   Future<void> loadCategories() async {
     _isLoading = true;
     _error = null;
+    _errorStatusCode = null;
     notifyListeners();
 
     try {
       _categories = await _catalogService.getCategories();
       _error = null;
+      _errorStatusCode = null;
     } catch (e) {
       _error = e.toString();
+      _errorStatusCode = e is ApiException ? e.statusCode : null;
       _categories = [];
     }
 
@@ -62,14 +69,17 @@ class CatalogProvider extends ChangeNotifier {
   Future<void> loadThemesByCategory(int categoryId) async {
     _isLoading = true;
     _error = null;
+    _errorStatusCode = null;
     notifyListeners();
 
     try {
       final allThemes = await _catalogService.getThemesByCategory(categoryId);
       _themes = allThemes.where((t) => t.isActive).toList();
       _error = null;
+      _errorStatusCode = null;
     } catch (e) {
       _error = e.toString();
+      _errorStatusCode = e is ApiException ? e.statusCode : null;
       _themes = [];
     }
 
@@ -81,6 +91,7 @@ class CatalogProvider extends ChangeNotifier {
   Future<void> loadThemesByCategories(List<int> categoryIds) async {
     _isLoading = true;
     _error = null;
+    _errorStatusCode = null;
     notifyListeners();
 
     try {
@@ -97,8 +108,10 @@ class CatalogProvider extends ChangeNotifier {
       }
       _themes = all;
       _error = null;
+      _errorStatusCode = null;
     } catch (e) {
       _error = e.toString();
+      _errorStatusCode = e is ApiException ? e.statusCode : null;
       _themes = [];
     }
 
@@ -218,9 +231,21 @@ class CatalogProvider extends ChangeNotifier {
       final questions = await request;
       return questions;
     } catch (e) {
+      if (e is ApiException) rethrow;
       throw Exception('Failed to load questions: $e');
     }
   }
+
+  DateTime? _lastOfflineSyncAt;
+  // The backend throttles catalog endpoints to 30 requests/minute per user
+  // in production (shared across categories/themes/questions, and with
+  // whatever else the user is doing in the app at the same time). Keep
+  // comfortably under that so a background sync never starves the user's
+  // own foreground requests into a 429.
+  static const Duration _offlineSyncMinInterval = Duration(minutes: 15);
+  static const Duration _offlineSyncRequestSpacing = Duration(
+    milliseconds: 2200,
+  );
 
   /// Proactively downloads everything the player can access so it stays
   /// playable offline: full catalog metadata (categories + themes, incl.
@@ -233,21 +258,33 @@ class CatalogProvider extends ChangeNotifier {
   /// unplayable offline.
   ///
   /// Best-effort and silent: meant to run in the background (app startup,
-  /// reconnect, after an unlock). Failures for individual themes don't
-  /// abort the rest of the sync, and a fully offline device just leaves
-  /// existing cached content untouched.
+  /// reconnect). Requests are paced to stay under the backend's rate limit,
+  /// and the whole sync backs off immediately if it hits a 429 rather than
+  /// hammering the API with requests that will also fail. A cooldown
+  /// prevents re-running this on every trigger (e.g. frequent reconnects).
   Future<void> syncOfflineContent({
     required bool Function(theme_model.Theme theme) isEntitled,
   }) async {
     if (_isSyncingOffline) return;
+    final now = DateTime.now();
+    if (_lastOfflineSyncAt != null &&
+        now.difference(_lastOfflineSyncAt!) < _offlineSyncMinInterval) {
+      return;
+    }
+
     _isSyncingOffline = true;
+    _lastOfflineSyncAt = now;
 
     try {
       final categories = await _catalogService.getCategories();
       for (final category in categories) {
         List<theme_model.Theme> themes;
         try {
+          await Future.delayed(_offlineSyncRequestSpacing);
           themes = await _catalogService.getThemesByCategory(category.id);
+        } on ApiException catch (e) {
+          if (e.isRateLimited) return;
+          continue;
         } catch (_) {
           continue;
         }
@@ -255,10 +292,13 @@ class CatalogProvider extends ChangeNotifier {
         for (final theme in themes.where((t) => t.isActive)) {
           if (!isEntitled(theme)) continue;
           try {
+            await Future.delayed(_offlineSyncRequestSpacing);
             await _catalogService.syncQuestionsIfNeeded(
               theme.id,
               theme.questionsCount,
             );
+          } on ApiException catch (e) {
+            if (e.isRateLimited) return;
           } catch (_) {
             // Best-effort: skip this theme, keep syncing the rest.
           }
@@ -269,6 +309,20 @@ class CatalogProvider extends ChangeNotifier {
       // content (if any) remains available offline as-is.
     } finally {
       _isSyncingOffline = false;
+    }
+  }
+
+  /// Downloads a single theme's questions right away (e.g. immediately
+  /// after the player unlocks it), without waiting for the next full
+  /// background sync or its cooldown/pacing.
+  Future<void> syncThemeQuestions(theme_model.Theme theme) async {
+    try {
+      await _catalogService.syncQuestionsIfNeeded(
+        theme.id,
+        theme.questionsCount,
+      );
+    } catch (_) {
+      // Best-effort; the theme will be picked up by the next full sync.
     }
   }
 }

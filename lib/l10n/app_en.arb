@@ -114,6 +114,8 @@
   "storeFeatureComing": "Store feature coming soon!",
   "errorLoadingCategories": "Error loading categories",
   "errorLoadingThemes": "Error loading themes",
+  "errorTooManyRequests": "Too many requests. Please wait a moment and try again.",
+  "errorGenericTryAgain": "Something went wrong. Please try again.",
   "retry": "Retry",
   "noCategories": "No categories available",
   "noThemes": "No themes available",

@@ -194,6 +194,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorLoadingThemes => 'Error loading themes';
 
   @override
+  String get errorTooManyRequests => 'Too many requests. Please wait a moment and try again.';
+
+  @override
+  String get errorGenericTryAgain => 'Something went wrong. Please try again.';
+
+  @override
   String get retry => 'Retry';
 
   @override

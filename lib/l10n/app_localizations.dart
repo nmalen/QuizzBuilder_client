@@ -449,6 +449,18 @@ abstract class AppLocalizations {
   /// **'Error loading themes'**
   String get errorLoadingThemes;
 
+  /// No description provided for @errorTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Please wait a moment and try again.'**
+  String get errorTooManyRequests;
+
+  /// No description provided for @errorGenericTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get errorGenericTryAgain;
+
   /// No description provided for @retry.
   ///
   /// In en, this message translates to:

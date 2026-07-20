@@ -132,9 +132,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.isLoggedIn) {
-      authProvider.refreshToken().then((_) {
-        unawaited(_syncAccessibleContentIfOnline());
-      });
+      // Content sync already runs on startup and reconnect (each with its
+      // own cooldown/pacing); avoid firing it again on every foreground
+      // resume, which would add extra catalog-access-refresh requests on
+      // top of the rate-limited budget for no real benefit.
+      authProvider.refreshToken();
     }
   }
 
