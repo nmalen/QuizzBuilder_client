@@ -81,7 +81,6 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-    - assets/animations/
 
 # Localization configuration
 flutter_intl:
