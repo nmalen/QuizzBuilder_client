@@ -87,47 +87,26 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load themes for multiple categories and aggregate results.
+  /// Load themes for multiple categories in a single batched request.
   ///
-  /// Each category is fetched independently (network-first, falling back to
-  /// its own local cache) so that one category failing — e.g. offline and
-  /// never synced — doesn't discard themes already available for the
-  /// others. An error is only surfaced if every requested category failed.
+  /// Network-first, falling back to the local cache for every requested
+  /// category if the request fails — e.g. offline and never synced — so a
+  /// connectivity blip doesn't discard themes already available locally.
   Future<void> loadThemesByCategories(List<int> categoryIds) async {
     _isLoading = true;
     _error = null;
     _errorStatusCode = null;
     notifyListeners();
 
-    final Set<int> seen = {};
-    final List<theme_model.Theme> all = [];
-    Object? lastError;
-    var anySucceeded = false;
-
-    for (final id in categoryIds) {
-      try {
-        final items = await _catalogService.getThemesByCategory(id);
-        anySucceeded = true;
-        for (final t in items) {
-          if (!seen.contains(t.id) && t.isActive) {
-            seen.add(t.id);
-            all.add(t);
-          }
-        }
-      } catch (e) {
-        lastError = e;
-      }
-    }
-
-    _themes = all;
-    if (!anySucceeded && categoryIds.isNotEmpty && lastError != null) {
-      _error = lastError.toString();
-      _errorStatusCode = lastError is ApiException
-          ? lastError.statusCode
-          : null;
-    } else {
+    try {
+      final items = await _catalogService.getThemesByCategories(categoryIds);
+      _themes = items.where((t) => t.isActive).toList();
       _error = null;
       _errorStatusCode = null;
+    } catch (e) {
+      _error = e.toString();
+      _errorStatusCode = e is ApiException ? e.statusCode : null;
+      _themes = [];
     }
 
     _isLoading = false;
@@ -245,6 +224,70 @@ class CatalogProvider extends ChangeNotifier {
     try {
       final questions = await request;
       return questions;
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw Exception('Failed to load questions: $e');
+    }
+  }
+
+  /// Load questions for multiple themes in a single batched request,
+  /// reusing already-cached/in-flight results per theme. Used when
+  /// launching a quiz across several themes, so selecting many themes
+  /// fires one request instead of one per theme.
+  ///
+  /// A theme the backend excludes from the batch (e.g. no longer
+  /// entitled) simply contributes no questions rather than failing the
+  /// whole load.
+  Future<List<Question>> loadQuestionsByThemes(List<int> themeIds) async {
+    final uniqueIds = <int>{...themeIds}.toList();
+    final result = <Question>[];
+    final pending = <Future<void>>[];
+    final missingIds = <int>[];
+
+    for (final id in uniqueIds) {
+      final cached = _questionsByTheme[id];
+      if (cached != null && cached.isNotEmpty) {
+        result.addAll(cached);
+        continue;
+      }
+      final inFlight = _questionRequests[id];
+      if (inFlight != null) {
+        pending.add(inFlight.then(result.addAll));
+        continue;
+      }
+      missingIds.add(id);
+    }
+
+    if (missingIds.isNotEmpty) {
+      final request = _catalogService
+          .getQuestionsByThemes(missingIds)
+          .then((questions) {
+            final byTheme = <int, List<Question>>{};
+            for (final q in questions) {
+              byTheme.putIfAbsent(q.theme, () => []).add(q);
+            }
+            for (final id in missingIds) {
+              _questionsByTheme[id] = byTheme[id] ?? [];
+              _questionRequests.remove(id);
+            }
+            return questions;
+          })
+          .catchError((error) {
+            for (final id in missingIds) {
+              _questionRequests.remove(id);
+            }
+            throw error;
+          });
+
+      for (final id in missingIds) {
+        _questionRequests[id] = request.then((_) => _questionsByTheme[id] ?? <Question>[]);
+      }
+      pending.add(request.then(result.addAll));
+    }
+
+    try {
+      await Future.wait(pending);
+      return result;
     } catch (e) {
       if (e is ApiException) rethrow;
       throw Exception('Failed to load questions: $e');

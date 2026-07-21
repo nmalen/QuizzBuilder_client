@@ -239,6 +239,32 @@ class CatalogService {
       throw ApiException('Error: ${e.toString()}');
     }
   }
+
+  /// Fetch themes for several categories in a single request (backend
+  /// `category__in` filter) instead of one request per category. Used by
+  /// the filtering screens, so selecting many categories doesn't fire a
+  /// burst of sequential requests into the rate limiter.
+  Future<List<Theme>> getThemesByCategories(List<int> categoryIds) async {
+    if (categoryIds.isEmpty) return [];
+    try {
+      final data = await _fetchAllPages(
+        '$baseUrl${ApiConfig.themesEndpoint}?category__in=${categoryIds.join(',')}',
+      );
+      final themes = data.map((item) => Theme.fromJson(item as Map<String, dynamic>)).toList();
+      await LocalDb.insertThemes(themes);
+      return themes;
+    } catch (e) {
+      // On error, try local cache for every requested category
+      final cached = <Theme>[];
+      for (final categoryId in categoryIds) {
+        cached.addAll(await LocalDb.getThemesByCategory(categoryId));
+      }
+      if (cached.isNotEmpty) return cached;
+      if (e is ApiException) rethrow;
+      throw ApiException('Error: ${e.toString()}');
+    }
+  }
+
   /// Fetch questions for a theme with local caching
   Future<List<Question>> getQuestionsByTheme(int themeId) async {
     try {
@@ -254,6 +280,33 @@ class CatalogService {
     } catch (e) {
       // On error, try local cache
       final cached = await LocalDb.getQuestionsByTheme(themeId);
+      if (cached.isNotEmpty) return cached;
+      if (e is ApiException) rethrow;
+      throw ApiException('Error: ${e.toString()}');
+    }
+  }
+
+  /// Fetch questions for several themes in a single request (backend
+  /// `theme__in` filter) instead of one request per theme. Used when
+  /// launching a quiz across multiple themes, so selecting many themes
+  /// doesn't fire a burst of sequential requests into the rate limiter.
+  Future<List<Question>> getQuestionsByThemes(List<int> themeIds) async {
+    if (themeIds.isEmpty) return [];
+    try {
+      final data = await _fetchAllPages(
+        '$baseUrl${ApiConfig.questionsEndpoint}?theme__in=${themeIds.join(',')}',
+      );
+      final questions = data
+          .map((item) => Question.fromJson(item as Map<String, dynamic>))
+          .toList();
+      await LocalDb.insertQuestions(questions);
+      return questions;
+    } catch (e) {
+      // On error, try local cache for every requested theme
+      final cached = <Question>[];
+      for (final themeId in themeIds) {
+        cached.addAll(await LocalDb.getQuestionsByTheme(themeId));
+      }
       if (cached.isNotEmpty) return cached;
       if (e is ApiException) rethrow;
       throw ApiException('Error: ${e.toString()}');

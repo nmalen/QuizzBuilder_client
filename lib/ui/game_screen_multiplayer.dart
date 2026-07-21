@@ -52,11 +52,9 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
       final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
       final catalog = Provider.of<CatalogProvider>(context, listen: false);
 
-      final List<Question> allQuestions = [];
-      for (int themeId in builder.selectedThemeIds) {
-        final themeQuestions = await catalog.loadQuestionsByTheme(themeId);
-        allQuestions.addAll(themeQuestions);
-      }
+      final allQuestions = await catalog.loadQuestionsByThemes(
+        builder.selectedThemeIds.toList(),
+      );
 
       // Filter by selected difficulties
       final filtered = allQuestions.where((q) => widget.difficulties.contains(q.difficulty)).toList();
