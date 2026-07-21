@@ -627,4 +627,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get offlinePurchaseUnavailable => 'Les achats sont indisponibles hors ligne. Connectez-vous à internet pour acheter ou débloquer du contenu.';
+
+  @override
+  String get dailyChallengeOfflineUnavailable => 'Le défi quotidien nécessite une connexion internet et ne peut pas être joué hors ligne. Connectez-vous à internet puis réessayez.';
 }

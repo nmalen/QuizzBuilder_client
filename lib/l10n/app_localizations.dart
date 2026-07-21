@@ -1198,6 +1198,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Purchases are unavailable offline. Connect to the internet to buy or unlock content.'**
   String get offlinePurchaseUnavailable;
+
+  /// No description provided for @dailyChallengeOfflineUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The daily challenge needs an internet connection and can\'t be played offline. Connect to the internet and try again.'**
+  String get dailyChallengeOfflineUnavailable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -111,7 +111,9 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
       final l10n = AppLocalizations.of(context)!;
       setState(() {
         if (!isOnline) {
-          error = l10n.offlineDownloadUnavailable;
+          error = gameMode == 'daily'
+              ? l10n.dailyChallengeOfflineUnavailable
+              : l10n.offlineDownloadUnavailable;
         } else if (e is ApiException && e.isRateLimited) {
           error = l10n.errorTooManyRequests;
         } else {

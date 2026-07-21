@@ -627,4 +627,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get offlinePurchaseUnavailable => 'Purchases are unavailable offline. Connect to the internet to buy or unlock content.';
+
+  @override
+  String get dailyChallengeOfflineUnavailable => 'The daily challenge needs an internet connection and can\'t be played offline. Connect to the internet and try again.';
 }

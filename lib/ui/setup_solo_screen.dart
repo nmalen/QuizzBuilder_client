@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../widgets/gradient_background.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
+import '../providers/connectivity_provider.dart';
 import '../services/daily_challenge_service.dart';
 import 'game_screen_solo.dart';
 import 'selected_themes_screen.dart';
@@ -28,6 +29,7 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
   DailyChallengeStatus? _dailyStatus;
   bool _dailyLoading = false;
   String? _dailyError;
+  bool _dailyOffline = false;
 
   @override
   void initState() {
@@ -43,6 +45,7 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
     setState(() {
       _dailyLoading = true;
       _dailyError = null;
+      _dailyOffline = false;
     });
 
     try {
@@ -59,8 +62,14 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
       if (!mounted) {
         return;
       }
+      final isOnline = context.read<ConnectivityProvider>().isOnline;
       setState(() {
-        _dailyError = e.toString();
+        _dailyStatus = null;
+        if (!isOnline) {
+          _dailyOffline = true;
+        } else {
+          _dailyError = e.toString();
+        }
       });
     } finally {
       if (mounted) {
@@ -209,6 +218,30 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
                   padding: EdgeInsets.only(bottom: 20),
                   child: Center(child: CircularProgressIndicator(color: Colors.white)),
                 )
+              else if (_dailyOffline)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.wifi_off, color: Colors.white),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            AppLocalizations.of(context)!.dailyChallengeOfflineUnavailable,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               else if (_dailyError != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
@@ -223,7 +256,8 @@ class _SetupSoloScreenState extends State<SetupSoloScreen> {
             ],
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: _gameMode == 'daily' && _dailyStatus != null && !_dailyStatus!.canPlayToday
+              onPressed: _gameMode == 'daily' &&
+                      (_dailyStatus == null || !_dailyStatus!.canPlayToday)
                   ? null
                   : () {
                 if (_gameMode == 'daily') {
