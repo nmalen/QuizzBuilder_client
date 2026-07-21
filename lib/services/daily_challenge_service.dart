@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../config/api_config.dart';
 import '../models/question.dart';
+import 'api_exception.dart';
 import 'auth_service.dart';
 
 class DailyChallengeStatus {
@@ -148,7 +149,10 @@ class DailyChallengeService {
   Future<DailyChallengeStatus> getStatus() async {
     final response = await _authorizedGet('$baseUrl${ApiConfig.dailyChallengeStatusEndpoint}');
     if (response.statusCode != 200) {
-      throw Exception('Failed to load daily challenge status: ${response.statusCode}');
+      throw ApiException(
+        'Failed to load daily challenge status: ${response.statusCode}',
+        statusCode: response.statusCode,
+      );
     }
 
     final Map<String, dynamic> body = jsonDecode(response.body) as Map<String, dynamic>;
@@ -159,7 +163,10 @@ class DailyChallengeService {
     final response = await _authorizedPost('$baseUrl${ApiConfig.dailyChallengeQuestionsEndpoint}', const {});
     final Map<String, dynamic> body = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode != 200) {
-      throw Exception(body['error']?.toString() ?? 'Failed to load daily challenge questions');
+      throw ApiException(
+        body['error']?.toString() ?? 'Failed to load daily challenge questions',
+        statusCode: response.statusCode,
+      );
     }
     return DailyChallengeQuiz.fromJson(body);
   }
@@ -171,7 +178,10 @@ class DailyChallengeService {
     );
     final Map<String, dynamic> body = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode != 200) {
-      throw Exception(body['error']?.toString() ?? 'Failed to complete daily challenge');
+      throw ApiException(
+        body['error']?.toString() ?? 'Failed to complete daily challenge',
+        statusCode: response.statusCode,
+      );
     }
     return DailyChallengeCompletion.fromJson(body);
   }
