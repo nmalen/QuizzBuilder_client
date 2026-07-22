@@ -44,7 +44,7 @@ dependencies:
   in_app_purchase_storekit: ^0.4.8+1
 
   # Authentication
-  flutter_secure_storage: ^9.0.0
+  flutter_secure_storage: ^10.3.1
   
   # Date & Time
   intl: ^0.20.2
