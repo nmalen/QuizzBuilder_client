@@ -3,7 +3,7 @@ description: "QuizzBuilder - A multilingual quiz game with free and paid themes.
 publish_to: 'none'
 
 # TestFlight submission build
-version: 1.11.1+62
+version: 1.11.2+63
 
 
 
@@ -34,7 +34,7 @@ dependencies:
   sqflite: ^2.3.0
   path_provider: ^2.1.0
   shared_preferences: ^2.2.0
-  package_info_plus: ^8.0.2
+  package_info_plus: ^10.2.1
   
   # JSON Serialization
   json_annotation: ^4.8.0
