@@ -465,6 +465,21 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get storePurchaseIncidentTitle => 'Achat à vérifier';
+
+  @override
+  String get storePurchaseIncidentBody => 'Nous n\'avons pas pu confirmer cet achat auprès de notre serveur après plusieurs tentatives. Il se peut qu\'il n\'ait pas encore été crédité. Contactez le support avec la référence ci-dessous afin que nous puissions vérifier manuellement.';
+
+  @override
+  String get storePurchaseIncidentReferenceLabel => 'Référence';
+
+  @override
+  String get storePurchaseIncidentCopyReference => 'Copier la référence';
+
+  @override
+  String get storePurchaseIncidentReferenceCopied => 'Référence copiée';
+
+  @override
   String storeRestoreFailed(String error) {
     return 'Restauration échouée : $error';
   }

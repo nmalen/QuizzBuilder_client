@@ -266,6 +266,11 @@
       }
     }
   },
+  "storePurchaseIncidentTitle": "Achat à vérifier",
+  "storePurchaseIncidentBody": "Nous n'avons pas pu confirmer cet achat auprès de notre serveur après plusieurs tentatives. Il se peut qu'il n'ait pas encore été crédité. Contactez le support avec la référence ci-dessous afin que nous puissions vérifier manuellement.",
+  "storePurchaseIncidentReferenceLabel": "Référence",
+  "storePurchaseIncidentCopyReference": "Copier la référence",
+  "storePurchaseIncidentReferenceCopied": "Référence copiée",
   "storeRestoreFailed": "Restauration échouée : {error}",
   "@storeRestoreFailed": {
     "placeholders": {

@@ -947,6 +947,36 @@ abstract class AppLocalizations {
   /// **'Verification failed: {error}'**
   String storeVerificationFailed(String error);
 
+  /// No description provided for @storePurchaseIncidentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase needs attention'**
+  String get storePurchaseIncidentTitle;
+
+  /// No description provided for @storePurchaseIncidentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t confirm this purchase with our server after several attempts. It may not have been credited yet. Please contact support with the reference below so we can check it manually.'**
+  String get storePurchaseIncidentBody;
+
+  /// No description provided for @storePurchaseIncidentReferenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference'**
+  String get storePurchaseIncidentReferenceLabel;
+
+  /// No description provided for @storePurchaseIncidentCopyReference.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy reference'**
+  String get storePurchaseIncidentCopyReference;
+
+  /// No description provided for @storePurchaseIncidentReferenceCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference copied'**
+  String get storePurchaseIncidentReferenceCopied;
+
   /// No description provided for @storeRestoreFailed.
   ///
   /// In en, this message translates to:

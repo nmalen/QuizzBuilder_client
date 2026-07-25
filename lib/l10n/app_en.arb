@@ -266,6 +266,11 @@
       }
     }
   },
+  "storePurchaseIncidentTitle": "Purchase needs attention",
+  "storePurchaseIncidentBody": "We couldn't confirm this purchase with our server after several attempts. It may not have been credited yet. Please contact support with the reference below so we can check it manually.",
+  "storePurchaseIncidentReferenceLabel": "Reference",
+  "storePurchaseIncidentCopyReference": "Copy reference",
+  "storePurchaseIncidentReferenceCopied": "Reference copied",
   "storeRestoreFailed": "Restore failed: {error}",
   "@storeRestoreFailed": {
     "placeholders": {

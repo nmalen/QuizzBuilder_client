@@ -465,6 +465,21 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get storePurchaseIncidentTitle => 'Purchase needs attention';
+
+  @override
+  String get storePurchaseIncidentBody => 'We couldn\'t confirm this purchase with our server after several attempts. It may not have been credited yet. Please contact support with the reference below so we can check it manually.';
+
+  @override
+  String get storePurchaseIncidentReferenceLabel => 'Reference';
+
+  @override
+  String get storePurchaseIncidentCopyReference => 'Copy reference';
+
+  @override
+  String get storePurchaseIncidentReferenceCopied => 'Reference copied';
+
+  @override
   String storeRestoreFailed(String error) {
     return 'Restore failed: $error';
   }

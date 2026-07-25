@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/credit_pack.dart';
@@ -31,6 +33,21 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
     5: '3.00 EUR',
     10: '5.00 EUR',
   };
+
+  // Android-only: the server now consumes the purchase after granting
+  // credits (see backend), so the client no longer auto-consumes. A purchase
+  // whose server verification never succeeds must not retry forever though -
+  // see _recordFailedGoogleVerificationAttempt for the 3-attempts-or-72h rule.
+  static const String _pendingGoogleRetriesPrefsKey =
+      'credit_store_pending_google_purchase_retries_v1';
+  static const int _maxGoogleVerificationAttempts = 3;
+  static const Duration _maxGoogleVerificationAge = Duration(hours: 72);
+
+  // Guards the silent restorePurchases() call (used to re-surface a pending
+  // Android purchase) to at most once per app process run, regardless of how
+  // many times this screen is opened/closed - restore hits a server endpoint
+  // throttled per user (10/hour on /credit-purchases/verify/).
+  static bool _hasAttemptedSessionGoogleRestore = false;
 
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
 
@@ -154,6 +171,10 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
         _error = e.toString();
       });
     }
+
+    if (Platform.isAndroid) {
+      unawaited(_maybeSilentlyRestorePendingGooglePurchases());
+    }
   }
 
   String _productIdForPack(CreditPack pack) {
@@ -219,6 +240,14 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
 
     final started = await _inAppPurchase.buyConsumable(
       purchaseParam: purchaseParam,
+      // Android: the server now consumes the purchase after granting credits
+      // (see backend), so the client must not auto-consume - that would
+      // finalize the token with Google before we know the purchase was ever
+      // credited. iOS has no equivalent server-side consumption and its
+      // plugin asserts autoConsume must stay true (StoreKit consumables are
+      // only "consumed" locally via completePurchase/finishTransaction), so
+      // this must never be false there.
+      autoConsume: Platform.isAndroid ? false : true,
     );
     if (!started && mounted) {
       final l10n = AppLocalizations.of(context)!;
@@ -265,8 +294,21 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
           break;
       }
 
-      if (purchase.pendingCompletePurchase) {
-        await _inAppPurchase.completePurchase(purchase);
+      // On Android, purchased/restored purchases are completed from within
+      // _verifyAndGrantCredits once the server outcome is known (success, or
+      // the retry budget is exhausted) - not unconditionally here. Every
+      // other status (and iOS in all cases) keeps completing immediately.
+      final completesElsewhere =
+          Platform.isAndroid &&
+          (purchase.status == PurchaseStatus.purchased ||
+              purchase.status == PurchaseStatus.restored);
+
+      if (!completesElsewhere && purchase.pendingCompletePurchase) {
+        if (Platform.isAndroid) {
+          await _completeAndroidPurchaseSafely(purchase);
+        } else {
+          await _inAppPurchase.completePurchase(purchase);
+        }
       }
     }
   }
@@ -276,6 +318,7 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
     if (_processingPurchaseIds.contains(purchaseKey)) return;
     _processingPurchaseIds.add(purchaseKey);
 
+    final isAndroid = Platform.isAndroid;
     final l10n = AppLocalizations.of(context)!;
     try {
       final matches = _packs
@@ -303,6 +346,10 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
         packId: pack.id,
       );
 
+      if (isAndroid && purchase.purchaseID != null) {
+        await _clearGoogleRetryState(purchase.purchaseID!);
+      }
+
       if (!mounted) return;
       setState(() {
         _creditBalance =
@@ -325,20 +372,231 @@ class _CreditStoreScreenState extends State<CreditStoreScreen> {
           backgroundColor: Colors.green,
         ),
       );
+
+      // The server already consumed the token remotely once credits were
+      // granted (see backend); completing locally just stops this purchase
+      // from being redelivered again. Never let a failure here undo the
+      // credits granted above - see _completeAndroidPurchaseSafely.
+      if (isAndroid) {
+        await _completeAndroidPurchaseSafely(purchase);
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _purchaseInProgress = false;
         _error = e.toString();
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.storeVerificationFailed(e.toString())),
-          backgroundColor: Colors.red,
-        ),
-      );
+
+      if (isAndroid) {
+        await _handleAndroidVerificationFailure(purchase, e);
+      } else {
+        _showVerificationFailedSnackBar(e);
+      }
     } finally {
       _processingPurchaseIds.remove(purchaseKey);
+    }
+  }
+
+  void _showVerificationFailedSnackBar(Object error) {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.storeVerificationFailed(error.toString())),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  /// Completes an Android purchase (acknowledge) without ever surfacing a
+  /// failure to the user. By the time this is called the server has already
+  /// consumed/acknowledged the purchase remotely via the Play Developer API,
+  /// so a local acknowledge failure (e.g. already acknowledged, transient
+  /// network error) changes nothing about whether the user was credited.
+  Future<void> _completeAndroidPurchaseSafely(PurchaseDetails purchase) async {
+    try {
+      await _inAppPurchase.completePurchase(purchase);
+    } catch (e) {
+      debugPrint(
+        '[credit_store] Android completePurchase failed (non-fatal): $e',
+      );
+    }
+  }
+
+  /// Handles a failed server verification for an Android purchase.
+  ///
+  /// Without a stable [PurchaseDetails.purchaseID], there is nothing to key a
+  /// retry counter on, so the failure is treated as purely transient: report
+  /// it and leave the purchase pending forever (never force-finalize it).
+  ///
+  /// With a stable id, each failure is recorded; once 3 attempts or 72 hours
+  /// since the first attempt have elapsed (whichever comes first), the
+  /// purchase is force-completed locally and an incident is surfaced with a
+  /// copyable transaction reference, instead of the usual error SnackBar.
+  Future<void> _handleAndroidVerificationFailure(
+    PurchaseDetails purchase,
+    Object error,
+  ) async {
+    final purchaseId = purchase.purchaseID;
+    if (purchaseId == null || purchaseId.isEmpty) {
+      _showVerificationFailedSnackBar(error);
+      return;
+    }
+
+    final shouldForceFinalize = await _recordFailedGoogleVerificationAttempt(
+      purchaseId,
+    );
+
+    if (shouldForceFinalize) {
+      await _completeAndroidPurchaseSafely(purchase);
+      await _showPurchaseIncidentDialog(purchaseId);
+      return;
+    }
+
+    _showVerificationFailedSnackBar(error);
+  }
+
+  Future<void> _showPurchaseIncidentDialog(String purchaseId) async {
+    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.storePurchaseIncidentTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.storePurchaseIncidentBody),
+              const SizedBox(height: 12),
+              Text(
+                l10n.storePurchaseIncidentReferenceLabel,
+                style: Theme.of(dialogContext).textTheme.labelMedium,
+              ),
+              const SizedBox(height: 4),
+              SelectableText(
+                purchaseId,
+                style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton.icon(
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: purchaseId));
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.storePurchaseIncidentReferenceCopied),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.copy),
+              label: Text(l10n.storePurchaseIncidentCopyReference),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(l10n.ok),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> _readPendingGoogleRetries() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_pendingGoogleRetriesPrefsKey);
+    if (raw == null || raw.isEmpty) return <String, dynamic>{};
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is Map<String, dynamic>) return decoded;
+    } catch (_) {
+      // Corrupt/unexpected content - treat as no pending state.
+    }
+    return <String, dynamic>{};
+  }
+
+  Future<void> _writePendingGoogleRetries(Map<String, dynamic> state) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (state.isEmpty) {
+      await prefs.remove(_pendingGoogleRetriesPrefsKey);
+    } else {
+      await prefs.setString(_pendingGoogleRetriesPrefsKey, jsonEncode(state));
+    }
+  }
+
+  /// Records a failed Google verification attempt for [purchaseId].
+  ///
+  /// Returns whether the retry budget - 3 attempts OR 72h since the first
+  /// attempt, whichever comes first - has now been exceeded, meaning the
+  /// purchase must be force-finalized instead of left pending for another
+  /// retry.
+  Future<bool> _recordFailedGoogleVerificationAttempt(
+    String purchaseId,
+  ) async {
+    final state = await _readPendingGoogleRetries();
+    final existing = state[purchaseId] as Map<String, dynamic>?;
+    final now = DateTime.now().toUtc();
+
+    final firstAttemptAt = existing != null
+        ? DateTime.tryParse(existing['firstAttemptAt'] as String? ?? '') ??
+              now
+        : now;
+    final attempts = (existing?['attempts'] as num?)?.toInt() ?? 0;
+    final newAttempts = attempts + 1;
+
+    final age = now.difference(firstAttemptAt);
+    final exceeded =
+        newAttempts >= _maxGoogleVerificationAttempts ||
+        age >= _maxGoogleVerificationAge;
+
+    if (exceeded) {
+      state.remove(purchaseId);
+    } else {
+      state[purchaseId] = {
+        'attempts': newAttempts,
+        'firstAttemptAt': firstAttemptAt.toIso8601String(),
+      };
+    }
+    await _writePendingGoogleRetries(state);
+    return exceeded;
+  }
+
+  Future<void> _clearGoogleRetryState(String purchaseId) async {
+    final state = await _readPendingGoogleRetries();
+    if (state.remove(purchaseId) != null) {
+      await _writePendingGoogleRetries(state);
+    }
+  }
+
+  Future<bool> _hasAnyPendingGoogleRetryState() async {
+    final state = await _readPendingGoogleRetries();
+    return state.isNotEmpty;
+  }
+
+  /// Re-surfaces a pending Android purchase via the purchase stream, at most
+  /// once per app process run, and only if a previous verification failure
+  /// actually left something pending. Unconditionally restoring on every
+  /// screen open would hit /credit-purchases/verify/'s per-user throttle
+  /// (10/hour) for users who never had a stuck purchase in the first place.
+  Future<void> _maybeSilentlyRestorePendingGooglePurchases() async {
+    if (_hasAttemptedSessionGoogleRestore) return;
+    _hasAttemptedSessionGoogleRestore = true;
+
+    try {
+      final hasPending = await _hasAnyPendingGoogleRetryState();
+      if (!hasPending) return;
+      await _inAppPurchase.restorePurchases();
+    } catch (e) {
+      debugPrint(
+        '[credit_store] silent pending-purchase restore failed: $e',
+      );
     }
   }
 
