@@ -45,3 +45,6 @@ app.*.map.json
 /android/app/release
 
 ./android/key.properties
+
+# Local Claude Code permissions (machine-specific, never versioned)
+.claude/settings.local.json
