@@ -44,6 +44,8 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
   bool _dailyCompletionSubmitted = false;
   DailyChallengeCompletion? _dailyCompletion;
   final List<int> _dailySelectedAnswers = [];
+  Future<void>? _dailySubmission;
+  bool _dailyFinishing = false;
 
   String _localized(BuildContext context, String en, String fr) {
     return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
@@ -409,17 +411,8 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                       }
 
                       if (gameMode == 'daily' && !isCurrentAnswerCorrect) {
-                        dailyFailed = true;
-                        await _completeDailyIfNeeded(false);
-                        if (!mounted) {
-                          return;
-                        }
-                        setState(() {
-                          // Force immediate transition to results on first error in daily mode.
-                          currentQuestionIndex = questions.length;
-                          answered = false;
-                          selectedAnswerIndex = null;
-                        });
+                        // Submit right away, but stay on the question until the player taps the button.
+                        _dailySubmission = _completeDailyIfNeeded(false);
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -450,12 +443,21 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
               // Next/Finish button
               if (answered)
                 ElevatedButton(
-                  onPressed: () async {
+                  onPressed: _dailyFinishing ? null : () async {
                     final bool isCurrentAnswerCorrect =
                         selectedAnswerIndex != null && selectedAnswerIndex! + 1 == currentQuestion.correctAnswer;
 
                     if (gameMode == 'daily' && !isCurrentAnswerCorrect) {
-                      dailyFailed = true;
+                      setState(() => _dailyFinishing = true);
+                      await _dailySubmission;
+                      if (!mounted) {
+                        return;
+                      }
+                      setState(() {
+                        dailyFailed = true;
+                        _dailyFinishing = false;
+                      });
+                      return;
                     }
 
                     await _completeDailyIfNeeded(isCurrentAnswerCorrect);
@@ -478,7 +480,7 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                     (gameMode == 'survival')
                         ? (selectedAnswerIndex == null || selectedAnswerIndex! + 1 != currentQuestion.correctAnswer ? AppLocalizations.of(context)!.done : AppLocalizations.of(context)!.next)
                       : (gameMode == 'daily')
-                        ? (currentQuestionIndex < questions.length - 1 ? AppLocalizations.of(context)!.next : AppLocalizations.of(context)!.done)
+                        ? (currentQuestionIndex < questions.length - 1 && selectedAnswerIndex! + 1 == currentQuestion.correctAnswer ? AppLocalizations.of(context)!.next : AppLocalizations.of(context)!.done)
                         : (currentQuestionIndex < questions.length - 1 ? AppLocalizations.of(context)!.next : AppLocalizations.of(context)!.done),
                     style: const TextStyle(
                       color: Colors.white,
