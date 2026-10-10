@@ -373,6 +373,23 @@ void main() {
       expect(find.textContaining('up to 80 questions (4 players × 20)'), findsOneWidget);
     });
 
+    testWidgets('select all / deselect all toggles every entitled theme', (tester) async {
+      await pumpThemes(tester, 'solo');
+      final context = tester.element(find.byType(SelectedThemesScreen));
+      final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+      expect(builder.selectedCount, 1);
+
+      await tester.ensureVisible(find.text('Deselect all'));
+      await tester.tap(find.text('Deselect all'));
+      await _settle(tester);
+      expect(builder.selectedCount, 0);
+      expect(find.text('Select all'), findsOneWidget);
+
+      await tester.tap(find.text('Select all'));
+      await _settle(tester);
+      expect(builder.selectedCount, 1);
+    });
+
     testWidgets('absent in solo', (tester) async {
       await pumpThemes(tester, 'solo');
       expect(find.textContaining(bannerStart), findsNothing);

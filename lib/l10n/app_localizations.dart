@@ -1264,6 +1264,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Multiplayer: each player gets their own questions. Plan for players × questions per player, up to {max} questions ({maxPlayers} players × {maxQuestions}). The question counter shows what you have.'**
   String multiplayerThemesBanner(int max, int maxPlayers, int maxQuestions);
+
+  /// No description provided for @selectAllThemes.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get selectAllThemes;
+
+  /// No description provided for @deselectAllThemes.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect all'**
+  String get deselectAllThemes;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

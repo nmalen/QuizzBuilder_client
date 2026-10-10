@@ -671,7 +671,46 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                 ],
                               ),
                             ],
-                            const SizedBox(height: 12),
+                            Builder(
+                              builder: (context) {
+                                final selectable = activeThemes
+                                    .where(builder.isThemeEntitled)
+                                    .toList();
+                                final allSelected = selectable.isNotEmpty &&
+                                    selectable.every(
+                                      (t) => builder.isSelected(t.id),
+                                    );
+                                final l10n = AppLocalizations.of(context)!;
+                                return Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton.icon(
+                                    onPressed: selectable.isEmpty
+                                        ? null
+                                        : () async {
+                                            for (final t in selectable) {
+                                              if (builder.isSelected(t.id) ==
+                                                  allSelected) {
+                                                builder.toggleTheme(t);
+                                              }
+                                            }
+                                            await _updateFilteredCounts();
+                                          },
+                                    icon: Icon(
+                                      allSelected
+                                          ? Icons.deselect
+                                          : Icons.select_all,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      allSelected
+                                          ? l10n.deselectAllThemes
+                                          : l10n.selectAllThemes,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 4),
                             ...activeThemes.map((theme) {
                               final selected = builder.isSelected(theme.id);
                               final canSelect = builder.isThemeEntitled(theme);

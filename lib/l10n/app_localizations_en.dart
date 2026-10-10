@@ -668,4 +668,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String multiplayerThemesBanner(int max, int maxPlayers, int maxQuestions) {
     return 'Multiplayer: each player gets their own questions. Plan for players × questions per player, up to $max questions ($maxPlayers players × $maxQuestions). The question counter shows what you have.';
   }
+
+  @override
+  String get selectAllThemes => 'Select all';
+
+  @override
+  String get deselectAllThemes => 'Deselect all';
 }

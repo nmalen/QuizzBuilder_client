@@ -482,5 +482,7 @@
         "example": "20"
       }
     }
-  }
+  },
+  "selectAllThemes": "Select all",
+  "deselectAllThemes": "Deselect all"
 }
