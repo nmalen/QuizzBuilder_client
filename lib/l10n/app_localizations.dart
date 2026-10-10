@@ -392,7 +392,7 @@ abstract class AppLocalizations {
   /// No description provided for @multiplayerModeDesc.
   ///
   /// In en, this message translates to:
-  /// **'Coming soon'**
+  /// **'Challenge each other with 1 to 4 players or in teams'**
   String get multiplayerModeDesc;
 
   /// Theme count suffix
@@ -1234,6 +1234,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The daily challenge needs an internet connection and can\'t be played offline. Connect to the internet and try again.'**
   String get dailyChallengeOfflineUnavailable;
+
+  /// No description provided for @multiplayerNotEnoughQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough questions for this game. You need {required} ({players} players × {perPlayer} questions each) but your themes and levels only provide {available}. Reduce the number of players or questions, or select more themes or levels.'**
+  String multiplayerNotEnoughQuestions(int required, int players, int perPlayer, int available);
+
+  /// No description provided for @multiplayerQuestionsAvailability.
+  ///
+  /// In en, this message translates to:
+  /// **'{available} questions available · {required} needed ({players} × {perPlayer})'**
+  String multiplayerQuestionsAvailability(int available, int required, int players, int perPlayer);
+
+  /// No description provided for @multiplayerAdviceReduceQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce to {max} questions per player, or select more themes or levels.'**
+  String multiplayerAdviceReduceQuestions(int max);
+
+  /// No description provided for @multiplayerAdviceReducePlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduce the number of players, or select more themes or levels.'**
+  String get multiplayerAdviceReducePlayers;
+
+  /// No description provided for @multiplayerThemesBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiplayer: each player gets their own questions. Plan for players × questions per player, up to {max} questions ({maxPlayers} players × {maxQuestions}). The question counter shows what you have.'**
+  String multiplayerThemesBanner(int max, int maxPlayers, int maxQuestions);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -86,7 +86,7 @@
   "soloMode": "Solo",
   "soloModeDesc": "Challenge yourself alone",
   "multiplayerMode": "Multiplayer",
-  "multiplayerModeDesc": "Coming soon",
+  "multiplayerModeDesc": "Challenge each other with 1 to 4 players or in teams",
   "themes_count": "{count} theme",
   "@themes_count": {
     "description": "Theme count suffix",
@@ -413,5 +413,74 @@
   "offlineBannerMessage": "You're offline. You can still play quizzes you've already downloaded, but new downloads and purchases are unavailable.",
   "offlineDownloadUnavailable": "This quiz isn't downloaded yet and you're offline. Connect to the internet to download it.",
   "offlinePurchaseUnavailable": "Purchases are unavailable offline. Connect to the internet to buy or unlock content.",
-  "dailyChallengeOfflineUnavailable": "The daily challenge needs an internet connection and can't be played offline. Connect to the internet and try again."
+  "dailyChallengeOfflineUnavailable": "The daily challenge needs an internet connection and can't be played offline. Connect to the internet and try again.",
+  "multiplayerNotEnoughQuestions": "Not enough questions for this game. You need {required} ({players} players × {perPlayer} questions each) but your themes and levels only provide {available}. Reduce the number of players or questions, or select more themes or levels.",
+  "@multiplayerNotEnoughQuestions": {
+    "placeholders": {
+      "required": {
+        "type": "int",
+        "example": "20"
+      },
+      "players": {
+        "type": "int",
+        "example": "2"
+      },
+      "perPlayer": {
+        "type": "int",
+        "example": "10"
+      },
+      "available": {
+        "type": "int",
+        "example": "14"
+      }
+    }
+  },
+  "multiplayerQuestionsAvailability": "{available} questions available · {required} needed ({players} × {perPlayer})",
+  "@multiplayerQuestionsAvailability": {
+    "placeholders": {
+      "available": {
+        "type": "int",
+        "example": "14"
+      },
+      "required": {
+        "type": "int",
+        "example": "20"
+      },
+      "players": {
+        "type": "int",
+        "example": "2"
+      },
+      "perPlayer": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "multiplayerAdviceReduceQuestions": "Reduce to {max} questions per player, or select more themes or levels.",
+  "@multiplayerAdviceReduceQuestions": {
+    "placeholders": {
+      "max": {
+        "type": "int",
+        "example": "7"
+      }
+    }
+  },
+  "multiplayerAdviceReducePlayers": "Reduce the number of players, or select more themes or levels.",
+  "multiplayerThemesBanner": "Multiplayer: each player gets their own questions. Plan for players × questions per player, up to {max} questions ({maxPlayers} players × {maxQuestions}). The question counter shows what you have.",
+  "@multiplayerThemesBanner": {
+    "placeholders": {
+      "max": {
+        "type": "int",
+        "example": "7"
+      },
+      "maxPlayers": {
+        "type": "int",
+        "example": "4"
+      },
+      "maxQuestions": {
+        "type": "int",
+        "example": "20"
+      }
+    }
+  }
 }

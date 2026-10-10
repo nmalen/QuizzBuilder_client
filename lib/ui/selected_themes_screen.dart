@@ -641,6 +641,36 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                       ),
                               ],
                             ),
+                            if (widget.gameMode == 'multiplayer') ...[
+                              const SizedBox(height: 12),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.info_outline,
+                                    color: Theme.of(context).primaryColor,
+                                    size: 18,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.multiplayerThemesBanner(
+                                        MultiplayerLimits.maxPlayers *
+                                            MultiplayerLimits
+                                                .maxQuestionsPerPlayer,
+                                        MultiplayerLimits.maxPlayers,
+                                        MultiplayerLimits.maxQuestionsPerPlayer,
+                                      ),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                             const SizedBox(height: 12),
                             ...activeThemes.map((theme) {
                               final selected = builder.isSelected(theme.id);
@@ -699,8 +729,11 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) =>
-                                        const SetupMultiplayerScreen(),
+                                    builder: (_) => SetupMultiplayerScreen(
+                                      difficulties: List<String>.from(
+                                        _selectedDifficulties,
+                                      ),
+                                    ),
                                   ),
                                 );
                               } else {

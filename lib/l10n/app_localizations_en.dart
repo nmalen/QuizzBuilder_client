@@ -160,7 +160,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get multiplayerMode => 'Multiplayer';
 
   @override
-  String get multiplayerModeDesc => 'Coming soon';
+  String get multiplayerModeDesc => 'Challenge each other with 1 to 4 players or in teams';
 
   @override
   String themes_count(int count) {
@@ -645,4 +645,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dailyChallengeOfflineUnavailable => 'The daily challenge needs an internet connection and can\'t be played offline. Connect to the internet and try again.';
+
+  @override
+  String multiplayerNotEnoughQuestions(int required, int players, int perPlayer, int available) {
+    return 'Not enough questions for this game. You need $required ($players players × $perPlayer questions each) but your themes and levels only provide $available. Reduce the number of players or questions, or select more themes or levels.';
+  }
+
+  @override
+  String multiplayerQuestionsAvailability(int available, int required, int players, int perPlayer) {
+    return '$available questions available · $required needed ($players × $perPlayer)';
+  }
+
+  @override
+  String multiplayerAdviceReduceQuestions(int max) {
+    return 'Reduce to $max questions per player, or select more themes or levels.';
+  }
+
+  @override
+  String get multiplayerAdviceReducePlayers => 'Reduce the number of players, or select more themes or levels.';
+
+  @override
+  String multiplayerThemesBanner(int max, int maxPlayers, int maxQuestions) {
+    return 'Multiplayer: each player gets their own questions. Plan for players × questions per player, up to $max questions ($maxPlayers players × $maxQuestions). The question counter shows what you have.';
+  }
 }

@@ -645,4 +645,27 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dailyChallengeOfflineUnavailable => 'Le défi quotidien nécessite une connexion internet et ne peut pas être joué hors ligne. Connectez-vous à internet puis réessayez.';
+
+  @override
+  String multiplayerNotEnoughQuestions(int required, int players, int perPlayer, int available) {
+    return 'Pas assez de questions pour cette partie. Il en faut $required ($players joueurs × $perPlayer questions) et vos thèmes et niveaux n\'en offrent que $available. Réduisez le nombre de joueurs ou de questions, ou sélectionnez davantage de thèmes ou de niveaux.';
+  }
+
+  @override
+  String multiplayerQuestionsAvailability(int available, int required, int players, int perPlayer) {
+    return '$available questions disponibles · $required nécessaires ($players × $perPlayer)';
+  }
+
+  @override
+  String multiplayerAdviceReduceQuestions(int max) {
+    return 'Réduisez à $max questions par joueur, ou sélectionnez davantage de thèmes ou de niveaux.';
+  }
+
+  @override
+  String get multiplayerAdviceReducePlayers => 'Réduisez le nombre de joueurs, ou sélectionnez davantage de thèmes ou de niveaux.';
+
+  @override
+  String multiplayerThemesBanner(int max, int maxPlayers, int maxQuestions) {
+    return 'Multijoueur : chaque joueur reçoit ses propres questions. Prévoyez joueurs × questions par joueur, soit jusqu\'à $max questions ($maxPlayers joueurs × $maxQuestions). Le compteur de questions affiche ce dont vous disposez.';
+  }
 }

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../providers/catalog_provider.dart';
+import '../providers/connectivity_provider.dart';
+import '../services/api_exception.dart';
 import '../models/question.dart';
 import '../models/theme.dart' as theme_model;
 import '../db/local_db.dart';
@@ -35,10 +37,8 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
   List<List<Question>> playerQuestions = [];
   bool isLoading = true;
   String? error;
-
-  String _localized(BuildContext context, String en, String fr) {
-    return Localizations.localeOf(context).languageCode == 'fr' ? fr : en;
-  }
+  // Set when the pool is too small for playerCount x questionCount.
+  int? _availableQuestions;
 
   @override
   void initState() {
@@ -57,17 +57,14 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
       );
 
       // Filter by selected difficulties
-      final filtered = allQuestions.where((q) => widget.difficulties.contains(q.difficulty)).toList();
+      final filtered = filterQuestionsByDifficulties(allQuestions, widget.difficulties);
 
       // Validation: Ensure enough unique questions for all players
       final int requiredQuestions = widget.playerCount * widget.questionCount;
       if (filtered.length < requiredQuestions) {
+        if (!mounted) return;
         setState(() {
-          error = _localized(
-            context,
-            'Not enough unique questions for $requiredQuestions total questions ($widget.playerCount players x ${widget.questionCount} questions each). Please select fewer players, reduce questions per player, or add more questions.',
-            'Pas assez de questions uniques pour $requiredQuestions questions au total ($widget.playerCount joueurs x ${widget.questionCount} questions chacun). Réduisez le nombre de joueurs, de questions par joueur, ou ajoutez plus de questions.',
-          );
+          _availableQuestions = filtered.length;
           isLoading = false;
         });
         return;
@@ -86,8 +83,20 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
         error = null;
       });
     } catch (e) {
+      if (!mounted) return;
+      final isOnline = Provider.of<ConnectivityProvider>(
+        context,
+        listen: false,
+      ).isOnline;
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
-        error = e.toString();
+        if (!isOnline) {
+          error = l10n.offlineDownloadUnavailable;
+        } else if (e is ApiException && e.isRateLimited) {
+          error = l10n.errorTooManyRequests;
+        } else {
+          error = l10n.errorGenericTryAgain;
+        }
         isLoading = false;
       });
     }
@@ -102,16 +111,34 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
       );
     }
 
-    if (error != null) {
+    if (_availableQuestions != null || error != null) {
+      final l10n = AppLocalizations.of(context)!;
+      final message = _availableQuestions != null
+          ? l10n.multiplayerNotEnoughQuestions(
+              widget.playerCount * widget.questionCount,
+              widget.playerCount,
+              widget.questionCount,
+              _availableQuestions!,
+            )
+          : '${l10n.errorLoadingThemes}: $error';
       return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context)!.multiplayerMode)),
+        appBar: AppBar(title: Text(l10n.multiplayerMode)),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 4),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(message, textAlign: TextAlign.center),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(l10n.goBack),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -143,6 +170,7 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
         scores: scores,
         playerCount: widget.playerCount,
         questionCount: widget.questionCount,
+        difficulties: widget.difficulties,
       );
     }
 
@@ -415,11 +443,13 @@ class _MultiplayerResultsScreen extends StatefulWidget {
   final List<int> scores;
   final int playerCount;
   final int questionCount;
+  final List<String> difficulties;
 
   const _MultiplayerResultsScreen({
     required this.scores,
     required this.playerCount,
     required this.questionCount,
+    required this.difficulties,
   });
 
   @override
@@ -624,7 +654,9 @@ class _MultiplayerResultsScreenState extends State<_MultiplayerResultsScreen> wi
                     onPressed: () {
                       // Navigate back to multiplayer setup screen
                       Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (context) => const SetupMultiplayerScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => SetupMultiplayerScreen(difficulties: widget.difficulties),
+                        ),
                       );
                     },
                     icon: const Icon(Icons.replay),
