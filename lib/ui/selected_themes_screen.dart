@@ -44,6 +44,10 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
   String? _lastCompletedCountsSignature;
   bool _queuedCountsRefresh = false;
   bool _hasLoadedCounts = false;
+  // Question count per difficulty over the selected, active and accessible
+  // themes; null while no such theme is selected or counts are not loaded.
+  Map<String, int>? _levelCounts;
+  static const List<String> _difficultyLevels = ['easy', 'medium', 'hard'];
 
   String _unlockableCreditsMessage(BuildContext context, int creditBalance) {
     final l10n = AppLocalizations.of(context)!;
@@ -251,10 +255,17 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
         .toSet();
     Map<int, int> themeCounts = {};
     int total = 0;
+    int entitledThemesCount = 0;
+    final levelTotals = {for (final level in _difficultyLevels) level: 0};
     for (final theme in selectedThemes) {
       if (!builder.isThemeEntitled(theme)) {
         themeCounts[theme.id] = 0;
         continue;
+      }
+      entitledThemesCount++;
+      for (final level in _difficultyLevels) {
+        levelTotals[level] =
+            levelTotals[level]! + theme.getFilteredQuestionCount([level]);
       }
       final filteredCount = theme.getFilteredQuestionCount(normalizedDifficulties);
       themeCounts[theme.id] = filteredCount;
@@ -266,10 +277,80 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
     setState(() {
       _filteredQuestionsCount = themeCounts;
       _totalFilteredQuestions = total;
+      _levelCounts = entitledThemesCount > 0 ? levelTotals : null;
       _loadingCounts = false;
       _hasLoadedCounts = true;
       _lastCompletedCountsSignature = signature;
     });
+  }
+
+  Future<void> _toggleDifficulty(String level) async {
+    setState(() {
+      if (_selectedDifficulties.contains(level)) {
+        if (_selectedDifficulties.length > 1) {
+          _selectedDifficulties.remove(level);
+        }
+      } else {
+        _selectedDifficulties.add(level);
+      }
+    });
+    await _saveDifficulties();
+    await _updateFilteredCounts();
+  }
+
+  Widget _buildDifficultyCheckbox(BuildContext context, String level) {
+    final l10n = AppLocalizations.of(context)!;
+    final name = switch (level) {
+      'easy' => l10n.easy,
+      'medium' => l10n.medium,
+      _ => l10n.hard,
+    };
+    final count = _levelCounts?[level];
+    final label = count == null
+        ? name
+        : l10n.difficultyLevelWithCount(name, count);
+    final isChecked = _selectedDifficulties.contains(level);
+    // The only checked level cannot be unchecked: the control is disabled.
+    final isLocked = isChecked && _selectedDifficulties.length == 1;
+    final textColor = isLocked ? Colors.white70 : Colors.white;
+    return InkWell(
+      borderRadius: BorderRadius.circular(8),
+      onTap: isLocked ? null : () => _toggleDifficulty(level),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Checkbox(
+              value: isChecked,
+              onChanged: isLocked ? null : (_) => _toggleDifficulty(level),
+              side: const BorderSide(color: Colors.white, width: 2),
+              fillColor: WidgetStateProperty.resolveWith((states) {
+                if (!states.contains(WidgetState.selected)) {
+                  return Colors.transparent;
+                }
+                return states.contains(WidgetState.disabled)
+                    ? Colors.white54
+                    : Colors.white;
+              }),
+              checkColor: Theme.of(context).primaryColor,
+            ),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _refreshThemesForSelectedCategories() async {
@@ -379,59 +460,12 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(height: 12),
-                    ToggleButtons(
-                      color: Colors.white70,
-                      selectedColor: Colors.white,
-                      fillColor: Theme.of(
-                        context,
-                      ).primaryColor.withValues(alpha: 0.35),
-                      borderColor: Colors.white54,
-                      selectedBorderColor: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      textStyle: Theme.of(context).textTheme.bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w600),
-                      constraints: const BoxConstraints(
-                        minHeight: 44,
-                        minWidth: 90,
-                      ),
-                      isSelected: [
-                        _selectedDifficulties.contains('easy'),
-                        _selectedDifficulties.contains('medium'),
-                        _selectedDifficulties.contains('hard'),
-                      ],
-                      onPressed: (index) async {
-                        setState(() {
-                          final diff = ['easy', 'medium', 'hard'][index];
-                          if (_selectedDifficulties.contains(diff)) {
-                            if (_selectedDifficulties.length > 1) {
-                              _selectedDifficulties.remove(diff);
-                            }
-                          } else {
-                            _selectedDifficulties.add(diff);
-                          }
-                        });
-                        await _saveDifficulties();
-                        await _updateFilteredCounts();
-                      },
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            AppLocalizations.of(context)!.easy,
-                          ), // TODO: assurez-vous que 'easy' existe dans les ARB
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            AppLocalizations.of(context)!.medium,
-                          ), // TODO: assurez-vous que 'medium' existe dans les ARB
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            AppLocalizations.of(context)!.hard,
-                          ), // TODO: assurez-vous que 'hard' existe dans les ARB
-                        ),
+                        for (final level in _difficultyLevels)
+                          _buildDifficultyCheckbox(context, level),
                       ],
                     ),
                     const SizedBox(height: 28),

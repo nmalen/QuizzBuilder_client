@@ -674,4 +674,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deselectAllThemes => 'Deselect all';
+
+  @override
+  String difficultyLevelWithCount(String level, int count) {
+    return '$level ($count)';
+  }
 }

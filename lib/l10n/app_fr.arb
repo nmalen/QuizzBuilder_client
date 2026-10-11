@@ -484,5 +484,18 @@
     }
   },
   "selectAllThemes": "Tout sélectionner",
-  "deselectAllThemes": "Tout désélectionner"
+  "deselectAllThemes": "Tout désélectionner",
+  "difficultyLevelWithCount": "{level} ({count})",
+  "@difficultyLevelWithCount": {
+    "placeholders": {
+      "level": {
+        "type": "String",
+        "example": "Easy"
+      },
+      "count": {
+        "type": "int",
+        "example": "120"
+      }
+    }
+  }
 }

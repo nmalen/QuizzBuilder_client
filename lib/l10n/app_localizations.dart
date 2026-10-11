@@ -1276,6 +1276,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deselect all'**
   String get deselectAllThemes;
+
+  /// No description provided for @difficultyLevelWithCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{level} ({count})'**
+  String difficultyLevelWithCount(String level, int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
