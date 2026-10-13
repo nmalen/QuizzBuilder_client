@@ -1,5 +1,7 @@
 gradle-wrapper.jar
 /.gradle
+# Gradle root build output (reports, caches); anchored so build.gradle* files stay tracked.
+/build/
 /captures/
 /gradlew
 /gradlew.bat
