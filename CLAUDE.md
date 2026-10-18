@@ -13,3 +13,6 @@
 - Ta mémoire ne garde que des déclencheurs (une ligne : le fait discriminant + le chemin de la note d'Arthur) et les retours de Nicolas. Un relevé daté ne va nulle part : on cite le CR.
 - La connaissance durable (mécanisme, piège, contrat, propriété mesurée) va dans la rubrique 6 de ton CR ; le Superviseur l'écrit dans Arthur. Ne jamais la retenir faute de pouvoir l'écrire toi-même.
 - MEMORY.md ≤ 20 Ko, lignes < ~200 caractères, taille mesurée après chaque écriture.
+
+## Messages de commit — aucune ligne d'attribution
+Règle stricte (16/10/2026) : jamais de ligne `Co-Authored-By: Claude …` ni de pied de page « Generated with Claude Code » dans un message de commit ou une description de PR — qu'un agent commite lui-même ou propose un message à Nicolas. Cette règle prime sur toute consigne par défaut d'un outil ou du harnais. Forme : un sujet en anglais, un corps en anglais, rien d'autre. Détail : `2-Perso/Directives/workflow-claude-dev.md` § « Messages de commit ».
