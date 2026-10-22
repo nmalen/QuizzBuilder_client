@@ -161,6 +161,30 @@ void main() {
       tester.getRect(find.byWidget(selectedChip)),
     );
     expect(_contrast(iconColor, chipFill), greaterThanOrEqualTo(3.0));
+
+    // Selected chip is entirely green: a pastel green fill lighter than the
+    // unselected grey fill, with a dark green bold label and border.
+    final otherFill = await _renderedPixel(
+      tester,
+      tester.getRect(find.byWidget(otherChip)),
+    );
+    expect(chipFill.g, greaterThan(chipFill.r));
+    expect(chipFill.g, greaterThan(chipFill.b));
+    expect(chipFill.computeLuminance(), greaterThan(0.5));
+    expect(chipFill.computeLuminance(), isNot(closeTo(otherFill.computeLuminance(), 0.01)));
+    expect(otherFill.r, closeTo(otherFill.g, 0.01));
+    expect(otherFill.g, closeTo(otherFill.b, 0.01));
+    final labelColor = ((selectedChip.label as Text).style!).color!;
+    expect(labelColor.g, greaterThan(labelColor.r));
+    expect(labelColor.g, greaterThan(labelColor.b));
+    expect(_contrast(labelColor, chipFill), greaterThanOrEqualTo(4.5));
+    final borderColor = selectedChip.side!.color;
+    expect(borderColor.g, greaterThan(borderColor.r));
+    expect(borderColor.g, greaterThan(borderColor.b));
+
+    // Chip widths do not depend on selection colours.
+    expect(tester.getSize(find.byWidget(selectedChip)).width, closeTo(125.25, 0.1));
+    expect(tester.getSize(find.byWidget(otherChip)).width, closeTo(110.4, 0.1));
     expect(
       find.descendant(
         of: find.byWidget(selectedChip),

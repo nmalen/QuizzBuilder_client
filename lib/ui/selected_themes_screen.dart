@@ -419,7 +419,6 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                         final isSelected = selectedCategories.any(
                           (item) => item.id == c.id,
                         );
-                        final highlightColor = Theme.of(context).primaryColor;
                         return FilterChip(
                           selected: isSelected,
                           showCheckmark: false,
@@ -440,15 +439,15 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                 ? Theme.of(
                                     context,
                                   ).textTheme.bodyMedium?.copyWith(
-                                    color: highlightColor,
+                                    color: Colors.green[900],
                                     fontWeight: FontWeight.bold,
                                   )
                                 : null,
                           ),
-                          selectedColor: highlightColor.withValues(alpha: 0.12),
+                          selectedColor: Colors.green[100],
                           backgroundColor: Colors.grey[200],
                           side: isSelected
-                              ? BorderSide(color: highlightColor)
+                              ? BorderSide(color: Colors.green[900]!)
                               : null,
                         );
                       }).toList(),
