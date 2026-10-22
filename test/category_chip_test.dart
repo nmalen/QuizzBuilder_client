@@ -1,4 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +58,38 @@ class _FakeConnectivity extends ChangeNotifier implements ConnectivityProvider {
   bool get isOnline => true;
 }
 
+/// WCAG contrast ratio between two opaque colours.
+double _contrast(Color a, Color b) {
+  final la = a.computeLuminance();
+  final lb = b.computeLuminance();
+  final hi = la > lb ? la : lb;
+  final lo = la > lb ? lb : la;
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/// Colour actually rendered inside [chipRect], in its right padding where
+/// neither the icon nor the label is drawn.
+Future<Color> _renderedPixel(WidgetTester tester, Rect chipRect) async {
+  final boundary = tester.renderObject<RenderRepaintBoundary>(
+    find.byKey(const ValueKey('screen')),
+  );
+  late Color result;
+  await tester.runAsync(() async {
+    final image = await boundary.toImage();
+    final data = (await image.toByteData(format: ui.ImageByteFormat.rawRgba))!;
+    final x = (chipRect.right - 4).round();
+    final y = chipRect.center.dy.round();
+    final offset = (y * image.width + x) * 4;
+    result = Color.fromARGB(
+      255,
+      data.getUint8(offset),
+      data.getUint8(offset + 1),
+      data.getUint8(offset + 2),
+    );
+  });
+  return result;
+}
+
 void main() {
   testWidgets('selected category chip draws no checkmark and keeps its icon', (
     tester,
@@ -78,6 +113,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
+          theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
           locale: const Locale('en'),
           localizationsDelegates: const [
             AppLocalizations.delegate,
@@ -86,7 +122,10 @@ void main() {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const SelectedThemesScreen(gameMode: 'solo'),
+          home: RepaintBoundary(
+            key: const ValueKey('screen'),
+            child: const SelectedThemesScreen(gameMode: 'solo'),
+          ),
         ),
       ),
     );
@@ -110,6 +149,18 @@ void main() {
     expect(selectedIcon.icon, Icons.category);
     expect(otherIcon.icon, selectedIcon.icon);
     expect(otherIcon.size, selectedIcon.size);
+
+    // Selected: a green icon with at least 3:1 contrast on the chip fill.
+    // Not selected: the neutral default colour, as before.
+    final iconColor = selectedIcon.color!;
+    expect(iconColor.g, greaterThan(iconColor.r));
+    expect(iconColor.g, greaterThan(iconColor.b));
+    expect(otherIcon.color, isNull);
+    final chipFill = await _renderedPixel(
+      tester,
+      tester.getRect(find.byWidget(selectedChip)),
+    );
+    expect(_contrast(iconColor, chipFill), greaterThanOrEqualTo(3.0));
     expect(
       find.descendant(
         of: find.byWidget(selectedChip),

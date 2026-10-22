@@ -430,7 +430,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                           avatar: Icon(
                             Icons.category,
                             size: 16,
-                            color: isSelected ? highlightColor : null,
+                            color: isSelected ? Colors.green[800] : null,
                           ),
                           label: Text(
                             c.getName(
