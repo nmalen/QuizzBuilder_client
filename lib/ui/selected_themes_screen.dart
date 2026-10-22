@@ -422,6 +422,7 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                         final highlightColor = Theme.of(context).primaryColor;
                         return FilterChip(
                           selected: isSelected,
+                          showCheckmark: false,
                           onSelected: (_) async {
                             builder.toggleCategory(c);
                             await _refreshThemesForSelectedCategories();
