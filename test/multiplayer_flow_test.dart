@@ -119,18 +119,6 @@ void _setSliders(WidgetTester tester, {required int players, required int questi
 ElevatedButton _continueButton(WidgetTester tester) =>
     tester.widget<ElevatedButton>(find.widgetWithText(ElevatedButton, 'Continue'));
 
-/// The themes screen trips a pre-existing debug-only ListTile/DecoratedBox
-/// assertion (white tile over ink); ignore only that one so it does not mask
-/// the behaviour under test.
-void _ignoreKnownListTileAssertion() {
-  final original = FlutterError.onError;
-  FlutterError.onError = (details) {
-    if (details.exceptionAsString().contains('ListTile background color')) return;
-    original?.call(details);
-  };
-  addTearDown(() => FlutterError.onError = original);
-}
-
 Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 5; i++) {
     await tester.pump(const Duration(milliseconds: 200));
@@ -284,7 +272,6 @@ void main() {
     });
 
     testWidgets('themes screen (multiplayer) -> setup', (tester) async {
-      _ignoreKnownListTileAssertion();
       SharedPreferences.setMockInitialValues({
         'selected_difficulties': ['medium', 'hard'],
       });
@@ -333,7 +320,6 @@ void main() {
 
   group('themes screen banner', () {
     Future<void> pumpThemes(WidgetTester tester, String gameMode) async {
-      _ignoreKnownListTileAssertion();
       final builder = QuizzBuilderProvider(authService: AuthService());
       final category = Category(
         id: 1,

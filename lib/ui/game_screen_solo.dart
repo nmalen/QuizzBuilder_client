@@ -365,8 +365,6 @@ class _GameScreenSoloState extends State<GameScreenSolo> {
                             fontSize: 18,
                           ),
                       textAlign: TextAlign.center,
-                      maxLines: 6,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),

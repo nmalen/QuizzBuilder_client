@@ -14,7 +14,7 @@ class SetupSoloScreen extends StatefulWidget {
   final String initialGameMode;
   const SetupSoloScreen({
     super.key,
-    this.selectedDifficulties = const ['easy', 'medium', 'hard'],
+    this.selectedDifficulties = const ['easy'],
     this.initialGameMode = 'standard',
   });
 

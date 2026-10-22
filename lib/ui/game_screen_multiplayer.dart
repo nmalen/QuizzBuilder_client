@@ -262,8 +262,6 @@ class _GameScreenMultiplayerState extends State<GameScreenMultiplayer> {
                             fontSize: 18,
                           ),
                       textAlign: TextAlign.center,
-                      maxLines: 6,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),

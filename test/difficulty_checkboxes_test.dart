@@ -87,19 +87,6 @@ final _category = Category(
   themesCount: 2,
 );
 
-/// The themes screen trips a pre-existing debug-only ListTile/DecoratedBox
-/// assertion (white tile over ink); ignore only that one.
-void _ignoreKnownListTileAssertion({bool overflow = false}) {
-  final original = FlutterError.onError;
-  FlutterError.onError = (details) {
-    final message = details.exceptionAsString();
-    if (message.contains('ListTile background color')) return;
-    if (overflow && message.contains('overflowed')) return;
-    original?.call(details);
-  };
-  addTearDown(() => FlutterError.onError = original);
-}
-
 Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 5; i++) {
     await tester.pump(const Duration(milliseconds: 200));
@@ -113,10 +100,8 @@ Future<_FakeBuilder> _pump(
   Set<int> blocked = const {},
   String locale = 'en',
   double textScale = 1.0,
-  bool ignoreOverflow = false,
   Map<String, Object> prefs = const {},
 }) async {
-  _ignoreKnownListTileAssertion(overflow: ignoreOverflow);
   SharedPreferences.setMockInitialValues(prefs);
   final builder = _FakeBuilder();
   builder.toggleCategory(_category);
@@ -307,14 +292,11 @@ void main() {
       tester.view.physicalSize = const Size(320, 800);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
-      // Other parts of this screen (credits banner, theme tile) already
-      // overflow at this size; only the difficulty row is under test here.
       await _pump(
         tester,
         themes: themes,
         locale: 'fr',
         textScale: 1.3,
-        ignoreOverflow: true,
       );
       for (final label in ['Facile (110)', 'Moyen (320)', 'Difficile (85)']) {
         final finder = find.text(label);
@@ -330,4 +312,31 @@ void main() {
       }
     },
   );
+
+  for (final scenario in [
+    (name: 'themes selected, free tiles', selected: true, blocked: <int>{}),
+    (name: 'no theme selected', selected: false, blocked: <int>{}),
+    (name: 'locked tile', selected: true, blocked: {2}),
+  ]) {
+    for (final locale in ['en', 'fr']) {
+      testWidgets(
+        '320 dp wide with text scale 1.3 ($locale, ${scenario.name}): no overflow',
+        (tester) async {
+          tester.view.physicalSize = const Size(320, 800);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(tester.view.reset);
+          await _pump(
+            tester,
+            themes: themes,
+            selected: scenario.selected ? themes : const [],
+            blocked: scenario.blocked,
+            locale: locale,
+            textScale: 1.3,
+          );
+          expect(find.byType(CheckboxListTile), findsWidgets);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
 }

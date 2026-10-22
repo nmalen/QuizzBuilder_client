@@ -644,12 +644,15 @@ class _SelectedThemesScreenState extends State<SelectedThemesScreen> {
                                   size: 20,
                                 ),
                                 const SizedBox(width: 8),
-                                Text(
-                                  '$selectedThemeCount ${selectedThemeCount == 1 ? AppLocalizations.of(context)!.theme : AppLocalizations.of(context)!.themes}',
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                Expanded(
+                                  child: Text(
+                                    '$selectedThemeCount ${selectedThemeCount == 1 ? AppLocalizations.of(context)!.theme : AppLocalizations.of(context)!.themes}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
                                 ),
-                                const Spacer(),
                                 Icon(
                                   Icons.help_center,
                                   color: Theme.of(context).primaryColor,
@@ -873,7 +876,6 @@ class _ThemeSelectTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white,
         border: Border.all(color: Colors.grey[300]!),
         boxShadow: [
           BoxShadow(
@@ -883,65 +885,75 @@ class _ThemeSelectTile extends StatelessWidget {
           ),
         ],
       ),
-      child: CheckboxListTile(
-        value: selected,
-        onChanged: onChanged,
-        controlAffinity: ListTileControlAffinity.leading,
-        secondary: secondary,
-        title: Text(
-          theme.getName(Localizations.localeOf(context).languageCode),
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: enabled ? null : Colors.grey,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              '${theme.questionsCount} question${theme.questionsCount == 1 ? '' : 's'}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+      // The white fill lives on a Material so the tile's ink splash is
+      // painted above it and clipped to the rounded corners.
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(11),
+        clipBehavior: Clip.antiAlias,
+        child: CheckboxListTile(
+          value: selected,
+          onChanged: onChanged,
+          controlAffinity: ListTileControlAffinity.leading,
+          secondary: secondary,
+          title: Text(
+            theme.getName(Localizations.localeOf(context).languageCode),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: enabled ? null : Colors.grey,
             ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: theme.isFree
-                        ? Colors.green.withValues(alpha: 0.1)
-                        : Colors.amber.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    theme.isFree
-                        ? AppLocalizations.of(context)!.free
-                        : AppLocalizations.of(context)!.premium,
-                    style: TextStyle(
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Text(
+                '${theme.questionsCount} question${theme.questionsCount == 1 ? '' : 's'}',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey),
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                runSpacing: 4,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
                       color: theme.isFree
-                          ? Colors.green
-                          : enabled
-                          ? Colors.amber[800]
-                          : Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                          ? Colors.green.withValues(alpha: 0.1)
+                          : Colors.amber.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      theme.isFree
+                          ? AppLocalizations.of(context)!.free
+                          : AppLocalizations.of(context)!.premium,
+                      style: TextStyle(
+                        color: theme.isFree
+                            ? Colors.green
+                            : enabled
+                            ? Colors.amber[800]
+                            : Colors.grey,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
-                ),
-                if (!enabled)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Icon(Icons.lock, color: Colors.grey, size: 18),
-                  ),
-              ],
-            ),
-          ],
+                  if (!enabled)
+                    const Padding(
+                      padding: EdgeInsets.only(left: 8.0),
+                      child: Icon(Icons.lock, color: Colors.grey, size: 18),
+                    ),
+                ],
+              ),
+            ],
+          ),
+
         ),
       ),
     );
