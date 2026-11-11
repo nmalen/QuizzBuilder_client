@@ -7,6 +7,7 @@ class AuthProvider extends ChangeNotifier {
   User? _user;
   bool _isLoggedIn = false;
   bool _isLoading = false;
+  bool _isInitialized = false;
   String? _error;
   String? _errorCode;
   String? _lastMessage;
@@ -18,6 +19,10 @@ class AuthProvider extends ChangeNotifier {
   User? get user => _user;
   bool get isLoggedIn => _isLoggedIn;
   bool get isLoading => _isLoading;
+
+  /// True once [initialize] has finished (stored session read, token
+  /// refresh attempted). Deep links wait for it before deciding what to do.
+  bool get isInitialized => _isInitialized;
   String? get error => _error;
   String? get errorCode => _errorCode;
   String? get lastMessage => _lastMessage;
@@ -63,6 +68,7 @@ class AuthProvider extends ChangeNotifier {
     }
 
     _isLoading = false;
+    _isInitialized = true;
     notifyListeners();
   }
 
@@ -72,6 +78,7 @@ class AuthProvider extends ChangeNotifier {
     required String username,
     required String password1,
     required String password2,
+    String? invitationCode,
   }) async {
     _isLoading = true;
     _error = null;
@@ -83,6 +90,7 @@ class AuthProvider extends ChangeNotifier {
       username: username,
       password1: password1,
       password2: password2,
+      invitationCode: invitationCode,
     );
 
     _isLoading = false;

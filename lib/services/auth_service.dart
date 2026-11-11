@@ -54,14 +54,11 @@ class AuthService {
     required String username,
     required String password1,
     required String password2,
+    String? invitationCode,
   }) async {
     try {
-      debugPrint('[REGISTER] Request:');
-      debugPrint('URL: $baseUrl${ApiConfig.authRegisterEndpoint}');
-      debugPrint('Headers: \\n${ApiConfig.defaultHeaders}');
-      debugPrint(
-        'Body: {email: $email, username: $username, password1: $password1, password2: $password2}',
-      );
+      // Never log the request body: it carries the password.
+      debugPrint('[REGISTER] Request: ${ApiConfig.authRegisterEndpoint}');
 
       final response = await http
           .post(
@@ -72,6 +69,9 @@ class AuthService {
               'username': username,
               'password1': password1,
               'password2': password2,
+              // Optional invitation code (duel): sent only when filled in.
+              if (invitationCode != null && invitationCode.isNotEmpty)
+                'invitation_code': invitationCode,
             }),
           )
           .timeout(
@@ -79,12 +79,11 @@ class AuthService {
             onTimeout: () => throw Exception('Connection timeout'),
           );
 
-      debugPrint('[REGISTER] Response status: \\n${response.statusCode}');
-      debugPrint('[REGISTER] Response body: \\n${response.body}');
+      debugPrint('[REGISTER] Response status: ${response.statusCode}');
 
       if (response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-        debugPrint('[REGISTER] Registration success: $responseData');
+        debugPrint('[REGISTER] Registration success');
         // Use backend message if available
         String backendMsg = '';
         if (responseData is Map && responseData.containsKey('detail')) {
@@ -154,7 +153,6 @@ class AuthService {
       debugPrint(
         '[LOGIN] Attempting login to: $baseUrl${ApiConfig.authLoginEndpoint}',
       );
-      debugPrint('[LOGIN] Identifier: $identifier');
 
       final response = await http
           .post(
@@ -180,7 +178,7 @@ class AuthService {
           );
 
       debugPrint('[LOGIN] Response status: ${response.statusCode}');
-      debugPrint('[LOGIN] Response body: ${response.body}');
+      // The success body carries the access and refresh tokens: never log it.
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
@@ -198,7 +196,7 @@ class AuthService {
           await _prefs.setString(_userKey, jsonEncode(userData));
         }
 
-        debugPrint('[LOGIN] Login successful for user: ${user?.email}');
+        debugPrint('[LOGIN] Login successful');
         return {
           'success': true,
           'message': 'Login successful',

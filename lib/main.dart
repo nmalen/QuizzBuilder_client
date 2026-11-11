@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -7,11 +8,15 @@ import 'l10n/app_localizations.dart';
 import 'providers/auth_provider.dart';
 import 'providers/catalog_provider.dart';
 import 'providers/connectivity_provider.dart';
+import 'providers/duel_provider.dart';
+import 'providers/invitation_link_provider.dart';
 import 'providers/quizz_builder_provider.dart';
 import 'providers/language_provider.dart';
 import 'services/auth_service.dart';
+import 'services/duel_service.dart';
 import 'ui/splash_screen.dart';
 import 'ui/auth_screen.dart';
+import 'ui/duel/invitation_link_host.dart';
 import 'ui/home_screen.dart';
 
 void main() async {
@@ -24,6 +29,8 @@ void main() async {
   final languageProvider = LanguageProvider();
   await languageProvider.initialize();
   
+  final navigatorKey = GlobalKey<NavigatorState>();
+
   runApp(
     MultiProvider(
       providers: [
@@ -42,14 +49,29 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => QuizzBuilderProvider(authService: authService),
         ),
+        ChangeNotifierProvider(
+          create: (_) => DuelProvider(
+            service: DuelService(authService: authService),
+          ),
+        ),
+        ChangeNotifierProvider(create: (_) => InvitationLinkProvider()),
       ],
-      child: const MyApp(),
+      // Universal links (/d/<code>): the host sits above MaterialApp so it
+      // sees the route information before the app's own route handling.
+      child: InvitationLinkHost(
+        navigatorKey: navigatorKey,
+        initialLocation: PlatformDispatcher.instance.defaultRouteName,
+        child: MyApp(navigatorKey: navigatorKey),
+      ),
     ),
   );
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  /// Navigator key shared with the universal link host.
+  final GlobalKey<NavigatorState>? navigatorKey;
+
+  const MyApp({super.key, this.navigatorKey});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -58,6 +80,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   bool? _wasOnline;
   ConnectivityProvider? _connectivityProvider;
+  AuthProvider? _authProvider;
+  bool _wasLoggedIn = false;
 
   @override
   void initState() {
@@ -84,6 +108,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _connectivityProvider = connectivityProvider;
     _wasOnline = connectivityProvider.isOnline;
     connectivityProvider.addListener(_onConnectivityChanged);
+
+    _authProvider = Provider.of<AuthProvider>(context, listen: false);
+    _authProvider!.addListener(_onAuthChanged);
+  }
+
+  /// Forgets per-account duel state when the player signs out.
+  void _onAuthChanged() {
+    if (!mounted) return;
+    final loggedIn = _authProvider?.isLoggedIn ?? false;
+    if (_wasLoggedIn && !loggedIn) {
+      Provider.of<DuelProvider>(context, listen: false).reset();
+    }
+    _wasLoggedIn = loggedIn;
   }
 
   void _onConnectivityChanged() {
@@ -144,6 +181,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _connectivityProvider?.removeListener(_onConnectivityChanged);
+    _authProvider?.removeListener(_onAuthChanged);
     super.dispose();
   }
 
@@ -152,6 +190,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
         return MaterialApp(
+          navigatorKey: widget.navigatorKey,
           title: 'QuizzBuilder',
           theme: ThemeData(
             primarySwatch: Colors.blue,
@@ -166,6 +205,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ],
           supportedLocales: AppLocalizations.supportedLocales,
           home: const _AppRouter(),
+          // Always start on the app router: a universal link used to start
+          // the app is handled by InvitationLinkHost, not as a named route.
+          onGenerateInitialRoutes: (_) => [
+            MaterialPageRoute<void>(
+              settings: const RouteSettings(name: Navigator.defaultRouteName),
+              builder: (_) => const _AppRouter(),
+            ),
+          ],
         );
       },
     );

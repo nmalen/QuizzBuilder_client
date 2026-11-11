@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
+import '../providers/invitation_link_provider.dart';
 import '../providers/language_provider.dart';
+import '../utils/invitation_link.dart';
 
 class AuthScreen extends StatefulWidget {
   final String? infoMessage;
@@ -20,6 +22,8 @@ class _AuthScreenState extends State<AuthScreen> {
   late TextEditingController _passwordController;
   late TextEditingController _usernameController;
   late TextEditingController _password2Controller;
+  late TextEditingController _invitationController;
+  InvitationLinkProvider? _linkProvider;
   // ...existing code...
   bool _obscurePassword = true;
   bool _obscurePassword2 = true;
@@ -38,6 +42,13 @@ class _AuthScreenState extends State<AuthScreen> {
     _passwordController = TextEditingController();
     _usernameController = TextEditingController();
     _password2Controller = TextEditingController();
+    _invitationController = TextEditingController();
+
+    // An invitation code received through a link while signed out: open in
+    // sign-up mode (once per delivered code) with the code pre-filled.
+    _linkProvider = context.read<InvitationLinkProvider>();
+    _linkProvider!.addListener(_onInvitationLinkChanged);
+    _applyInvitationLink(initial: true);
 
     // Check if there's a pending success message from registration
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -96,6 +107,24 @@ class _AuthScreenState extends State<AuthScreen> {
         if (!mounted) return;
         _showSnack(widget.infoMessage!);
       });
+    }
+  }
+
+  void _onInvitationLinkChanged() {
+    if (!mounted) return;
+    _applyInvitationLink(initial: false);
+  }
+
+  void _applyInvitationLink({required bool initial}) {
+    final link = _linkProvider;
+    final code = link?.pendingCode;
+    if (link == null || code == null) return;
+    _invitationController.text = code;
+    if (!link.takeEntryHint()) return;
+    if (initial) {
+      _isLogin = false;
+    } else {
+      setState(() => _isLogin = false);
     }
   }
 
@@ -201,6 +230,8 @@ class _AuthScreenState extends State<AuthScreen> {
     _passwordController.dispose();
     _usernameController.dispose();
     _password2Controller.dispose();
+    _invitationController.dispose();
+    _linkProvider?.removeListener(_onInvitationLinkChanged);
     super.dispose();
   }
 
@@ -236,12 +267,21 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } else {
       debugPrint('[AuthScreen] calling authProvider.register');
+      // Captured before the await: this screen may be replaced meanwhile.
+      final linkProvider = context.read<InvitationLinkProvider>();
+      final invitationCode = normalizeInvitationCode(
+        _invitationController.text,
+      );
       final success = await authProvider.register(
         email: _emailController.text.trim(),
         username: _usernameController.text.trim(),
         password1: _passwordController.text,
         password2: _password2Controller.text,
+        invitationCode: invitationCode.isEmpty ? null : invitationCode,
       );
+      // The server now holds the code: forget the one kept from a link, so it
+      // is not used a second time after sign-in.
+      if (success) linkProvider.clear();
 
       debugPrint('[AuthScreen] AFTER await: success=$success, mounted=$mounted');
       if (mounted) {
@@ -275,6 +315,7 @@ class _AuthScreenState extends State<AuthScreen> {
               _formKey.currentState?.reset();
               _passwordController.clear();
               _password2Controller.clear();
+              _invitationController.clear();
             });
             debugPrint(
               '[AuthScreen] calling _showSnack with success message: "$message"',
@@ -365,6 +406,16 @@ class _AuthScreenState extends State<AuthScreen> {
     return null;
   }
 
+  /// Optional field: empty is fine, otherwise the code must be complete
+  /// (the server ignores a wrong code silently, which would lose the pair).
+  String? _validateInvitationCode(BuildContext context, String? value) {
+    if (value == null || normalizeInvitationCode(value).isEmpty) return null;
+    if (!isCompleteInvitationCode(value)) {
+      return AppLocalizations.of(context)!.invitationCodeLength;
+    }
+    return null;
+  }
+
   String? _validatePasswordMatch(BuildContext context, String? value) {
     if (value == null || value.isEmpty) {
       return _localized(
@@ -385,7 +436,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ...existing code...
+    final link = context.watch<InvitationLinkProvider>();
     return ScaffoldMessenger(
       key: _scaffoldMessengerKey,
       child: Scaffold(
@@ -532,6 +583,27 @@ class _AuthScreenState extends State<AuthScreen> {
                               ),
                             if (authProvider.error != null)
                               const SizedBox(height: 16),
+
+                            // Invitation received through a link (sign-up mode)
+                            if (!_isLogin && link.pendingCode != null) ...[
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: Colors.white24),
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .invitationCodeBanner,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
 
                             // Form
                             Form(
@@ -826,6 +898,82 @@ class _AuthScreenState extends State<AuthScreen> {
                                         letterSpacing: 0.2,
                                       ),
                                     ),
+                                    const SizedBox(height: 16),
+
+                                    // Invitation code (Register only, optional)
+                                    TextFormField(
+                                      controller: _invitationController,
+                                      validator: (value) =>
+                                          _validateInvitationCode(
+                                            context,
+                                            value,
+                                          ),
+                                      enabled: !authProvider.isLoading,
+                                      textCapitalization:
+                                          TextCapitalization.characters,
+                                      autocorrect: false,
+                                      enableSuggestions: false,
+                                      decoration: InputDecoration(
+                                        hintText: AppLocalizations.of(
+                                          context,
+                                        )!.invitationCodeOptional,
+                                        hintStyle: const TextStyle(
+                                          color: Colors.white70,
+                                        ),
+                                        helperText: AppLocalizations.of(
+                                          context,
+                                        )!.invitationCodeHelp,
+                                        helperStyle: const TextStyle(
+                                          color: Colors.white70,
+                                        ),
+                                        prefixIcon: const Icon(
+                                          Icons.pin,
+                                          color: Colors.white70,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.white24,
+                                          ),
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.white24,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        letterSpacing: 0.2,
+                                      ),
+                                    ),
                                     const SizedBox(height: 24),
                                   ],
 
@@ -899,6 +1047,15 @@ class _AuthScreenState extends State<AuthScreen> {
                                             _passwordController.clear();
                                             _usernameController.clear();
                                             _password2Controller.clear();
+                                            _invitationController.clear();
+                                            // Switching to sign-up: put back
+                                            // the code received by a link.
+                                            final pending =
+                                                _linkProvider?.pendingCode;
+                                            if (!_isLogin && pending != null) {
+                                              _invitationController.text =
+                                                  pending;
+                                            }
                                           });
                                         },
                                   child: Text(

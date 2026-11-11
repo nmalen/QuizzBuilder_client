@@ -679,4 +679,274 @@ class AppLocalizationsFr extends AppLocalizations {
   String difficultyLevelWithCount(String level, int count) {
     return '$level ($count)';
   }
+
+  @override
+  String get duelCardTitle => 'Duel';
+
+  @override
+  String get duelCardSubtitle => 'Retrouve tes proches et invite-les';
+
+  @override
+  String get duelHubTitle => 'Duel';
+
+  @override
+  String get duelInviteTitle => 'Inviter un proche';
+
+  @override
+  String get duelInviteSubtitle => 'Partage un code ou un lien';
+
+  @override
+  String get duelJoinTitle => 'Rejoindre avec un code';
+
+  @override
+  String get duelJoinSubtitle => 'Tu as reçu un code ?';
+
+  @override
+  String duelOpponentsSection(int count) {
+    return 'Mes adversaires ($count)';
+  }
+
+  @override
+  String duelOpponentSince(String date) {
+    return 'Adversaire depuis le $date';
+  }
+
+  @override
+  String get duelMenuRemove => 'Retirer';
+
+  @override
+  String get duelMenuBlock => 'Bloquer';
+
+  @override
+  String get duelMyInvitations => 'Mes invitations';
+
+  @override
+  String get duelBlockedPlayers => 'Joueurs bloqués';
+
+  @override
+  String get duelNoOpponents => 'Pas encore d\'adversaire. Invite un proche avec un code ou un lien.';
+
+  @override
+  String get duelOfflineMessage => 'Le duel nécessite une connexion internet. Reconnecte-toi pour retrouver tes adversaires.';
+
+  @override
+  String get duelInviteOfflineMessage => 'Créer une invitation nécessite une connexion internet.';
+
+  @override
+  String get duelOfflineListMessage => 'Cette liste nécessite une connexion internet.';
+
+  @override
+  String duelRemoveTitle(String username) {
+    return 'Retirer $username ?';
+  }
+
+  @override
+  String duelRemoveBody(String username) {
+    return '$username ne sera plus dans tes adversaires. Pour vous retrouver, il faudra une nouvelle invitation.';
+  }
+
+  @override
+  String get duelRemoveAction => 'Retirer';
+
+  @override
+  String duelBlockTitle(String username) {
+    return 'Bloquer $username ?';
+  }
+
+  @override
+  String duelBlockBody(String username) {
+    return '$username sera retiré de tes adversaires et ne pourra plus te rejoindre avec une invitation. Tu pourras le débloquer depuis « Joueurs bloqués ».';
+  }
+
+  @override
+  String get duelBlockAction => 'Bloquer';
+
+  @override
+  String duelRemoved(String username) {
+    return '$username a été retiré.';
+  }
+
+  @override
+  String duelBlocked(String username) {
+    return '$username a été bloqué.';
+  }
+
+  @override
+  String get duelInviteCodeLabel => 'Ton code d\'invitation';
+
+  @override
+  String duelInviteValidUntil(String date) {
+    return 'Valable jusqu\'au $date';
+  }
+
+  @override
+  String get duelInviteSingleUse => 'Usage unique';
+
+  @override
+  String get duelShare => 'Partager';
+
+  @override
+  String get duelCopy => 'Copier';
+
+  @override
+  String get duelInviteHelp => 'Ton proche touche le lien ou saisit le code dans Duel › Rejoindre avec un code. S\'il n\'a pas l\'app, il pourra l\'installer puis s\'inscrire avec ce code.';
+
+  @override
+  String get duelCopied => 'Copié dans le presse-papiers';
+
+  @override
+  String get duelSeeMyInvitations => 'Voir mes invitations';
+
+  @override
+  String duelShareMessage(String link, String code, String expiry) {
+    return 'Défie-moi sur QuizzBuilder ! Touche ce lien pour devenir mon adversaire : $link\nSi tu as déjà l\'app, tu peux aussi saisir le code $code dans Duel › Rejoindre avec un code. Valable jusqu\'au $expiry.';
+  }
+
+  @override
+  String get duelJoinCodeLabel => 'Code d\'invitation';
+
+  @override
+  String get duelJoinCodeHelp => '6 caractères, avec ou sans tiret';
+
+  @override
+  String get duelContinue => 'Continuer';
+
+  @override
+  String get duelConfirmTitle => 'Invitation';
+
+  @override
+  String duelChallengesYou(String username) {
+    return '$username te défie';
+  }
+
+  @override
+  String duelAcceptBody(String username) {
+    return 'Accepte pour devenir adversaires de $username.';
+  }
+
+  @override
+  String duelInvitationValidUntil(String date) {
+    return 'Invitation valable jusqu\'au $date';
+  }
+
+  @override
+  String get duelAccept => 'Accepter';
+
+  @override
+  String get duelNotNow => 'Pas maintenant';
+
+  @override
+  String duelNowOpponent(String username) {
+    return 'Tu es maintenant adversaire de $username';
+  }
+
+  @override
+  String duelNewOpponents(int count) {
+    return 'Tu as $count nouveaux adversaires';
+  }
+
+  @override
+  String get duelMyInvitationsTitle => 'Mes invitations';
+
+  @override
+  String duelInvitationExpires(String date) {
+    return 'Expire le $date';
+  }
+
+  @override
+  String get duelNoInvitations => 'Aucune invitation en cours.';
+
+  @override
+  String get duelCancelInvitationTitle => 'Annuler l\'invitation ?';
+
+  @override
+  String duelCancelInvitationBody(String code) {
+    return 'Le code $code ne fonctionnera plus.';
+  }
+
+  @override
+  String get duelBack => 'Retour';
+
+  @override
+  String get duelCancelInvitationAction => 'Annuler l\'invitation';
+
+  @override
+  String get duelInvitationCancelled => 'Invitation annulée';
+
+  @override
+  String get duelBlockedTitle => 'Joueurs bloqués';
+
+  @override
+  String duelBlockedSince(String date) {
+    return 'Bloqué le $date';
+  }
+
+  @override
+  String get duelUnblock => 'Débloquer';
+
+  @override
+  String get duelNoBlocked => 'Aucun joueur bloqué.';
+
+  @override
+  String duelUnblockTitle(String username) {
+    return 'Débloquer $username ?';
+  }
+
+  @override
+  String duelUnblockBody(String username) {
+    return '$username ne redevient pas ton adversaire automatiquement : il faudra une nouvelle invitation.';
+  }
+
+  @override
+  String duelUnblocked(String username) {
+    return '$username a été débloqué.';
+  }
+
+  @override
+  String get duelErrInvitationNotFound => 'Ce code n\'existe pas ou n\'est plus valable. Vérifie-le auprès de ton proche.';
+
+  @override
+  String get duelErrInvitationExpired => 'Cette invitation a expiré. Demande à ton proche de t\'en envoyer une nouvelle.';
+
+  @override
+  String get duelErrInvitationAlreadyUsed => 'Cette invitation a déjà été utilisée. Demande à ton proche de t\'en envoyer une nouvelle.';
+
+  @override
+  String get duelErrOwnInvitation => 'C\'est ta propre invitation : partage-la avec un proche.';
+
+  @override
+  String get duelErrAlreadyOpponents => 'Vous êtes déjà adversaires.';
+
+  @override
+  String get duelErrOpponentLimit => 'Tu as atteint la limite de 100 adversaires. Retires-en un pour en ajouter.';
+
+  @override
+  String get duelErrInviterOpponentLimit => 'Cette personne a atteint sa limite d\'adversaires. Réessaie plus tard.';
+
+  @override
+  String get duelErrThrottled => 'Trop de tentatives. Réessaie dans une heure.';
+
+  @override
+  String get duelErrActiveInvitationLimit => 'Tu as déjà 5 invitations en cours. Annule-en une ou attends qu\'elle expire.';
+
+  @override
+  String get duelErrOpponentNotFound => 'Cet adversaire n\'existe plus. La liste a été actualisée.';
+
+  @override
+  String get duelErrBlockNotFound => 'Ce blocage n\'existe plus. La liste a été actualisée.';
+
+  @override
+  String get duelErrNetwork => 'Connexion impossible. Vérifie ta connexion internet puis réessaie.';
+
+  @override
+  String get invitationCodeOptional => 'Code d\'invitation (facultatif)';
+
+  @override
+  String get invitationCodeHelp => 'Si un proche t\'a invité, saisis son code.';
+
+  @override
+  String get invitationCodeBanner => 'Un proche t\'invite à jouer. Inscris-toi : le code est déjà rempli.';
+
+  @override
+  String get invitationCodeLength => 'Le code comporte 6 caractères';
 }

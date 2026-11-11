@@ -497,5 +497,234 @@
         "example": "120"
       }
     }
-  }
+  },
+  "duelCardTitle": "Duel",
+  "duelCardSubtitle": "Find your friends and invite them",
+  "duelHubTitle": "Duel",
+  "duelInviteTitle": "Invite a friend",
+  "duelInviteSubtitle": "Share a code or a link",
+  "duelJoinTitle": "Join with a code",
+  "duelJoinSubtitle": "Got a code?",
+  "duelOpponentsSection": "My opponents ({count})",
+  "@duelOpponentsSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duelOpponentSince": "Opponent since {date}",
+  "@duelOpponentSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelMenuRemove": "Remove",
+  "duelMenuBlock": "Block",
+  "duelMyInvitations": "My invitations",
+  "duelBlockedPlayers": "Blocked players",
+  "duelNoOpponents": "No opponents yet. Invite a friend with a code or a link.",
+  "duelOfflineMessage": "Duel needs an internet connection. Reconnect to see your opponents.",
+  "duelInviteOfflineMessage": "Creating an invitation needs an internet connection.",
+  "duelOfflineListMessage": "This list needs an internet connection.",
+  "duelRemoveTitle": "Remove {username}?",
+  "@duelRemoveTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRemoveBody": "{username} will no longer be one of your opponents. To connect again, you will need a new invitation.",
+  "@duelRemoveBody": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRemoveAction": "Remove",
+  "duelBlockTitle": "Block {username}?",
+  "@duelBlockTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBlockBody": "{username} will be removed from your opponents and will not be able to join you with an invitation. You can unblock them from “Blocked players”.",
+  "@duelBlockBody": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBlockAction": "Block",
+  "duelRemoved": "{username} was removed.",
+  "@duelRemoved": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBlocked": "{username} was blocked.",
+  "@duelBlocked": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelInviteCodeLabel": "Your invitation code",
+  "duelInviteValidUntil": "Valid until {date}",
+  "@duelInviteValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelInviteSingleUse": "Single use",
+  "duelShare": "Share",
+  "duelCopy": "Copy",
+  "duelInviteHelp": "Your friend taps the link or enters the code under Duel › Join with a code. If they don't have the app, they can install it, then sign up with this code.",
+  "duelCopied": "Copied to the clipboard",
+  "duelSeeMyInvitations": "See my invitations",
+  "duelShareMessage": "Challenge me on QuizzBuilder! Tap this link to become my opponent: {link}\nIf you already have the app, you can also enter the code {code} under Duel › Join with a code. Valid until {expiry}.",
+  "@duelShareMessage": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "duelJoinCodeLabel": "Invitation code",
+  "duelJoinCodeHelp": "6 characters, with or without a dash",
+  "duelContinue": "Continue",
+  "duelConfirmTitle": "Invitation",
+  "duelChallengesYou": "{username} challenges you",
+  "@duelChallengesYou": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelAcceptBody": "Accept to become opponents with {username}.",
+  "@duelAcceptBody": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelInvitationValidUntil": "Invitation valid until {date}",
+  "@duelInvitationValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelAccept": "Accept",
+  "duelNotNow": "Not now",
+  "duelNowOpponent": "You are now opponents with {username}",
+  "@duelNowOpponent": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelNewOpponents": "You have {count} new opponents",
+  "@duelNewOpponents": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duelMyInvitationsTitle": "My invitations",
+  "duelInvitationExpires": "Expires on {date}",
+  "@duelInvitationExpires": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelNoInvitations": "No active invitations.",
+  "duelCancelInvitationTitle": "Cancel the invitation?",
+  "duelCancelInvitationBody": "The code {code} will no longer work.",
+  "@duelCancelInvitationBody": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBack": "Back",
+  "duelCancelInvitationAction": "Cancel invitation",
+  "duelInvitationCancelled": "Invitation cancelled",
+  "duelBlockedTitle": "Blocked players",
+  "duelBlockedSince": "Blocked on {date}",
+  "@duelBlockedSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelUnblock": "Unblock",
+  "duelNoBlocked": "No blocked players.",
+  "duelUnblockTitle": "Unblock {username}?",
+  "@duelUnblockTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelUnblockBody": "{username} will not become your opponent again automatically: you will need a new invitation.",
+  "@duelUnblockBody": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelUnblocked": "{username} was unblocked.",
+  "@duelUnblocked": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelErrInvitationNotFound": "This code doesn't exist or is no longer valid. Check it with your friend.",
+  "duelErrInvitationExpired": "This invitation has expired. Ask your friend to send you a new one.",
+  "duelErrInvitationAlreadyUsed": "This invitation has already been used. Ask your friend to send you a new one.",
+  "duelErrOwnInvitation": "This is your own invitation: share it with a friend.",
+  "duelErrAlreadyOpponents": "You are already opponents.",
+  "duelErrOpponentLimit": "You have reached the limit of 100 opponents. Remove one to add another.",
+  "duelErrInviterOpponentLimit": "This person has reached their opponent limit. Try again later.",
+  "duelErrThrottled": "Too many attempts. Try again in an hour.",
+  "duelErrActiveInvitationLimit": "You already have 5 active invitations. Cancel one or wait for it to expire.",
+  "duelErrOpponentNotFound": "This opponent no longer exists. The list has been refreshed.",
+  "duelErrBlockNotFound": "This block no longer exists. The list has been refreshed.",
+  "duelErrNetwork": "Unable to connect. Check your internet connection and try again.",
+  "invitationCodeOptional": "Invitation code (optional)",
+  "invitationCodeHelp": "If a friend invited you, enter their code.",
+  "invitationCodeBanner": "A friend invited you. Sign up: the code is already filled in.",
+  "invitationCodeLength": "The code has 6 characters"
 }

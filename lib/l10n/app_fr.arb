@@ -497,5 +497,234 @@
         "example": "120"
       }
     }
-  }
+  },
+  "duelCardTitle": "Duel",
+  "duelCardSubtitle": "Retrouve tes proches et invite-les",
+  "duelHubTitle": "Duel",
+  "duelInviteTitle": "Inviter un proche",
+  "duelInviteSubtitle": "Partage un code ou un lien",
+  "duelJoinTitle": "Rejoindre avec un code",
+  "duelJoinSubtitle": "Tu as reçu un code ?",
+  "duelOpponentsSection": "Mes adversaires ({count})",
+  "@duelOpponentsSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duelOpponentSince": "Adversaire depuis le {date}",
+  "@duelOpponentSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelMenuRemove": "Retirer",
+  "duelMenuBlock": "Bloquer",
+  "duelMyInvitations": "Mes invitations",
+  "duelBlockedPlayers": "Joueurs bloqués",
+  "duelNoOpponents": "Pas encore d'adversaire. Invite un proche avec un code ou un lien.",
+  "duelOfflineMessage": "Le duel nécessite une connexion internet. Reconnecte-toi pour retrouver tes adversaires.",
+  "duelInviteOfflineMessage": "Créer une invitation nécessite une connexion internet.",
+  "duelOfflineListMessage": "Cette liste nécessite une connexion internet.",
+  "duelRemoveTitle": "Retirer {username} ?",
+  "@duelRemoveTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRemoveBody": "{username} ne sera plus dans tes adversaires. Pour vous retrouver, il faudra une nouvelle invitation.",
+  "@duelRemoveBody": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRemoveAction": "Retirer",
+  "duelBlockTitle": "Bloquer {username} ?",
+  "@duelBlockTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBlockBody": "{username} sera retiré de tes adversaires et ne pourra plus te rejoindre avec une invitation. Tu pourras le débloquer depuis « Joueurs bloqués ».",
+  "@duelBlockBody": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBlockAction": "Bloquer",
+  "duelRemoved": "{username} a été retiré.",
+  "@duelRemoved": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBlocked": "{username} a été bloqué.",
+  "@duelBlocked": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelInviteCodeLabel": "Ton code d'invitation",
+  "duelInviteValidUntil": "Valable jusqu'au {date}",
+  "@duelInviteValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelInviteSingleUse": "Usage unique",
+  "duelShare": "Partager",
+  "duelCopy": "Copier",
+  "duelInviteHelp": "Ton proche touche le lien ou saisit le code dans Duel › Rejoindre avec un code. S'il n'a pas l'app, il pourra l'installer puis s'inscrire avec ce code.",
+  "duelCopied": "Copié dans le presse-papiers",
+  "duelSeeMyInvitations": "Voir mes invitations",
+  "duelShareMessage": "Défie-moi sur QuizzBuilder ! Touche ce lien pour devenir mon adversaire : {link}\nSi tu as déjà l'app, tu peux aussi saisir le code {code} dans Duel › Rejoindre avec un code. Valable jusqu'au {expiry}.",
+  "@duelShareMessage": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      },
+      "expiry": {
+        "type": "String"
+      }
+    }
+  },
+  "duelJoinCodeLabel": "Code d'invitation",
+  "duelJoinCodeHelp": "6 caractères, avec ou sans tiret",
+  "duelContinue": "Continuer",
+  "duelConfirmTitle": "Invitation",
+  "duelChallengesYou": "{username} te défie",
+  "@duelChallengesYou": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelAcceptBody": "Accepte pour devenir adversaires de {username}.",
+  "@duelAcceptBody": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelInvitationValidUntil": "Invitation valable jusqu'au {date}",
+  "@duelInvitationValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelAccept": "Accepter",
+  "duelNotNow": "Pas maintenant",
+  "duelNowOpponent": "Tu es maintenant adversaire de {username}",
+  "@duelNowOpponent": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelNewOpponents": "Tu as {count} nouveaux adversaires",
+  "@duelNewOpponents": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duelMyInvitationsTitle": "Mes invitations",
+  "duelInvitationExpires": "Expire le {date}",
+  "@duelInvitationExpires": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelNoInvitations": "Aucune invitation en cours.",
+  "duelCancelInvitationTitle": "Annuler l'invitation ?",
+  "duelCancelInvitationBody": "Le code {code} ne fonctionnera plus.",
+  "@duelCancelInvitationBody": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBack": "Retour",
+  "duelCancelInvitationAction": "Annuler l'invitation",
+  "duelInvitationCancelled": "Invitation annulée",
+  "duelBlockedTitle": "Joueurs bloqués",
+  "duelBlockedSince": "Bloqué le {date}",
+  "@duelBlockedSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "duelUnblock": "Débloquer",
+  "duelNoBlocked": "Aucun joueur bloqué.",
+  "duelUnblockTitle": "Débloquer {username} ?",
+  "@duelUnblockTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelUnblockBody": "{username} ne redevient pas ton adversaire automatiquement : il faudra une nouvelle invitation.",
+  "@duelUnblockBody": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelUnblocked": "{username} a été débloqué.",
+  "@duelUnblocked": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelErrInvitationNotFound": "Ce code n'existe pas ou n'est plus valable. Vérifie-le auprès de ton proche.",
+  "duelErrInvitationExpired": "Cette invitation a expiré. Demande à ton proche de t'en envoyer une nouvelle.",
+  "duelErrInvitationAlreadyUsed": "Cette invitation a déjà été utilisée. Demande à ton proche de t'en envoyer une nouvelle.",
+  "duelErrOwnInvitation": "C'est ta propre invitation : partage-la avec un proche.",
+  "duelErrAlreadyOpponents": "Vous êtes déjà adversaires.",
+  "duelErrOpponentLimit": "Tu as atteint la limite de 100 adversaires. Retires-en un pour en ajouter.",
+  "duelErrInviterOpponentLimit": "Cette personne a atteint sa limite d'adversaires. Réessaie plus tard.",
+  "duelErrThrottled": "Trop de tentatives. Réessaie dans une heure.",
+  "duelErrActiveInvitationLimit": "Tu as déjà 5 invitations en cours. Annule-en une ou attends qu'elle expire.",
+  "duelErrOpponentNotFound": "Cet adversaire n'existe plus. La liste a été actualisée.",
+  "duelErrBlockNotFound": "Ce blocage n'existe plus. La liste a été actualisée.",
+  "duelErrNetwork": "Connexion impossible. Vérifie ta connexion internet puis réessaie.",
+  "invitationCodeOptional": "Code d'invitation (facultatif)",
+  "invitationCodeHelp": "Si un proche t'a invité, saisis son code.",
+  "invitationCodeBanner": "Un proche t'invite à jouer. Inscris-toi : le code est déjà rempli.",
+  "invitationCodeLength": "Le code comporte 6 caractères"
 }

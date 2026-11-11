@@ -4,8 +4,12 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/catalog_provider.dart';
+import '../providers/connectivity_provider.dart';
+import '../providers/duel_provider.dart';
 import '../widgets/gradient_background.dart';
 import 'credit_store_screen.dart';
+import 'duel/duel_hub_screen.dart';
+import 'duel/duel_widgets.dart';
 import 'game_mode_screen.dart';
 import 'settings_screen.dart';
 import 'setup_solo_screen.dart';
@@ -26,7 +30,23 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CatalogProvider>(context, listen: false).loadStatistics();
       _maybeShowPendingDeletionWarning();
+      _announceNewOpponents();
     });
+  }
+
+  /// Silently checks for a pair created while the player was away (an invited
+  /// friend who just confirmed their e-mail, or an accepted invitation) and
+  /// announces it once. Nothing happens offline or on any failure.
+  Future<void> _announceNewOpponents() async {
+    if (!mounted) return;
+    final online = Provider.of<ConnectivityProvider>(context, listen: false)
+        .isOnline;
+    final userId = Provider.of<AuthProvider>(context, listen: false).user?.id;
+    if (!online || userId == null) return;
+    final duel = Provider.of<DuelProvider>(context, listen: false);
+    await duel.detectNewOpponents(userId: userId);
+    if (!mounted) return;
+    showNewOpponentsSnackBar(context, duel.takeAnnouncement());
   }
 
   void _maybeShowPendingDeletionWarning() {
@@ -192,6 +212,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => const CreditStoreScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _ActionButton(
+                      icon: Icons.people_alt,
+                      title: AppLocalizations.of(context)!.duelCardTitle,
+                      subtitle: AppLocalizations.of(context)!.duelCardSubtitle,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const DuelHubScreen(),
                           ),
                         );
                       },

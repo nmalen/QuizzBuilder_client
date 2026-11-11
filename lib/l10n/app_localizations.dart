@@ -1282,6 +1282,462 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{level} ({count})'**
   String difficultyLevelWithCount(String level, int count);
+
+  /// No description provided for @duelCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duel'**
+  String get duelCardTitle;
+
+  /// No description provided for @duelCardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find your friends and invite them'**
+  String get duelCardSubtitle;
+
+  /// No description provided for @duelHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duel'**
+  String get duelHubTitle;
+
+  /// No description provided for @duelInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite a friend'**
+  String get duelInviteTitle;
+
+  /// No description provided for @duelInviteSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a code or a link'**
+  String get duelInviteSubtitle;
+
+  /// No description provided for @duelJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join with a code'**
+  String get duelJoinTitle;
+
+  /// No description provided for @duelJoinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Got a code?'**
+  String get duelJoinSubtitle;
+
+  /// No description provided for @duelOpponentsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'My opponents ({count})'**
+  String duelOpponentsSection(int count);
+
+  /// No description provided for @duelOpponentSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Opponent since {date}'**
+  String duelOpponentSince(String date);
+
+  /// No description provided for @duelMenuRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get duelMenuRemove;
+
+  /// No description provided for @duelMenuBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get duelMenuBlock;
+
+  /// No description provided for @duelMyInvitations.
+  ///
+  /// In en, this message translates to:
+  /// **'My invitations'**
+  String get duelMyInvitations;
+
+  /// No description provided for @duelBlockedPlayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked players'**
+  String get duelBlockedPlayers;
+
+  /// No description provided for @duelNoOpponents.
+  ///
+  /// In en, this message translates to:
+  /// **'No opponents yet. Invite a friend with a code or a link.'**
+  String get duelNoOpponents;
+
+  /// No description provided for @duelOfflineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Duel needs an internet connection. Reconnect to see your opponents.'**
+  String get duelOfflineMessage;
+
+  /// No description provided for @duelInviteOfflineMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating an invitation needs an internet connection.'**
+  String get duelInviteOfflineMessage;
+
+  /// No description provided for @duelOfflineListMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This list needs an internet connection.'**
+  String get duelOfflineListMessage;
+
+  /// No description provided for @duelRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {username}?'**
+  String duelRemoveTitle(String username);
+
+  /// No description provided for @duelRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} will no longer be one of your opponents. To connect again, you will need a new invitation.'**
+  String duelRemoveBody(String username);
+
+  /// No description provided for @duelRemoveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get duelRemoveAction;
+
+  /// No description provided for @duelBlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Block {username}?'**
+  String duelBlockTitle(String username);
+
+  /// No description provided for @duelBlockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} will be removed from your opponents and will not be able to join you with an invitation. You can unblock them from “Blocked players”.'**
+  String duelBlockBody(String username);
+
+  /// No description provided for @duelBlockAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Block'**
+  String get duelBlockAction;
+
+  /// No description provided for @duelRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} was removed.'**
+  String duelRemoved(String username);
+
+  /// No description provided for @duelBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} was blocked.'**
+  String duelBlocked(String username);
+
+  /// No description provided for @duelInviteCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your invitation code'**
+  String get duelInviteCodeLabel;
+
+  /// No description provided for @duelInviteValidUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Valid until {date}'**
+  String duelInviteValidUntil(String date);
+
+  /// No description provided for @duelInviteSingleUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Single use'**
+  String get duelInviteSingleUse;
+
+  /// No description provided for @duelShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get duelShare;
+
+  /// No description provided for @duelCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get duelCopy;
+
+  /// No description provided for @duelInviteHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend taps the link or enters the code under Duel › Join with a code. If they don\'t have the app, they can install it, then sign up with this code.'**
+  String get duelInviteHelp;
+
+  /// No description provided for @duelCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to the clipboard'**
+  String get duelCopied;
+
+  /// No description provided for @duelSeeMyInvitations.
+  ///
+  /// In en, this message translates to:
+  /// **'See my invitations'**
+  String get duelSeeMyInvitations;
+
+  /// No description provided for @duelShareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge me on QuizzBuilder! Tap this link to become my opponent: {link}\nIf you already have the app, you can also enter the code {code} under Duel › Join with a code. Valid until {expiry}.'**
+  String duelShareMessage(String link, String code, String expiry);
+
+  /// No description provided for @duelJoinCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation code'**
+  String get duelJoinCodeLabel;
+
+  /// No description provided for @duelJoinCodeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'6 characters, with or without a dash'**
+  String get duelJoinCodeHelp;
+
+  /// No description provided for @duelContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get duelContinue;
+
+  /// No description provided for @duelConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation'**
+  String get duelConfirmTitle;
+
+  /// No description provided for @duelChallengesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} challenges you'**
+  String duelChallengesYou(String username);
+
+  /// No description provided for @duelAcceptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept to become opponents with {username}.'**
+  String duelAcceptBody(String username);
+
+  /// No description provided for @duelInvitationValidUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation valid until {date}'**
+  String duelInvitationValidUntil(String date);
+
+  /// No description provided for @duelAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get duelAccept;
+
+  /// No description provided for @duelNotNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get duelNotNow;
+
+  /// No description provided for @duelNowOpponent.
+  ///
+  /// In en, this message translates to:
+  /// **'You are now opponents with {username}'**
+  String duelNowOpponent(String username);
+
+  /// No description provided for @duelNewOpponents.
+  ///
+  /// In en, this message translates to:
+  /// **'You have {count} new opponents'**
+  String duelNewOpponents(int count);
+
+  /// No description provided for @duelMyInvitationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My invitations'**
+  String get duelMyInvitationsTitle;
+
+  /// No description provided for @duelInvitationExpires.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires on {date}'**
+  String duelInvitationExpires(String date);
+
+  /// No description provided for @duelNoInvitations.
+  ///
+  /// In en, this message translates to:
+  /// **'No active invitations.'**
+  String get duelNoInvitations;
+
+  /// No description provided for @duelCancelInvitationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the invitation?'**
+  String get duelCancelInvitationTitle;
+
+  /// No description provided for @duelCancelInvitationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The code {code} will no longer work.'**
+  String duelCancelInvitationBody(String code);
+
+  /// No description provided for @duelBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get duelBack;
+
+  /// No description provided for @duelCancelInvitationAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel invitation'**
+  String get duelCancelInvitationAction;
+
+  /// No description provided for @duelInvitationCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation cancelled'**
+  String get duelInvitationCancelled;
+
+  /// No description provided for @duelBlockedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked players'**
+  String get duelBlockedTitle;
+
+  /// No description provided for @duelBlockedSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked on {date}'**
+  String duelBlockedSince(String date);
+
+  /// No description provided for @duelUnblock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock'**
+  String get duelUnblock;
+
+  /// No description provided for @duelNoBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'No blocked players.'**
+  String get duelNoBlocked;
+
+  /// No description provided for @duelUnblockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock {username}?'**
+  String duelUnblockTitle(String username);
+
+  /// No description provided for @duelUnblockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} will not become your opponent again automatically: you will need a new invitation.'**
+  String duelUnblockBody(String username);
+
+  /// No description provided for @duelUnblocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} was unblocked.'**
+  String duelUnblocked(String username);
+
+  /// No description provided for @duelErrInvitationNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This code doesn\'t exist or is no longer valid. Check it with your friend.'**
+  String get duelErrInvitationNotFound;
+
+  /// No description provided for @duelErrInvitationExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This invitation has expired. Ask your friend to send you a new one.'**
+  String get duelErrInvitationExpired;
+
+  /// No description provided for @duelErrInvitationAlreadyUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'This invitation has already been used. Ask your friend to send you a new one.'**
+  String get duelErrInvitationAlreadyUsed;
+
+  /// No description provided for @duelErrOwnInvitation.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your own invitation: share it with a friend.'**
+  String get duelErrOwnInvitation;
+
+  /// No description provided for @duelErrAlreadyOpponents.
+  ///
+  /// In en, this message translates to:
+  /// **'You are already opponents.'**
+  String get duelErrAlreadyOpponents;
+
+  /// No description provided for @duelErrOpponentLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the limit of 100 opponents. Remove one to add another.'**
+  String get duelErrOpponentLimit;
+
+  /// No description provided for @duelErrInviterOpponentLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'This person has reached their opponent limit. Try again later.'**
+  String get duelErrInviterOpponentLimit;
+
+  /// No description provided for @duelErrThrottled.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Try again in an hour.'**
+  String get duelErrThrottled;
+
+  /// No description provided for @duelErrActiveInvitationLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have 5 active invitations. Cancel one or wait for it to expire.'**
+  String get duelErrActiveInvitationLimit;
+
+  /// No description provided for @duelErrOpponentNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This opponent no longer exists. The list has been refreshed.'**
+  String get duelErrOpponentNotFound;
+
+  /// No description provided for @duelErrBlockNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This block no longer exists. The list has been refreshed.'**
+  String get duelErrBlockNotFound;
+
+  /// No description provided for @duelErrNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to connect. Check your internet connection and try again.'**
+  String get duelErrNetwork;
+
+  /// No description provided for @invitationCodeOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Invitation code (optional)'**
+  String get invitationCodeOptional;
+
+  /// No description provided for @invitationCodeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'If a friend invited you, enter their code.'**
+  String get invitationCodeHelp;
+
+  /// No description provided for @invitationCodeBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'A friend invited you. Sign up: the code is already filled in.'**
+  String get invitationCodeBanner;
+
+  /// No description provided for @invitationCodeLength.
+  ///
+  /// In en, this message translates to:
+  /// **'The code has 6 characters'**
+  String get invitationCodeLength;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

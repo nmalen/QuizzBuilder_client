@@ -30,6 +30,9 @@ class ApiConfig {
       '/auth/registration/verify-email/';
   static const String statisticsEndpoint = '/statistics/';
 
+  /// Prefix of the duel routes (invitations, opponents, blocks).
+  static const String duelPrefix = '/duel/';
+
   // Timeouts
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
