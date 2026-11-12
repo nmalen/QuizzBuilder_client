@@ -7,7 +7,7 @@ const String invitationLinkHost = 'play.quizzbuilder.fr';
 /// Length of an invitation code ("become opponents").
 const int invitationCodeLength = 6;
 
-/// Length of a call code (live duel, handled by a later batch).
+/// Length of a call code (live duel).
 const int callCodeLength = 8;
 
 /// Normalizes what a player typed or what a link carries: spaces and dashes
@@ -37,7 +37,7 @@ class JoinInvitationLink extends InvitationLink {
   int get hashCode => code.hashCode;
 }
 
-/// An 8-character call code: reserved for the live duel batch.
+/// An 8-character call code: opens the waiting room of a live duel.
 class CallInvitationLink extends InvitationLink {
   final String code;
   const CallInvitationLink(this.code);

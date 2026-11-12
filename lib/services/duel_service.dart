@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 
 import '../config/api_config.dart';
 import '../models/duel.dart';
+import '../models/duel_live.dart';
 import '../utils/invitation_link.dart';
 import 'api_exception.dart';
 import 'auth_service.dart';
@@ -95,18 +96,131 @@ class DuelService {
   Future<void> unblock(int blockId) =>
       _send('DELETE', 'blocks/$blockId/', expected: {204});
 
+  // ---- Live duel (batch 2) ----------------------------------------------
+  //
+  // Nothing returned here is cached: the questions of a duel in particular
+  // live in memory only (decision J1) and never reach the theme cache.
+
+  /// Themes playable against one opponent (by pair id): free ones plus those
+  /// either player owns. Nothing says who owns what.
+  Future<List<DuelTheme>> listThemes(int pairId) async {
+    final response = await _send(
+      'GET',
+      'opponents/$pairId/themes/',
+      expected: {200},
+    );
+    return _results(response).map(DuelTheme.fromJson).toList(growable: false);
+  }
+
+  /// Challenges an opponent. `duel_already_open` (409) carries the existing
+  /// duel in [ApiException.details] (`duel`).
+  Future<Duel> createDuel({
+    required int pairId,
+    required List<int> themeIds,
+    required List<String> difficulties,
+    required int questionCount,
+  }) async {
+    final response = await _send(
+      'POST',
+      'duels/',
+      expected: {201},
+      body: {
+        'pair_id': pairId,
+        'themes': themeIds,
+        'difficulties': difficulties,
+        'question_count': questionCount,
+      },
+    );
+    return Duel.fromJson(_object(response));
+  }
+
+  /// My open duels, with the server clock.
+  Future<OpenDuelsPage> listOpenDuels() async {
+    final response = await _send('GET', 'duels/', expected: {200});
+    final body = _object(response);
+    return OpenDuelsPage(
+      serverTime: DateTime.tryParse('${body['server_time']}'),
+      duels: _results(response).map(OpenDuel.fromJson).toList(growable: false),
+    );
+  }
+
+  /// My 20 most recent duels played.
+  Future<List<DuelHistoryItem>> listHistory() async {
+    final response = await _send('GET', 'duels/history/', expected: {200});
+    return _results(
+      response,
+    ).map(DuelHistoryItem.fromJson).toList(growable: false);
+  }
+
+  /// State of one duel. Also marks my presence while the room waits.
+  Future<Duel> getDuel(int duelId) async {
+    final response = await _send('GET', 'duels/$duelId/', expected: {200});
+    return Duel.fromJson(_object(response));
+  }
+
+  /// Opens a duel from its call code (8 characters; case, dashes and spaces
+  /// are ignored by the server and by [normalizeInvitationCode]).
+  Future<Duel> joinDuel(String callCode) async {
+    final response = await _send(
+      'POST',
+      'duels/join/${normalizeInvitationCode(callCode)}/',
+      expected: {200},
+    );
+    return Duel.fromJson(_object(response));
+  }
+
+  /// Cancels a room that has not started (either player). Idempotent.
+  Future<Duel> cancelDuel(int duelId) async {
+    final response = await _send(
+      'POST',
+      'duels/$duelId/cancel/',
+      expected: {200},
+    );
+    return Duel.fromJson(_object(response));
+  }
+
+  /// The frozen questions, once the start is fixed. Never keep them on disk.
+  Future<DuelQuestions> getQuestions(int duelId) async {
+    final response = await _send(
+      'GET',
+      'duels/$duelId/questions/',
+      expected: {200},
+    );
+    try {
+      return DuelQuestions.fromJson(_object(response));
+    } on FormatException {
+      throw _invalidResponse;
+    } on TypeError {
+      throw _invalidResponse;
+    }
+  }
+
+  /// Sends my answers (1-4 or null per question), once. Sending the same list
+  /// again is safe; a different one is refused (`answers_already_submitted`).
+  Future<Duel> submitAnswers(int duelId, List<int?> answers) async {
+    final response = await _send(
+      'POST',
+      'duels/$duelId/answers/',
+      expected: {200},
+      body: {'answers': answers},
+    );
+    return Duel.fromJson(_object(response));
+  }
+
   // ---- Plumbing ---------------------------------------------------------
 
   Future<http.Response> _send(
     String method,
     String path, {
     required Set<int> expected,
+    Map<String, Object?>? body,
   }) async {
     http.Response response;
     try {
-      response = await _once(method, path);
-      if (response.statusCode == 401 && await authService.refreshAccessToken()) {
-        response = await _once(method, path);
+      response = await _once(method, path, body);
+      if (response.statusCode == 401 &&
+          await authService.refreshAccessToken()) {
+        response = await _once(method, path, body);
       }
     } on TimeoutException {
       throw const ApiException.network('Connection timeout');
@@ -124,9 +238,14 @@ class DuelService {
     return response;
   }
 
-  Future<http.Response> _once(String method, String path) async {
+  Future<http.Response> _once(
+    String method,
+    String path,
+    Map<String, Object?>? body,
+  ) async {
     final request = http.Request(method, Uri.parse('$_base$path'))
       ..headers.addAll(await authService.getAuthHeaders());
+    if (body != null) request.body = jsonEncode(body);
     final streamed = await _client
         .send(request)
         .timeout(

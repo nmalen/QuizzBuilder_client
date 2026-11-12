@@ -11,10 +11,29 @@ import '../utils/invitation_link.dart';
 /// the "join" screen and clears it.
 class InvitationLinkProvider extends ChangeNotifier {
   String? _pendingCode;
+  String? _pendingCallCode;
   bool _entryHintPending = false;
 
   /// Normalized 6-character code waiting to be used, or null.
   String? get pendingCode => _pendingCode;
+
+  /// Normalized 8-character call code (live duel) waiting for a signed-in
+  /// player, or null. Kept here, not in a screen: the authentication screen
+  /// is destroyed while the player signs in.
+  String? get pendingCallCode => _pendingCallCode;
+
+  /// Stores a call code delivered by a link.
+  void setPendingCallCode(String code) {
+    _pendingCallCode = normalizeInvitationCode(code);
+    notifyListeners();
+  }
+
+  /// Forgets the call code (used, or no longer relevant).
+  void clearCallCode() {
+    if (_pendingCallCode == null) return;
+    _pendingCallCode = null;
+    notifyListeners();
+  }
 
   /// Stores a code delivered by a link (a new delivery re-arms the hint).
   void setPendingCode(String code) {

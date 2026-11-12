@@ -174,6 +174,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // resume, which would add extra catalog-access-refresh requests on
       // top of the rate-limited budget for no real benefit.
       authProvider.refreshToken();
+      // Back in the foreground: look for a duel waiting for me (banner of the
+      // home screen). Silent on any failure.
+      if (_connectivityProvider?.isOnline == true) {
+        unawaited(
+          Provider.of<DuelProvider>(context, listen: false).loadOpenDuels(),
+        );
+      }
     }
   }
 

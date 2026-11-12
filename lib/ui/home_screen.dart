@@ -9,6 +9,7 @@ import '../providers/duel_provider.dart';
 import '../widgets/gradient_background.dart';
 import 'credit_store_screen.dart';
 import 'duel/duel_hub_screen.dart';
+import 'duel/duel_open_widgets.dart';
 import 'duel/duel_widgets.dart';
 import 'game_mode_screen.dart';
 import 'settings_screen.dart';
@@ -44,7 +45,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final userId = Provider.of<AuthProvider>(context, listen: false).user?.id;
     if (!online || userId == null) return;
     final duel = Provider.of<DuelProvider>(context, listen: false);
-    await duel.detectNewOpponents(userId: userId);
+    await Future.wait([
+      duel.detectNewOpponents(userId: userId),
+      duel.loadOpenDuels(),
+    ]);
     if (!mounted) return;
     showNewOpponentsSnackBar(context, duel.takeAnnouncement());
   }
@@ -173,6 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
+                    const DuelBanner(),
                     _ActionButton(
                       icon: Icons.today,
                       title: AppLocalizations.of(context)!.dailyChallenge,

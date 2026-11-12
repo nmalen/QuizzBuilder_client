@@ -1292,7 +1292,7 @@ abstract class AppLocalizations {
   /// No description provided for @duelCardSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Find your friends and invite them'**
+  /// **'Challenge a friend'**
   String get duelCardSubtitle;
 
   /// No description provided for @duelHubTitle.
@@ -1738,6 +1738,648 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The code has 6 characters'**
   String get invitationCodeLength;
+
+  /// No description provided for @duelBannerPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Duel in progress against {username}'**
+  String duelBannerPlaying(String username);
+
+  /// No description provided for @duelBannerPlayingSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to resume the game'**
+  String get duelBannerPlayingSub;
+
+  /// No description provided for @duelBannerWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} is waiting for you'**
+  String duelBannerWaiting(String username);
+
+  /// No description provided for @duelBannerWaitingSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to join the room'**
+  String get duelBannerWaitingSub;
+
+  /// No description provided for @duelBannerMany.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} duels are waiting for you'**
+  String duelBannerMany(int count);
+
+  /// No description provided for @duelBannerManySub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to see them'**
+  String get duelBannerManySub;
+
+  /// No description provided for @duelOpenSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Open duels ({count})'**
+  String duelOpenSection(int count);
+
+  /// No description provided for @duelOpenWaitingForMe.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} is waiting for you'**
+  String duelOpenWaitingForMe(String username);
+
+  /// No description provided for @duelOpenWaitingForMeSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Join the waiting room'**
+  String get duelOpenWaitingForMeSub;
+
+  /// No description provided for @duelOpenMyChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Your challenge to {username}'**
+  String duelOpenMyChallenge(String username);
+
+  /// No description provided for @duelOpenMyChallengeSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting · room open until {time}'**
+  String duelOpenMyChallengeSub(String time);
+
+  /// No description provided for @duelOpenPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Game in progress against {username}'**
+  String duelOpenPlaying(String username);
+
+  /// No description provided for @duelOpenPlayingSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume the game'**
+  String get duelOpenPlayingSub;
+
+  /// No description provided for @duelOpenAwaitingResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result pending · {username}'**
+  String duelOpenAwaitingResult(String username);
+
+  /// No description provided for @duelOpenAwaitingResultSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to see the result'**
+  String get duelOpenAwaitingResultSub;
+
+  /// No description provided for @duelChallengeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge'**
+  String get duelChallengeAction;
+
+  /// No description provided for @duelOpenAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get duelOpenAction;
+
+  /// No description provided for @duelHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duel history'**
+  String get duelHistoryTitle;
+
+  /// No description provided for @duelChallengeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge {username}'**
+  String duelChallengeTitle(String username);
+
+  /// No description provided for @duelThemesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Themes'**
+  String get duelThemesSection;
+
+  /// No description provided for @duelThemesChosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No theme chosen} =1{1 theme chosen} other{{count} themes chosen}}'**
+  String duelThemesChosen(int count);
+
+  /// No description provided for @duelDifficultiesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulties'**
+  String get duelDifficultiesSection;
+
+  /// No description provided for @duelQuestionCountSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of questions'**
+  String get duelQuestionCountSection;
+
+  /// No description provided for @duelCountsGreyedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Some numbers are greyed out: there are not enough questions with this choice.'**
+  String get duelCountsGreyedHint;
+
+  /// No description provided for @duelSecondsPerQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} seconds per question, for both of you.'**
+  String duelSecondsPerQuestion(int seconds);
+
+  /// No description provided for @duelStartChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the challenge'**
+  String get duelStartChallenge;
+
+  /// No description provided for @duelNoPlayableThemes.
+  ///
+  /// In en, this message translates to:
+  /// **'No theme can be played for this duel right now.'**
+  String get duelNoPlayableThemes;
+
+  /// No description provided for @duelAlreadyOpenOpened.
+  ///
+  /// In en, this message translates to:
+  /// **'A duel is already open with {username}: here it is.'**
+  String duelAlreadyOpenOpened(String username);
+
+  /// No description provided for @duelRoomTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting room'**
+  String get duelRoomTitle;
+
+  /// No description provided for @duelRoomOpening.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening the room…'**
+  String get duelRoomOpening;
+
+  /// No description provided for @duelRoomWaitingFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {username}…'**
+  String duelRoomWaitingFor(String username);
+
+  /// No description provided for @duelRoomHintChallenger.
+  ///
+  /// In en, this message translates to:
+  /// **'The game starts as soon as {username} joins you.'**
+  String duelRoomHintChallenger(String username);
+
+  /// No description provided for @duelRoomHintChallenged.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} challenged you. The game starts as soon as you are both here.'**
+  String duelRoomHintChallenged(String username);
+
+  /// No description provided for @duelRoomTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Room open for another {time}'**
+  String duelRoomTimeLeft(String time);
+
+  /// No description provided for @duelRoomUnstable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unstable connection… trying again'**
+  String get duelRoomUnstable;
+
+  /// No description provided for @duelRoomOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline. The room will resume as soon as you are back online.'**
+  String get duelRoomOffline;
+
+  /// No description provided for @duelCallLinkTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Call link'**
+  String get duelCallLinkTitle;
+
+  /// No description provided for @duelCallLinkHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Send this link to {username}: tapping it opens the room directly.'**
+  String duelCallLinkHelp(String username);
+
+  /// No description provided for @duelCallShareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'I challenge you to a duel on QuizzBuilder! Tap this link to join me: {link}\nThe waiting room is open until {time}.'**
+  String duelCallShareMessage(String link, String time);
+
+  /// No description provided for @duelRoomSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions · {seconds} s per question · {difficulties}'**
+  String duelRoomSummary(int count, int seconds, String difficulties);
+
+  /// No description provided for @duelCancelDuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the duel'**
+  String get duelCancelDuel;
+
+  /// No description provided for @duelCancelDuelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel the duel?'**
+  String get duelCancelDuelTitle;
+
+  /// No description provided for @duelCancelDuelBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The waiting room will be closed for both of you.'**
+  String get duelCancelDuelBody;
+
+  /// No description provided for @duelDuelCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Duel cancelled'**
+  String get duelDuelCancelled;
+
+  /// No description provided for @duelRoomExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'This waiting room has expired. You can start a new challenge.'**
+  String get duelRoomExpired;
+
+  /// No description provided for @duelRoomCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'This duel was cancelled.'**
+  String get duelRoomCancelled;
+
+  /// No description provided for @duelBackToDuels.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to duels'**
+  String get duelBackToDuels;
+
+  /// No description provided for @duelCountdownIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Your duel against {username} starts in'**
+  String duelCountdownIntro(String username);
+
+  /// No description provided for @duelCountdownGo.
+  ///
+  /// In en, this message translates to:
+  /// **'Go!'**
+  String get duelCountdownGo;
+
+  /// No description provided for @duelNoCorrectionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers will only be revealed at the end.'**
+  String get duelNoCorrectionHint;
+
+  /// No description provided for @duelLoadingQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading questions…'**
+  String get duelLoadingQuestions;
+
+  /// No description provided for @duelQuestionsAndSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions · {seconds} s per question'**
+  String duelQuestionsAndSeconds(int count, int seconds);
+
+  /// No description provided for @duelGameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duel against {username}'**
+  String duelGameTitle(String username);
+
+  /// No description provided for @duelQuestionOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {current}/{total}'**
+  String duelQuestionOf(int current, int total);
+
+  /// No description provided for @duelAnswerSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer saved. Next question in {time}'**
+  String duelAnswerSaved(String time);
+
+  /// No description provided for @duelAnswerSavedLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer saved. The game ends in {time}'**
+  String duelAnswerSavedLast(String time);
+
+  /// No description provided for @duelTimeUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Time\'s up'**
+  String get duelTimeUp;
+
+  /// No description provided for @duelQuitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the duel?'**
+  String get duelQuitTitle;
+
+  /// No description provided for @duelQuitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers so far are sent now. The remaining questions will count as unanswered.'**
+  String get duelQuitBody;
+
+  /// No description provided for @duelKeepPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep playing'**
+  String get duelKeepPlaying;
+
+  /// No description provided for @duelQuitAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get duelQuitAction;
+
+  /// No description provided for @duelSendingAnswers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending your answers…'**
+  String get duelSendingAnswers;
+
+  /// No description provided for @duelSendRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection failed. Trying again…'**
+  String get duelSendRetry;
+
+  /// No description provided for @duelAnswersSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Answers sent'**
+  String get duelAnswersSent;
+
+  /// No description provided for @duelWaitingOpponentFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {username} to finish…'**
+  String duelWaitingOpponentFinish(String username);
+
+  /// No description provided for @duelComputingResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Working out the result…'**
+  String get duelComputingResult;
+
+  /// No description provided for @duelResultAtLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Result in {time} at the latest'**
+  String duelResultAtLatest(String time);
+
+  /// No description provided for @duelResultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duel result'**
+  String get duelResultTitle;
+
+  /// No description provided for @duelResultWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Victory!'**
+  String get duelResultWin;
+
+  /// No description provided for @duelResultWinSub.
+  ///
+  /// In en, this message translates to:
+  /// **'You beat {username}'**
+  String duelResultWinSub(String username);
+
+  /// No description provided for @duelResultLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Defeat'**
+  String get duelResultLoss;
+
+  /// No description provided for @duelResultLossSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} wins this time'**
+  String duelResultLossSub(String username);
+
+  /// No description provided for @duelResultDraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get duelResultDraw;
+
+  /// No description provided for @duelResultDrawSub.
+  ///
+  /// In en, this message translates to:
+  /// **'You are tied'**
+  String get duelResultDrawSub;
+
+  /// No description provided for @duelResultWinForfeit.
+  ///
+  /// In en, this message translates to:
+  /// **'Win by forfeit'**
+  String get duelResultWinForfeit;
+
+  /// No description provided for @duelResultWinForfeitSub.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} did not finish in time.'**
+  String duelResultWinForfeitSub(String username);
+
+  /// No description provided for @duelResultLossForfeit.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss by forfeit'**
+  String get duelResultLossForfeit;
+
+  /// No description provided for @duelResultLossForfeitSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers did not arrive in time.'**
+  String get duelResultLossForfeitSub;
+
+  /// No description provided for @duelResultNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No result'**
+  String get duelResultNone;
+
+  /// No description provided for @duelResultNoneSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody sent any answers.'**
+  String get duelResultNoneSub;
+
+  /// No description provided for @duelScoreYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get duelScoreYou;
+
+  /// No description provided for @duelScoreOutOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{score}/{total}'**
+  String duelScoreOutOf(int score, int total);
+
+  /// No description provided for @duelReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Question review'**
+  String get duelReviewTitle;
+
+  /// No description provided for @duelReviewQuestionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {number} · {theme}'**
+  String duelReviewQuestionHeader(int number, String theme);
+
+  /// No description provided for @duelReviewCorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'Correct answer'**
+  String get duelReviewCorrect;
+
+  /// No description provided for @duelReviewNoAnswerYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You: no answer'**
+  String get duelReviewNoAnswerYou;
+
+  /// No description provided for @duelReviewNoAnswerOpponent.
+  ///
+  /// In en, this message translates to:
+  /// **'{username}: no answer'**
+  String duelReviewNoAnswerOpponent(String username);
+
+  /// No description provided for @duelReviewUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The question review is not available.'**
+  String get duelReviewUnavailable;
+
+  /// No description provided for @duelHistoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No duels played yet.'**
+  String get duelHistoryEmpty;
+
+  /// No description provided for @duelHistoryLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{outcome} · {count} questions'**
+  String duelHistoryLine(String outcome, int count);
+
+  /// No description provided for @duelOutcomeWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Win'**
+  String get duelOutcomeWin;
+
+  /// No description provided for @duelOutcomeLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss'**
+  String get duelOutcomeLoss;
+
+  /// No description provided for @duelOutcomeDraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get duelOutcomeDraw;
+
+  /// No description provided for @duelOutcomeWinForfeit.
+  ///
+  /// In en, this message translates to:
+  /// **'Win by forfeit'**
+  String get duelOutcomeWinForfeit;
+
+  /// No description provided for @duelOutcomeLossForfeit.
+  ///
+  /// In en, this message translates to:
+  /// **'Loss by forfeit'**
+  String get duelOutcomeLossForfeit;
+
+  /// No description provided for @duelOutcomeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No result'**
+  String get duelOutcomeNone;
+
+  /// No description provided for @duelErrNoThemeSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one theme.'**
+  String get duelErrNoThemeSelected;
+
+  /// No description provided for @duelErrThemeNotPlayable.
+  ///
+  /// In en, this message translates to:
+  /// **'One of the themes you picked is no longer available for this duel. The list has been refreshed.'**
+  String get duelErrThemeNotPlayable;
+
+  /// No description provided for @duelErrInvalidQuestionCount.
+  ///
+  /// In en, this message translates to:
+  /// **'That number of questions is not possible. Pick 5, 10, 15 or 20.'**
+  String get duelErrInvalidQuestionCount;
+
+  /// No description provided for @duelErrInvalidDifficulty.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one difficulty.'**
+  String get duelErrInvalidDifficulty;
+
+  /// No description provided for @duelErrNotEnoughQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'There are not enough questions for this choice. Add a theme or a difficulty, or reduce the number of questions.'**
+  String get duelErrNotEnoughQuestions;
+
+  /// No description provided for @duelErrLentThemeLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached today\'s duel limit for these themes. Pick other themes, or try again tomorrow.'**
+  String get duelErrLentThemeLimit;
+
+  /// No description provided for @duelErrDuelNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This duel no longer exists, or this link is not for you.'**
+  String get duelErrDuelNotFound;
+
+  /// No description provided for @duelErrDuelClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'This duel is over or was cancelled.'**
+  String get duelErrDuelClosed;
+
+  /// No description provided for @duelErrCannotCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'The game is about to start: it can no longer be cancelled.'**
+  String get duelErrCannotCancel;
+
+  /// No description provided for @duelErrNotStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'The duel has not started yet. Please wait a moment.'**
+  String get duelErrNotStarted;
+
+  /// No description provided for @duelErrDeadlinePassed.
+  ///
+  /// In en, this message translates to:
+  /// **'The time to send your answers has run out.'**
+  String get duelErrDeadlinePassed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

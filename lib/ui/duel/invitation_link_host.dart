@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/invitation_link_provider.dart';
 import '../../utils/invitation_link.dart';
-import 'duel_hub_screen.dart';
 import 'duel_join_confirm_screen.dart';
+import 'duel_live_screen.dart';
 
 /// Receives universal links (`https://play.quizzbuilder.fr/d/<code>`), cold
 /// or warm, and routes them:
@@ -14,8 +14,10 @@ import 'duel_join_confirm_screen.dart';
 ///   signed in, the "join" confirmation opens at once; signed out, the
 ///   authentication screen reads it (sign-up mode, code pre-filled) and, if
 ///   the player signs in instead, the confirmation opens after sign-in.
-/// - 8 characters (call code, live duel batch): signed in, opens the duel
-///   hub and nothing else; signed out, ignored.
+/// - 8 characters (call code of a live duel): the code is kept in
+///   [InvitationLinkProvider]; signed in, the waiting room of that duel opens
+///   at once (an unknown duel says so, then the duel hub); signed out, the
+///   usual sign-in screen shows and the room opens after sign-in.
 /// - any other path: ignored.
 ///
 /// Must sit **above** the `MaterialApp`: that way it registers as a
@@ -44,7 +46,6 @@ class _InvitationLinkHostState extends State<InvitationLinkHost>
   final List<InvitationLink> _queue = [];
   late final AuthProvider _auth;
   late final InvitationLinkProvider _links;
-  bool _hubRequested = false;
   bool _opening = false;
   String? _lastCode;
   DateTime? _lastCodeAt;
@@ -102,30 +103,39 @@ class _InvitationLinkHostState extends State<InvitationLinkHost>
             _lastCodeAt = now;
             _links.setPendingCode(code);
           }
-        case CallInvitationLink():
-          if (_auth.isLoggedIn) _hubRequested = true;
+        case CallInvitationLink(:final code):
+          final now = DateTime.now();
+          final duplicate =
+              _lastCode == code &&
+              _lastCodeAt != null &&
+              now.difference(_lastCodeAt!) < const Duration(seconds: 3);
+          if (!duplicate) {
+            _lastCode = code;
+            _lastCodeAt = now;
+            _links.setPendingCallCode(code);
+          }
       }
     }
 
-    if (!_auth.isLoggedIn) {
-      _hubRequested = false;
-      return;
-    }
+    if (!_auth.isLoggedIn) return;
 
     final code = _links.pendingCode;
-    final openHub = _hubRequested;
-    if (code == null && !openHub) return;
-    _hubRequested = false;
+    final callCode = _links.pendingCallCode;
+    if (code == null && callCode == null) return;
     _links.clear();
+    _links.clearCallCode();
     if (_opening) return;
     _opening = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _opening = false;
       final navigator = widget.navigatorKey.currentState;
       if (!mounted || navigator == null) return;
-      if (openHub) {
+      if (callCode != null) {
         navigator.push(
-          MaterialPageRoute<void>(builder: (_) => const DuelHubScreen()),
+          MaterialPageRoute<void>(
+            builder: (_) =>
+                DuelLiveScreen(joinCode: callCode, openHubWhenNotFound: true),
+          ),
         );
       }
       if (code != null) {

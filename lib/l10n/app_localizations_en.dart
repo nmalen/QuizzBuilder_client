@@ -684,7 +684,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get duelCardTitle => 'Duel';
 
   @override
-  String get duelCardSubtitle => 'Find your friends and invite them';
+  String get duelCardSubtitle => 'Challenge a friend';
 
   @override
   String get duelHubTitle => 'Duel';
@@ -949,4 +949,402 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invitationCodeLength => 'The code has 6 characters';
+
+  @override
+  String duelBannerPlaying(String username) {
+    return 'Duel in progress against $username';
+  }
+
+  @override
+  String get duelBannerPlayingSub => 'Tap to resume the game';
+
+  @override
+  String duelBannerWaiting(String username) {
+    return '$username is waiting for you';
+  }
+
+  @override
+  String get duelBannerWaitingSub => 'Tap to join the room';
+
+  @override
+  String duelBannerMany(int count) {
+    return '$count duels are waiting for you';
+  }
+
+  @override
+  String get duelBannerManySub => 'Tap to see them';
+
+  @override
+  String duelOpenSection(int count) {
+    return 'Open duels ($count)';
+  }
+
+  @override
+  String duelOpenWaitingForMe(String username) {
+    return '$username is waiting for you';
+  }
+
+  @override
+  String get duelOpenWaitingForMeSub => 'Join the waiting room';
+
+  @override
+  String duelOpenMyChallenge(String username) {
+    return 'Your challenge to $username';
+  }
+
+  @override
+  String duelOpenMyChallengeSub(String time) {
+    return 'Waiting · room open until $time';
+  }
+
+  @override
+  String duelOpenPlaying(String username) {
+    return 'Game in progress against $username';
+  }
+
+  @override
+  String get duelOpenPlayingSub => 'Resume the game';
+
+  @override
+  String duelOpenAwaitingResult(String username) {
+    return 'Result pending · $username';
+  }
+
+  @override
+  String get duelOpenAwaitingResultSub => 'Tap to see the result';
+
+  @override
+  String get duelChallengeAction => 'Challenge';
+
+  @override
+  String get duelOpenAction => 'Open';
+
+  @override
+  String get duelHistoryTitle => 'Duel history';
+
+  @override
+  String duelChallengeTitle(String username) {
+    return 'Challenge $username';
+  }
+
+  @override
+  String get duelThemesSection => 'Themes';
+
+  @override
+  String duelThemesChosen(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count themes chosen',
+      one: '1 theme chosen',
+      zero: 'No theme chosen',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get duelDifficultiesSection => 'Difficulties';
+
+  @override
+  String get duelQuestionCountSection => 'Number of questions';
+
+  @override
+  String get duelCountsGreyedHint => 'Some numbers are greyed out: there are not enough questions with this choice.';
+
+  @override
+  String duelSecondsPerQuestion(int seconds) {
+    return '$seconds seconds per question, for both of you.';
+  }
+
+  @override
+  String get duelStartChallenge => 'Start the challenge';
+
+  @override
+  String get duelNoPlayableThemes => 'No theme can be played for this duel right now.';
+
+  @override
+  String duelAlreadyOpenOpened(String username) {
+    return 'A duel is already open with $username: here it is.';
+  }
+
+  @override
+  String get duelRoomTitle => 'Waiting room';
+
+  @override
+  String get duelRoomOpening => 'Opening the room…';
+
+  @override
+  String duelRoomWaitingFor(String username) {
+    return 'Waiting for $username…';
+  }
+
+  @override
+  String duelRoomHintChallenger(String username) {
+    return 'The game starts as soon as $username joins you.';
+  }
+
+  @override
+  String duelRoomHintChallenged(String username) {
+    return '$username challenged you. The game starts as soon as you are both here.';
+  }
+
+  @override
+  String duelRoomTimeLeft(String time) {
+    return 'Room open for another $time';
+  }
+
+  @override
+  String get duelRoomUnstable => 'Unstable connection… trying again';
+
+  @override
+  String get duelRoomOffline => 'You are offline. The room will resume as soon as you are back online.';
+
+  @override
+  String get duelCallLinkTitle => 'Call link';
+
+  @override
+  String duelCallLinkHelp(String username) {
+    return 'Send this link to $username: tapping it opens the room directly.';
+  }
+
+  @override
+  String duelCallShareMessage(String link, String time) {
+    return 'I challenge you to a duel on QuizzBuilder! Tap this link to join me: $link\nThe waiting room is open until $time.';
+  }
+
+  @override
+  String duelRoomSummary(int count, int seconds, String difficulties) {
+    return '$count questions · $seconds s per question · $difficulties';
+  }
+
+  @override
+  String get duelCancelDuel => 'Cancel the duel';
+
+  @override
+  String get duelCancelDuelTitle => 'Cancel the duel?';
+
+  @override
+  String get duelCancelDuelBody => 'The waiting room will be closed for both of you.';
+
+  @override
+  String get duelDuelCancelled => 'Duel cancelled';
+
+  @override
+  String get duelRoomExpired => 'This waiting room has expired. You can start a new challenge.';
+
+  @override
+  String get duelRoomCancelled => 'This duel was cancelled.';
+
+  @override
+  String get duelBackToDuels => 'Back to duels';
+
+  @override
+  String duelCountdownIntro(String username) {
+    return 'Your duel against $username starts in';
+  }
+
+  @override
+  String get duelCountdownGo => 'Go!';
+
+  @override
+  String get duelNoCorrectionHint => 'Answers will only be revealed at the end.';
+
+  @override
+  String get duelLoadingQuestions => 'Loading questions…';
+
+  @override
+  String duelQuestionsAndSeconds(int count, int seconds) {
+    return '$count questions · $seconds s per question';
+  }
+
+  @override
+  String duelGameTitle(String username) {
+    return 'Duel against $username';
+  }
+
+  @override
+  String duelQuestionOf(int current, int total) {
+    return 'Question $current/$total';
+  }
+
+  @override
+  String duelAnswerSaved(String time) {
+    return 'Answer saved. Next question in $time';
+  }
+
+  @override
+  String duelAnswerSavedLast(String time) {
+    return 'Answer saved. The game ends in $time';
+  }
+
+  @override
+  String get duelTimeUp => 'Time\'s up';
+
+  @override
+  String get duelQuitTitle => 'Leave the duel?';
+
+  @override
+  String get duelQuitBody => 'Your answers so far are sent now. The remaining questions will count as unanswered.';
+
+  @override
+  String get duelKeepPlaying => 'Keep playing';
+
+  @override
+  String get duelQuitAction => 'Leave';
+
+  @override
+  String get duelSendingAnswers => 'Sending your answers…';
+
+  @override
+  String get duelSendRetry => 'Connection failed. Trying again…';
+
+  @override
+  String get duelAnswersSent => 'Answers sent';
+
+  @override
+  String duelWaitingOpponentFinish(String username) {
+    return 'Waiting for $username to finish…';
+  }
+
+  @override
+  String get duelComputingResult => 'Working out the result…';
+
+  @override
+  String duelResultAtLatest(String time) {
+    return 'Result in $time at the latest';
+  }
+
+  @override
+  String get duelResultTitle => 'Duel result';
+
+  @override
+  String get duelResultWin => 'Victory!';
+
+  @override
+  String duelResultWinSub(String username) {
+    return 'You beat $username';
+  }
+
+  @override
+  String get duelResultLoss => 'Defeat';
+
+  @override
+  String duelResultLossSub(String username) {
+    return '$username wins this time';
+  }
+
+  @override
+  String get duelResultDraw => 'Draw';
+
+  @override
+  String get duelResultDrawSub => 'You are tied';
+
+  @override
+  String get duelResultWinForfeit => 'Win by forfeit';
+
+  @override
+  String duelResultWinForfeitSub(String username) {
+    return '$username did not finish in time.';
+  }
+
+  @override
+  String get duelResultLossForfeit => 'Loss by forfeit';
+
+  @override
+  String get duelResultLossForfeitSub => 'Your answers did not arrive in time.';
+
+  @override
+  String get duelResultNone => 'No result';
+
+  @override
+  String get duelResultNoneSub => 'Nobody sent any answers.';
+
+  @override
+  String get duelScoreYou => 'You';
+
+  @override
+  String duelScoreOutOf(int score, int total) {
+    return '$score/$total';
+  }
+
+  @override
+  String get duelReviewTitle => 'Question review';
+
+  @override
+  String duelReviewQuestionHeader(int number, String theme) {
+    return 'Question $number · $theme';
+  }
+
+  @override
+  String get duelReviewCorrect => 'Correct answer';
+
+  @override
+  String get duelReviewNoAnswerYou => 'You: no answer';
+
+  @override
+  String duelReviewNoAnswerOpponent(String username) {
+    return '$username: no answer';
+  }
+
+  @override
+  String get duelReviewUnavailable => 'The question review is not available.';
+
+  @override
+  String get duelHistoryEmpty => 'No duels played yet.';
+
+  @override
+  String duelHistoryLine(String outcome, int count) {
+    return '$outcome · $count questions';
+  }
+
+  @override
+  String get duelOutcomeWin => 'Win';
+
+  @override
+  String get duelOutcomeLoss => 'Loss';
+
+  @override
+  String get duelOutcomeDraw => 'Draw';
+
+  @override
+  String get duelOutcomeWinForfeit => 'Win by forfeit';
+
+  @override
+  String get duelOutcomeLossForfeit => 'Loss by forfeit';
+
+  @override
+  String get duelOutcomeNone => 'No result';
+
+  @override
+  String get duelErrNoThemeSelected => 'Pick at least one theme.';
+
+  @override
+  String get duelErrThemeNotPlayable => 'One of the themes you picked is no longer available for this duel. The list has been refreshed.';
+
+  @override
+  String get duelErrInvalidQuestionCount => 'That number of questions is not possible. Pick 5, 10, 15 or 20.';
+
+  @override
+  String get duelErrInvalidDifficulty => 'Pick at least one difficulty.';
+
+  @override
+  String get duelErrNotEnoughQuestions => 'There are not enough questions for this choice. Add a theme or a difficulty, or reduce the number of questions.';
+
+  @override
+  String get duelErrLentThemeLimit => 'You have reached today\'s duel limit for these themes. Pick other themes, or try again tomorrow.';
+
+  @override
+  String get duelErrDuelNotFound => 'This duel no longer exists, or this link is not for you.';
+
+  @override
+  String get duelErrDuelClosed => 'This duel is over or was cancelled.';
+
+  @override
+  String get duelErrCannotCancel => 'The game is about to start: it can no longer be cancelled.';
+
+  @override
+  String get duelErrNotStarted => 'The duel has not started yet. Please wait a moment.';
+
+  @override
+  String get duelErrDeadlinePassed => 'The time to send your answers has run out.';
 }

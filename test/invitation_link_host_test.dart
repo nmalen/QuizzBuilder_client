@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import 'package:QuizzBuilder/providers/connectivity_provider.dart';
 import 'package:QuizzBuilder/providers/duel_provider.dart';
 import 'package:QuizzBuilder/providers/invitation_link_provider.dart';
 import 'package:QuizzBuilder/ui/duel/invitation_link_host.dart';
+import 'support/duel_live_support.dart';
 import 'package:QuizzBuilder/l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -22,6 +24,12 @@ class _Harness {
     auth = FakeAuthProvider(loggedIn: loggedIn, initialized: initialized);
     initialLocation = initial;
     server = FakeDuelServer((r) {
+      if (r.method == 'POST' && r.path.contains('/duels/join/')) {
+        return joinResponse(r);
+      }
+      if (r.method == 'GET' && r.path.contains('/duel/duels/') && !r.path.endsWith('/duel/duels/')) {
+        return jsonResponse(200, duelJson(serverTime: FakeClock.base));
+      }
       if (r.method == 'GET' && r.path.contains('/invitations/')) {
         return jsonResponse(200, {
           'inviter_username': 'alice',
@@ -31,6 +39,10 @@ class _Harness {
       return jsonResponse(200, {'count': 0, 'results': []});
     });
   }
+
+  /// Answer to `POST duels/join/<code>/`.
+  late http.Response Function(RecordedRequest) joinResponse = (r) =>
+      jsonResponse(200, duelJson(serverTime: FakeClock.base));
 
   late final FakeAuthProvider auth;
   late final FakeDuelServer server;
@@ -130,29 +142,122 @@ void main() {
     expect(h.links.takeEntryHint(), isTrue);
   });
 
-  testWidgets('8-character link, signed in: opens the hub and nothing else', (tester) async {
-    final h = _Harness();
-    await tester.pumpWidget(h.app);
-    await deliver(tester, 'https://play.quizzbuilder.fr/d/ABCD2345');
+  group('8-character call link (live duel)', () {
+    /// Delivers a link without waiting for the room's clock to settle.
+    Future<void> deliverLive(WidgetTester tester, String location) async {
+      final message = const JSONMethodCodec().encodeMethodCall(
+        MethodCall('pushRouteInformation', {'location': location}),
+      );
+      await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+        'flutter/navigation',
+        message,
+        (_) {},
+      );
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+    }
 
-    expect(find.text(_l.duelHubTitle), findsOneWidget);
-    expect(find.text(_l.duelChallengesYou('alice')), findsNothing);
-    expect(h.links.pendingCode, isNull);
-    expect(
-      h.server.requests.where((r) => r.path.contains('/invitations/')),
-      isEmpty,
-      reason: 'the call code is not an invitation',
-    );
-  });
+    testWidgets('signed in: POST join with the normalized code, then the waiting room', (tester) async {
+      final h = _Harness();
+      await tester.pumpWidget(h.app);
+      addTearDown(() async => tester.pumpWidget(const SizedBox()));
+      await deliverLive(tester, 'https://play.quizzbuilder.fr/d/abcd-2345');
 
-  testWidgets('8-character link, signed out: ignored, nothing kept', (tester) async {
-    final h = _Harness(loggedIn: false);
-    await tester.pumpWidget(h.app);
-    await deliver(tester, '/d/ABCD2345');
-    expect(h.links.pendingCode, isNull);
-    h.auth.setState(loggedIn: true);
-    await tester.pumpAndSettle();
-    expect(find.text(_l.duelHubTitle), findsNothing);
+      final joins = h.server.requests.where((r) => r.method == 'POST').toList();
+      expect(joins, hasLength(1));
+      expect(joins.single.path, endsWith('/duel/duels/join/ABCD2345/'));
+      expect(find.text(_l.duelRoomTitle), findsOneWidget);
+      expect(find.text(_l.duelRoomWaitingFor('alice')), findsOneWidget);
+      expect(h.links.pendingCallCode, isNull);
+      expect(h.links.pendingCode, isNull, reason: 'not an invitation');
+      expect(
+        h.server.requests.where((r) => r.path.contains('/invitations/')),
+        isEmpty,
+      );
+    });
+
+    testWidgets('signed out: the code is kept, nothing is called, the room opens after sign-in', (tester) async {
+      final h = _Harness(loggedIn: false);
+      await tester.pumpWidget(h.app);
+      addTearDown(() async => tester.pumpWidget(const SizedBox()));
+      await deliverLive(tester, '/d/ABCD2345');
+
+      expect(h.links.pendingCallCode, 'ABCD2345');
+      expect(h.links.pendingCode, isNull);
+      expect(h.server.requests, isEmpty);
+      expect(find.text(_l.duelRoomTitle), findsNothing);
+      expect(find.text('app home'), findsOneWidget, reason: 'the usual screen stays');
+
+      h.auth.setState(loggedIn: true);
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      expect(h.server.requests.where((r) => r.method == 'POST'), hasLength(1));
+      expect(find.text(_l.duelRoomTitle), findsOneWidget);
+      expect(h.links.pendingCallCode, isNull);
+    });
+
+    testWidgets('cold link: waits for the authentication state, then joins', (tester) async {
+      final h = _Harness(initialized: false, initial: '/d/ABCD2345');
+      await tester.pumpWidget(h.app);
+      await tester.pump(const Duration(milliseconds: 200));
+      expect(h.server.requests, isEmpty);
+
+      h.auth.setState(initialized: true);
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+      addTearDown(() async => tester.pumpWidget(const SizedBox()));
+      expect(h.server.requests.where((r) => r.method == 'POST'), hasLength(1));
+      expect(find.text(_l.duelRoomTitle), findsOneWidget);
+    });
+
+    testWidgets('the same link delivered twice at once joins once', (tester) async {
+      final h = _Harness();
+      await tester.pumpWidget(h.app);
+      addTearDown(() async => tester.pumpWidget(const SizedBox()));
+      await deliverLive(tester, '/d/ABCD2345');
+      await deliverLive(tester, '/d/ABCD2345');
+      expect(h.server.requests.where((r) => r.method == 'POST'), hasLength(1));
+    });
+
+    testWidgets('unknown duel: the message, then the hub', (tester) async {
+      final h = _Harness();
+      h.joinResponse = (r) => errorResponse(404, 'duel_not_found');
+      await tester.pumpWidget(h.app);
+      addTearDown(() async => tester.pumpWidget(const SizedBox()));
+      await deliverLive(tester, '/d/ABCD2345');
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text(_l.duelErrDuelNotFound), findsOneWidget);
+      expect(
+        find.descendant(of: find.byType(AppBar), matching: find.text(_l.duelHubTitle)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a duel already expired shows the expiry message in the room', (tester) async {
+      final h = _Harness();
+      h.joinResponse = (r) => jsonResponse(
+        200,
+        duelJson(serverTime: FakeClock.base, status: 'expired'),
+      );
+      await tester.pumpWidget(h.app);
+      addTearDown(() async => tester.pumpWidget(const SizedBox()));
+      await deliverLive(tester, '/d/ABCD2345');
+      expect(find.text(_l.duelRoomExpired), findsOneWidget);
+    });
+
+    testWidgets('6-character links keep their behaviour (invitation, not a duel)', (tester) async {
+      final h = _Harness();
+      await tester.pumpWidget(h.app);
+      await deliver(tester, '/d/K7P3QX');
+      expect(find.text(_l.duelChallengesYou('alice')), findsOneWidget);
+      expect(h.server.requests.where((r) => r.path.contains('/duels/join/')), isEmpty);
+      expect(h.links.pendingCallCode, isNull);
+    });
   });
 
   testWidgets('any other path is ignored without error', (tester) async {

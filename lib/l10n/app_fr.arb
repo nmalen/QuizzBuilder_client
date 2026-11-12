@@ -499,7 +499,7 @@
     }
   },
   "duelCardTitle": "Duel",
-  "duelCardSubtitle": "Retrouve tes proches et invite-les",
+  "duelCardSubtitle": "Défie un proche",
   "duelHubTitle": "Duel",
   "duelInviteTitle": "Inviter un proche",
   "duelInviteSubtitle": "Partage un code ou un lien",
@@ -726,5 +726,381 @@
   "invitationCodeOptional": "Code d'invitation (facultatif)",
   "invitationCodeHelp": "Si un proche t'a invité, saisis son code.",
   "invitationCodeBanner": "Un proche t'invite à jouer. Inscris-toi : le code est déjà rempli.",
-  "invitationCodeLength": "Le code comporte 6 caractères"
+  "invitationCodeLength": "Le code comporte 6 caractères",
+  "duelBannerPlaying": "Duel en cours contre {username}",
+  "@duelBannerPlaying": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBannerPlayingSub": "Touche pour reprendre la partie",
+  "duelBannerWaiting": "{username} t'attend",
+  "@duelBannerWaiting": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelBannerWaitingSub": "Touche pour rejoindre la salle",
+  "duelBannerMany": "{count} duels t'attendent",
+  "@duelBannerMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duelBannerManySub": "Touche pour les voir",
+  "duelOpenSection": "Duels en cours ({count})",
+  "@duelOpenSection": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duelOpenWaitingForMe": "{username} t'attend",
+  "@duelOpenWaitingForMe": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelOpenWaitingForMeSub": "Rejoins la salle d'attente",
+  "duelOpenMyChallenge": "Ton défi contre {username}",
+  "@duelOpenMyChallenge": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelOpenMyChallengeSub": "En attente · salle ouverte jusqu'à {time}",
+  "@duelOpenMyChallengeSub": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duelOpenPlaying": "Partie en cours contre {username}",
+  "@duelOpenPlaying": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelOpenPlayingSub": "Reprendre la partie",
+  "duelOpenAwaitingResult": "Résultat en attente · {username}",
+  "@duelOpenAwaitingResult": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelOpenAwaitingResultSub": "Touche pour voir le résultat",
+  "duelChallengeAction": "Défier",
+  "duelOpenAction": "Ouvrir",
+  "duelHistoryTitle": "Historique des duels",
+  "duelChallengeTitle": "Défier {username}",
+  "@duelChallengeTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelThemesSection": "Thèmes",
+  "duelThemesChosen": "{count, plural, =0{Aucun thème choisi} =1{1 thème choisi} other{{count} thèmes choisis}}",
+  "@duelThemesChosen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duelDifficultiesSection": "Difficultés",
+  "duelQuestionCountSection": "Nombre de questions",
+  "duelCountsGreyedHint": "Certains nombres sont grisés : il n'y a pas assez de questions avec ce choix.",
+  "duelSecondsPerQuestion": "{seconds} secondes par question, pour vous deux.",
+  "@duelSecondsPerQuestion": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "duelStartChallenge": "Lancer le défi",
+  "duelNoPlayableThemes": "Aucun thème n'est jouable pour ce duel pour le moment.",
+  "duelAlreadyOpenOpened": "Un duel est déjà ouvert avec {username} : le voici.",
+  "@duelAlreadyOpenOpened": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRoomTitle": "Salle d'attente",
+  "duelRoomOpening": "Ouverture de la salle…",
+  "duelRoomWaitingFor": "En attente de {username}…",
+  "@duelRoomWaitingFor": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRoomHintChallenger": "La partie démarre dès que {username} te rejoint.",
+  "@duelRoomHintChallenger": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRoomHintChallenged": "{username} t'a défié. La partie démarre dès que vous êtes tous les deux là.",
+  "@duelRoomHintChallenged": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRoomTimeLeft": "Salle ouverte encore {time}",
+  "@duelRoomTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRoomUnstable": "Connexion instable… nouvelle tentative",
+  "duelRoomOffline": "Tu es hors ligne. La salle reprendra dès le retour de la connexion.",
+  "duelCallLinkTitle": "Lien d'appel",
+  "duelCallLinkHelp": "Envoie ce lien à {username} : le toucher ouvre directement la salle.",
+  "@duelCallLinkHelp": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelCallShareMessage": "Je te défie en duel sur QuizzBuilder ! Touche ce lien pour me rejoindre : {link}\nLa salle d'attente est ouverte jusqu'à {time}.",
+  "@duelCallShareMessage": {
+    "placeholders": {
+      "link": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duelRoomSummary": "{count} questions · {seconds} s par question · {difficulties}",
+  "@duelRoomSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
+      },
+      "difficulties": {
+        "type": "String"
+      }
+    }
+  },
+  "duelCancelDuel": "Annuler le duel",
+  "duelCancelDuelTitle": "Annuler le duel ?",
+  "duelCancelDuelBody": "La salle d'attente sera fermée pour vous deux.",
+  "duelDuelCancelled": "Duel annulé",
+  "duelRoomExpired": "Cette salle d'attente a expiré. Tu peux lancer un nouveau défi.",
+  "duelRoomCancelled": "Ce duel a été annulé.",
+  "duelBackToDuels": "Retour aux duels",
+  "duelCountdownIntro": "Ton duel contre {username} commence dans",
+  "@duelCountdownIntro": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelCountdownGo": "C'est parti !",
+  "duelNoCorrectionHint": "Les réponses ne seront corrigées qu'à la fin.",
+  "duelLoadingQuestions": "Chargement des questions…",
+  "duelQuestionsAndSeconds": "{count} questions · {seconds} s par question",
+  "@duelQuestionsAndSeconds": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "duelGameTitle": "Duel contre {username}",
+  "@duelGameTitle": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelQuestionOf": "Question {current}/{total}",
+  "@duelQuestionOf": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "duelAnswerSaved": "Réponse enregistrée. Question suivante dans {time}",
+  "@duelAnswerSaved": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duelAnswerSavedLast": "Réponse enregistrée. Fin de la partie dans {time}",
+  "@duelAnswerSavedLast": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duelTimeUp": "Temps écoulé",
+  "duelQuitTitle": "Quitter le duel ?",
+  "duelQuitBody": "Tes réponses déjà données sont envoyées maintenant. Les questions restantes compteront comme sans réponse.",
+  "duelKeepPlaying": "Continuer à jouer",
+  "duelQuitAction": "Quitter",
+  "duelSendingAnswers": "Envoi de tes réponses…",
+  "duelSendRetry": "Connexion impossible. Nouvelle tentative…",
+  "duelAnswersSent": "Réponses envoyées",
+  "duelWaitingOpponentFinish": "En attendant que {username} termine…",
+  "@duelWaitingOpponentFinish": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelComputingResult": "Calcul du résultat…",
+  "duelResultAtLatest": "Résultat au plus tard dans {time}",
+  "@duelResultAtLatest": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duelResultTitle": "Résultat du duel",
+  "duelResultWin": "Victoire !",
+  "duelResultWinSub": "Tu as battu {username}",
+  "@duelResultWinSub": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelResultLoss": "Défaite",
+  "duelResultLossSub": "{username} l'emporte cette fois",
+  "@duelResultLossSub": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelResultDraw": "Match nul",
+  "duelResultDrawSub": "Vous êtes à égalité",
+  "duelResultWinForfeit": "Victoire par forfait",
+  "duelResultWinForfeitSub": "{username} n'a pas terminé à temps.",
+  "@duelResultWinForfeitSub": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelResultLossForfeit": "Défaite par forfait",
+  "duelResultLossForfeitSub": "Tes réponses ne sont pas arrivées à temps.",
+  "duelResultNone": "Pas de résultat",
+  "duelResultNoneSub": "Personne n'a envoyé de réponses.",
+  "duelScoreYou": "Toi",
+  "duelScoreOutOf": "{score}/{total}",
+  "@duelScoreOutOf": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "duelReviewTitle": "Revue des questions",
+  "duelReviewQuestionHeader": "Question {number} · {theme}",
+  "@duelReviewQuestionHeader": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "theme": {
+        "type": "String"
+      }
+    }
+  },
+  "duelReviewCorrect": "Bonne réponse",
+  "duelReviewNoAnswerYou": "Toi : pas de réponse",
+  "duelReviewNoAnswerOpponent": "{username} : pas de réponse",
+  "@duelReviewNoAnswerOpponent": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelReviewUnavailable": "La revue des questions n'est pas disponible.",
+  "duelHistoryEmpty": "Aucun duel joué pour l'instant.",
+  "duelHistoryLine": "{outcome} · {count} questions",
+  "@duelHistoryLine": {
+    "placeholders": {
+      "outcome": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duelOutcomeWin": "Victoire",
+  "duelOutcomeLoss": "Défaite",
+  "duelOutcomeDraw": "Match nul",
+  "duelOutcomeWinForfeit": "Victoire par forfait",
+  "duelOutcomeLossForfeit": "Défaite par forfait",
+  "duelOutcomeNone": "Sans résultat",
+  "duelErrNoThemeSelected": "Choisis au moins un thème.",
+  "duelErrThemeNotPlayable": "Un des thèmes choisis n'est plus disponible pour ce duel. La liste a été actualisée.",
+  "duelErrInvalidQuestionCount": "Ce nombre de questions n'est pas possible. Choisis 5, 10, 15 ou 20.",
+  "duelErrInvalidDifficulty": "Choisis au moins une difficulté.",
+  "duelErrNotEnoughQuestions": "Il n'y a pas assez de questions pour ce choix. Ajoute un thème ou une difficulté, ou réduis le nombre de questions.",
+  "duelErrLentThemeLimit": "Tu as atteint la limite de duels avec ces thèmes pour aujourd'hui. Choisis d'autres thèmes, ou réessaie demain.",
+  "duelErrDuelNotFound": "Ce duel n'existe plus, ou ce lien n'est pas pour toi.",
+  "duelErrDuelClosed": "Ce duel est terminé ou a été annulé.",
+  "duelErrCannotCancel": "La partie est sur le point de commencer : il n'est plus possible d'annuler.",
+  "duelErrNotStarted": "Le duel n'a pas encore commencé. Patiente un instant.",
+  "duelErrDeadlinePassed": "Le temps pour envoyer tes réponses est écoulé."
 }

@@ -32,6 +32,11 @@ void main() {
     FakeConnectivity? connectivity,
     DuelProvider? duel,
   }) async {
+    // A Challenge button per opponent makes the list taller than the default
+    // test screen: every row must be built.
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       duelApp(
         home: const DuelHubScreen(),
@@ -42,7 +47,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('lists the opponents; Inviter and Rejoindre; no Challenge button', (tester) async {
+  testWidgets('lists the opponents; Inviter and Rejoindre; a Challenge button on each opponent', (tester) async {
     final server = serverWithOpponents();
     await pumpHub(tester, server);
 
@@ -53,8 +58,9 @@ void main() {
     expect(find.text(_l.duelJoinTitle), findsOneWidget);
     expect(find.text(_l.duelMyInvitations), findsOneWidget);
     expect(find.text(_l.duelBlockedPlayers), findsOneWidget);
-    expect(find.textContaining('Challenge'), findsNothing,
-        reason: 'the duel itself is another batch');
+    // Batch 2 (QB-C-012): the live duel exists, one Challenge button per
+    // opponent (lot 1 asserted the opposite).
+    expect(find.text(_l.duelChallengeAction), findsNWidgets(2));
   });
 
   testWidgets('empty state', (tester) async {

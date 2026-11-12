@@ -19,7 +19,16 @@ class ApiException implements Exception {
   /// not carry one (legacy endpoints, non-JSON body, network failure).
   final String? code;
 
-  const ApiException(this.message, {this.statusCode, this.code});
+  /// The envelope's `details` object when it carries one (e.g. the existing
+  /// duel in a `duel_already_open` answer), else null.
+  final Map<String, dynamic>? details;
+
+  const ApiException(
+    this.message, {
+    this.statusCode,
+    this.code,
+    this.details,
+  });
 
   /// Builds an exception from a non-2xx response, reading the `error`
   /// envelope when present. Never throws on a malformed body.
@@ -30,6 +39,7 @@ class ApiException implements Exception {
   }) {
     String? code;
     String? message;
+    Map<String, dynamic>? details;
     try {
       final decoded = jsonDecode(body);
       if (decoded is Map<String, dynamic>) {
@@ -37,6 +47,8 @@ class ApiException implements Exception {
         if (error is Map<String, dynamic>) {
           code = error['code']?.toString();
           message = error['message']?.toString();
+          final rawDetails = error['details'];
+          if (rawDetails is Map<String, dynamic>) details = rawDetails;
         }
         message ??= decoded['detail']?.toString();
       }
@@ -47,6 +59,7 @@ class ApiException implements Exception {
       message == null || message.isEmpty ? fallbackMessage : message,
       statusCode: statusCode,
       code: code,
+      details: details,
     );
   }
 
