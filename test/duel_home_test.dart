@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:QuizzBuilder/l10n/app_localizations.dart';
 import 'package:QuizzBuilder/l10n/app_localizations_en.dart';
-import 'package:QuizzBuilder/models/theme.dart' as theme_model;
 import 'package:QuizzBuilder/providers/auth_provider.dart';
 import 'package:QuizzBuilder/providers/catalog_provider.dart';
 import 'package:QuizzBuilder/providers/connectivity_provider.dart';
@@ -16,22 +13,11 @@ import 'package:QuizzBuilder/providers/duel_provider.dart';
 import 'package:QuizzBuilder/providers/invitation_link_provider.dart';
 import 'package:QuizzBuilder/ui/home_screen.dart';
 
+import 'support/app_test_support.dart';
 import 'support/duel_live_support.dart';
 import 'support/duel_test_support.dart';
 
 final _l = AppLocalizationsEn();
-
-class _Catalog extends CatalogProvider {
-  _Catalog() : super(authService: FakeAuthService());
-
-  @override
-  Future<void> loadStatistics() async {}
-
-  @override
-  Future<void> syncOfflineContent({
-    required bool Function(theme_model.Theme theme) isEntitled,
-  }) async {}
-}
 
 /// The server of the home screen tests: open duels are scripted.
 class _HomeServer {
@@ -108,7 +94,7 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider<AuthProvider>.value(value: FakeAuthProvider()),
-          ChangeNotifierProvider<CatalogProvider>.value(value: _Catalog()),
+          ChangeNotifierProvider<CatalogProvider>.value(value: FakeCatalogProvider()),
           ChangeNotifierProvider<ConnectivityProvider>.value(
             value: connectivity ?? FakeConnectivity(),
           ),
@@ -253,24 +239,5 @@ void main() {
       configure: (s) => s.open = [_openRow(5, 'waiting', 'alice')],
     );
     expect(find.text("alice t'attend"), findsOneWidget);
-  });
-
-  group('back in the foreground (main.dart)', () {
-    // `MyApp` cannot be built in a debug test: it passes both `home:` and
-    // `onGenerateInitialRoutes:` to MaterialApp, which a debug assertion
-    // refuses (already true at 1961fae, not touched by this batch). So the
-    // wiring is checked on the source, and the provider call it makes is
-    // tested above (opening the home screen runs the same silent check).
-    test('didChangeAppLifecycleState checks open duels, online only, silently', () {
-      final source = File('lib/main.dart').readAsStringSync();
-      final start = source.indexOf('void didChangeAppLifecycleState');
-      expect(start, isNonNegative);
-      final end = source.indexOf('void dispose()', start);
-      final body = source.substring(start, end);
-      expect(body, contains('loadOpenDuels()'));
-      expect(body, contains('isOnline == true'));
-      expect(body, contains('AppLifecycleState.resumed'));
-      expect(body.indexOf('isOnline == true'), lessThan(body.indexOf('loadOpenDuels()')));
-    });
   });
 }

@@ -211,15 +211,27 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          home: const _AppRouter(),
-          // Always start on the app router: a universal link used to start
-          // the app is handled by InvitationLinkHost, not as a named route.
+          // No `home:`: Flutter refuses `home` together with
+          // `onGenerateInitialRoutes` (a debug assertion). Always start on
+          // the app router: a universal link used to start the app is
+          // handled by InvitationLinkHost, not as a named route.
           onGenerateInitialRoutes: (_) => [
             MaterialPageRoute<void>(
               settings: const RouteSettings(name: Navigator.defaultRouteName),
               builder: (_) => const _AppRouter(),
             ),
           ],
+          // Fallback Flutter requires once `home:` is gone: any route name
+          // nobody generated lands on the app router (no named route is
+          // added). Opaque and without transition, so that it is invisible:
+          // SplashScreen still does pushReplacementNamed('/home') after 2 s,
+          // which must not slide a copy of the same screen in.
+          onUnknownRoute: (_) => PageRouteBuilder<void>(
+            opaque: true,
+            transitionDuration: Duration.zero,
+            reverseTransitionDuration: Duration.zero,
+            pageBuilder: (_, _, _) => const _AppRouter(),
+          ),
         );
       },
     );
