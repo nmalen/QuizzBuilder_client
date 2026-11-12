@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 import 'package:QuizzBuilder/main.dart';
+import 'package:QuizzBuilder/models/user.dart';
+import 'package:QuizzBuilder/services/auth_service.dart';
 import 'package:QuizzBuilder/models/theme.dart' as theme_model;
 import 'package:QuizzBuilder/providers/auth_provider.dart';
 import 'package:QuizzBuilder/providers/catalog_provider.dart';
@@ -72,12 +74,18 @@ class AppHarness {
     bool loading = false,
     this.initialLocation,
     FakeDuelServer? server,
-  }) : auth = AppFakeAuthProvider(loggedIn: loggedIn, loading: loading),
+    AuthProvider? authProvider,
+  }) : _authProvider = authProvider,
+       auth = AppFakeAuthProvider(loggedIn: loggedIn, loading: loading),
        server =
            server ??
            FakeDuelServer((r) => jsonResponse(200, {'count': 0, 'results': []}));
 
   final AppFakeAuthProvider auth;
+
+  /// A real [AuthProvider] (over a scripted service) to use instead of
+  /// [auth], for tests that need the real loading transitions.
+  final AuthProvider? _authProvider;
   final String? initialLocation;
   final FakeDuelServer server;
   final FakeConnectivity connectivity = FakeConnectivity();
@@ -89,7 +97,7 @@ class AppHarness {
   Widget get app => MultiProvider(
     providers: [
       ChangeNotifierProvider<LanguageProvider>.value(value: LanguageProvider()),
-      ChangeNotifierProvider<AuthProvider>.value(value: auth),
+      ChangeNotifierProvider<AuthProvider>.value(value: _authProvider ?? auth),
       ChangeNotifierProvider<ConnectivityProvider>.value(value: connectivity),
       ChangeNotifierProvider<CatalogProvider>.value(
         value: FakeCatalogProvider(),
@@ -113,4 +121,86 @@ class AppHarness {
 void setInitialRoute(WidgetTester tester, String route) {
   tester.binding.platformDispatcher.defaultRouteNameTestValue = route;
   addTearDown(tester.binding.platformDispatcher.clearDefaultRouteNameTestValue);
+}
+
+/// An [AuthService] with no storage and no network, whose calls take the
+/// time the test says (on the test clock: `pump` advances it).
+class ScriptedAuthService extends AuthService {
+  ScriptedAuthService({
+    this.hasSession = false,
+    this.initializeDelay = Duration.zero,
+    this.refreshDelay = Duration.zero,
+    this.refreshAccepted = true,
+    this.loginDelay = Duration.zero,
+    this.registerDelay = Duration.zero,
+    this.logoutDelay = Duration.zero,
+  });
+
+  /// A session is stored on the device.
+  bool hasSession;
+  Duration initializeDelay;
+  Duration refreshDelay;
+
+  /// The server accepts the refresh token (false: it rejects it and the
+  /// stored session is cleared, like the real service does).
+  bool refreshAccepted;
+  Duration loginDelay;
+  Duration registerDelay;
+  Duration logoutDelay;
+
+  static final User user = User(
+    id: 7,
+    username: 'tester',
+    email: 'tester@example.test',
+  );
+
+  @override
+  Future<void> initialize() => Future<void>.delayed(initializeDelay);
+
+  @override
+  Future<bool> isLoggedIn() async => hasSession;
+
+  @override
+  Future<User?> getStoredUser() async => hasSession ? user : null;
+
+  @override
+  Future<bool> refreshAccessToken() async {
+    await Future<void>.delayed(refreshDelay);
+    if (!refreshAccepted) hasSession = false;
+    return refreshAccepted;
+  }
+
+  @override
+  Future<Map<String, dynamic>> login({
+    required String identifier,
+    required String password,
+  }) async {
+    await Future<void>.delayed(loginDelay);
+    hasSession = true;
+    return {'success': true, 'user': user};
+  }
+
+  @override
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String username,
+    required String password1,
+    required String password2,
+    String? invitationCode,
+  }) async {
+    await Future<void>.delayed(registerDelay);
+    return {'success': true, 'message': 'Check your e-mail'};
+  }
+
+  @override
+  Future<void> logout() async {
+    await Future<void>.delayed(logoutDelay);
+    hasSession = false;
+  }
+
+  @override
+  Future<Map<String, String>> getAuthHeaders() async => {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer test-token',
+  };
 }

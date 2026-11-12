@@ -223,9 +223,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ],
           // Fallback Flutter requires once `home:` is gone: any route name
           // nobody generated lands on the app router (no named route is
-          // added). Opaque and without transition, so that it is invisible:
-          // SplashScreen still does pushReplacementNamed('/home') after 2 s,
-          // which must not slide a copy of the same screen in.
+          // added). Opaque and without transition, so that it stays
+          // invisible if a named push ever reaches it.
           onUnknownRoute: (_) => PageRouteBuilder<void>(
             opaque: true,
             transitionDuration: Duration.zero,

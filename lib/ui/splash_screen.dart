@@ -1,41 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
-import '../providers/auth_provider.dart';
-import 'auth_screen.dart';
 
-class SplashScreen extends StatefulWidget {
+/// Shown by `_AppRouter` (main.dart) while `AuthProvider.isLoading`. It only
+/// displays itself: the screen that follows is chosen by `_AppRouter` from the
+/// authentication state, never by this widget.
+class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _checkAuthStatus();
-  }
-
-  Future<void> _checkAuthStatus() async {
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (!mounted) return;
-
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    
-    if (authProvider.isLoggedIn) {
-      // Navigate to home screen
-      Navigator.of(context).pushReplacementNamed('/home');
-    } else {
-      // Navigate to auth screen (directly push AuthScreen)
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => AuthScreen()),
-        (route) => false,
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
