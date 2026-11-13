@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import '../providers/invitation_link_provider.dart';
 import '../providers/language_provider.dart';
 import '../utils/invitation_link.dart';
+import '../utils/register_throttle_message.dart';
 
 class AuthScreen extends StatefulWidget {
   final String? infoMessage;
@@ -323,8 +324,17 @@ class _AuthScreenState extends State<AuthScreen> {
             _showSnack(message);
           }
         } else {
-          final error = context.read<AuthProvider>().error;
-          if (error != null && error.toLowerCase().contains('email')) {
+          final registerAuth = context.read<AuthProvider>();
+          final error = registerAuth.error;
+          final localizations = AppLocalizations.of(context);
+          if (registerAuth.registerThrottled && localizations != null) {
+            // Rate limit (429): a translated message and the wait the API
+            // announces, not the server's English text.
+            message = registerThrottledText(
+              localizations,
+              registerAuth.registerRetryAfterSeconds,
+            );
+          } else if (error != null && error.toLowerCase().contains('email')) {
             message =
                 AppLocalizations.of(context)?.emailAlreadyExists ??
                 _localized(

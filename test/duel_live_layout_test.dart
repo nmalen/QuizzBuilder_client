@@ -47,6 +47,7 @@ void main() {
     required String locale,
     required Widget Function(Scenario) home,
     void Function(Scenario)? configure,
+    FakeConnectivity? connectivity,
   }) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;
@@ -63,6 +64,7 @@ void main() {
           locale: locale,
           home: home(s),
           duel: DuelProvider(service: s.server.service),
+          connectivity: connectivity,
         ),
       ),
     );
@@ -129,6 +131,15 @@ void main() {
           },
         );
         expect(tester.takeException(), isNull);
+        // The themes are below the settings (decision R1): scroll to them.
+        await tester.scrollUntilVisible(
+          find.byKey(const ValueKey('theme-11')),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        // Barely visible is not tappable: bring it fully into view.
+        await tester.ensureVisible(find.byKey(const ValueKey('theme-11')));
+        await tester.pump();
         await tester.tap(find.byKey(const ValueKey('theme-11')));
         await _steps(tester, 2);
         expect(tester.takeException(), isNull, reason: 'greyed counts and hint');
@@ -205,6 +216,65 @@ void main() {
         await elapse(tester, s.clock, const Duration(seconds: 40));
         expect(find.byKey(const ValueKey('time-up')), findsOneWidget);
         expect(tester.takeException(), isNull, reason: 'time up notice');
+      });
+
+      testWidgets('game: offline warning above a long question, 5 s per question', (tester) async {
+        final connectivity = FakeConnectivity();
+        final s = await pumpAt320(
+          tester,
+          locale: locale,
+          connectivity: connectivity,
+          home: (s) => DuelLiveScreen(duelId: 1, now: s.clock.now),
+          configure: (s) {
+            s.state = (_) => {
+              ...playing(s),
+              'seconds_per_question': 5,
+              'deadline_at': iso(FakeClock.base.add(const Duration(seconds: 35))),
+            };
+            s.startsAt = FakeClock.base;
+            s.questionsOverride = () => jsonResponse(200, {
+              ...questionsPayload(
+                count: 3,
+                startsAt: FakeClock.base,
+                serverTime: FakeClock.base,
+                secondsPerQuestion: 5,
+              ),
+              'questions': [for (var i = 1; i <= 3; i++) _longQuestion(i)],
+            });
+          },
+        );
+        await elapse(tester, s.clock, const Duration(milliseconds: 500));
+        connectivity.setOnline(false);
+        await tester.pump();
+        await elapse(tester, s.clock, const Duration(seconds: 2, milliseconds: 500));
+        expect(find.byKey(const ValueKey('offline-warning')), findsOneWidget);
+        expect(tester.takeException(), isNull, reason: 'warning card');
+
+        // The notice floats over the card at the next question (opened at
+        // 5 s, shown for 1 s: look at 5.5 s).
+        await elapse(tester, s.clock, const Duration(seconds: 2, milliseconds: 500));
+        expect(find.byKey(const ValueKey('time-up')), findsOneWidget);
+        expect(tester.takeException(), isNull, reason: 'time-up notice with the warning');
+      });
+
+      testWidgets('sending fails: the warning and the countdown', (tester) async {
+        final s = await pumpAt320(
+          tester,
+          locale: locale,
+          home: (s) => DuelLiveScreen(duelId: 1, now: s.clock.now),
+          configure: (s) {
+            s.state = (_) => playing(s);
+            s.startsAt = FakeClock.base;
+            s.answersOverride = (_) => Scenario.network();
+          },
+        );
+        await elapse(tester, s.clock, const Duration(seconds: 3 * 20 + 5));
+        expect(find.byKey(const ValueKey('send-deadline-warning')), findsOneWidget);
+        expect(find.byKey(const ValueKey('send-time-left')), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        // Let the retry end.
+        s.answersOverride = null;
+        await elapse(tester, s.clock, const Duration(seconds: 3));
       });
 
       testWidgets('game: the quit dialog', (tester) async {

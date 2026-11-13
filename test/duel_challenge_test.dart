@@ -274,6 +274,7 @@ void main() {
       'themes': [10, 20],
       'difficulties': ['easy', 'medium', 'hard'],
       'question_count': 15,
+      'seconds_per_question': 10,
     });
     expect(find.text(_l.duelRoomTitle), findsOneWidget);
     expect(find.text(_l.duelRoomWaitingFor('alice')), findsOneWidget);
@@ -398,6 +399,143 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
     await tester.pump(const Duration(milliseconds: 50));
     expect(find.text('Capitals'), findsOneWidget);
+  });
+
+  group('settings above the themes, and the time per question (R1, T2)', () {
+    Offset top(WidgetTester tester, String key) =>
+        tester.getTopLeft(find.byKey(ValueKey(key)));
+
+    testWidgets('order: difficulties, count, time, then the themes', (tester) async {
+      await pumpChallenge(tester);
+      final difficulties = top(tester, 'difficulty-easy').dy;
+      final count = top(tester, 'count-5').dy;
+      final seconds = top(tester, 'seconds-5').dy;
+      final themes = top(tester, 'theme-10').dy;
+      expect(difficulties, lessThan(count));
+      expect(count, lessThan(seconds));
+      expect(seconds, lessThan(themes));
+      expect(
+        tester.getTopLeft(find.text(_l.duelThemesSection)).dy,
+        lessThan(themes),
+      );
+      expect(
+        tester.getTopLeft(find.text(_l.duelThemesSection)).dy,
+        greaterThan(seconds),
+        reason: 'the themes title is under the settings',
+      );
+      // The start button is still fixed under everything.
+      expect(find.byKey(const ValueKey('start-challenge')), findsOneWidget);
+    });
+
+    testWidgets('the three times are offered, 10 s preselected, never greyed', (tester) async {
+      await pumpChallenge(tester);
+      expect(find.text(_l.duelSecondsSection), findsOneWidget);
+      expect(find.text(_l.duelSecondsHelp), findsOneWidget);
+      ChoiceChip chip(int n) =>
+          tester.widget<ChoiceChip>(find.byKey(ValueKey('seconds-$n')));
+      for (final n in [5, 10, 15]) {
+        expect(find.text(_l.duelSecondsChoice(n)), findsOneWidget);
+        expect(chip(n).onSelected, isNotNull, reason: '$n s is never greyed');
+      }
+      expect(chip(5).selected, isFalse);
+      expect(chip(10).selected, isTrue);
+      expect(chip(15).selected, isFalse);
+      expect(find.byKey(const ValueKey('seconds-20')), findsNothing);
+      // The old fixed 20 s sentence is gone.
+      expect(find.textContaining('20 seconds'), findsNothing);
+    });
+
+    testWidgets('French labels', (tester) async {
+      await pumpChallenge(tester, locale: 'fr');
+      expect(find.text('Temps par question'), findsOneWidget);
+      expect(find.text('Le même temps pour vous deux.'), findsOneWidget);
+      expect(find.text('10 s'), findsOneWidget);
+    });
+
+    testWidgets('untouched, 10 is sent; a choice is sent as made', (tester) async {
+      var s = await pumpChallenge(tester);
+      await tapKey(tester, 'theme-10');
+      await tapKey(tester, 'start-challenge');
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(s.createBody['seconds_per_question'], 10);
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pumpWidget(const SizedBox());
+
+      for (final n in [5, 15]) {
+        s = await pumpChallenge(tester);
+        await tapKey(tester, 'theme-10');
+        await tapKey(tester, 'seconds-$n');
+        expect(
+          tester.widget<ChoiceChip>(find.byKey(ValueKey('seconds-$n'))).selected,
+          isTrue,
+        );
+        expect(
+          tester.widget<ChoiceChip>(find.byKey(const ValueKey('seconds-10'))).selected,
+          isFalse,
+        );
+        await tapKey(tester, 'start-challenge');
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(s.createBody['seconds_per_question'], n);
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.pumpWidget(const SizedBox());
+      }
+    });
+
+    testWidgets('the recap follows the choices live', (tester) async {
+      await pumpChallenge(tester);
+      String recap() =>
+          tester.widget<Text>(find.byKey(const ValueKey('challenge-recap'))).data!;
+      // Nothing ticked: every difficulty that exists, 10 questions, 10 s.
+      expect(recap(), _l.duelRoomSummary(10, 10, 'Easy, Medium, Hard'));
+
+      // A theme that only has medium questions: the other difficulties go.
+      await tapKey(tester, 'theme-11');
+      expect(recap(), _l.duelRoomSummary(10, 10, 'Medium'));
+
+      // Tick Capitals too: easy and medium are offered again.
+      await tapKey(tester, 'theme-10');
+      expect(recap(), _l.duelRoomSummary(10, 10, 'Easy, Medium'));
+
+      await tapKey(tester, 'count-15');
+      expect(recap(), _l.duelRoomSummary(15, 10, 'Easy, Medium'));
+      await tapKey(tester, 'seconds-5');
+      expect(recap(), _l.duelRoomSummary(15, 5, 'Easy, Medium'));
+
+      // Untick a difficulty: only 11 medium questions are left, so 15 falls
+      // back to 10 — and the recap says so (the point of showing it).
+      await tapKey(tester, 'difficulty-easy');
+      expect(recap(), _l.duelRoomSummary(10, 5, 'Medium'));
+      expect(recap(), '10 questions · 5 s per question · Medium');
+    });
+
+    testWidgets('the count that falls back after a theme change shows in the recap', (tester) async {
+      await pumpChallenge(tester);
+      await tapKey(tester, 'theme-10'); // 20 easy + medium questions
+      await tapKey(tester, 'count-20');
+      String recap() =>
+          tester.widget<Text>(find.byKey(const ValueKey('challenge-recap'))).data!;
+      expect(recap(), contains('20 questions'));
+      // Rome has few questions: ticking it alone is not what changes the
+      // count; unticking Capitals leaves 6 (2 easy + 4 hard).
+      await tapKey(tester, 'theme-20');
+      await tapKey(tester, 'theme-10');
+      expect(recap(), contains('5 questions'), reason: '6 questions: 5 is the largest count left');
+    });
+
+    testWidgets('no difficulty ticked: no dangling separator', (tester) async {
+      await pumpChallenge(tester);
+      await tapKey(tester, 'theme-11'); // only medium is offered
+      await tapKey(tester, 'difficulty-medium');
+      final text =
+          tester.widget<Text>(find.byKey(const ValueKey('challenge-recap'))).data!;
+      expect(text, '10 questions · 10 s per question');
+    });
+
+    testWidgets('offline and error states show no recap and no settings', (tester) async {
+      await pumpChallenge(tester, connectivity: FakeConnectivity(online: false));
+      expect(find.byKey(const ValueKey('challenge-recap')), findsNothing);
+      expect(find.byKey(const ValueKey('seconds-10')), findsNothing);
+    });
   });
 
   testWidgets('no playable theme: a message and no start', (tester) async {

@@ -136,12 +136,34 @@ class AuthService {
         } else if (errorData.containsKey('detail')) {
           message = errorData['detail'].toString();
         }
-        return {'success': false, 'message': message, 'errors': errorData};
+        return {
+          'success': false,
+          'message': message,
+          'errors': errorData,
+          // Lets the screen tell a rate limit (429) from other refusals and
+          // say when to retry, without reading the server's English text.
+          'status_code': response.statusCode,
+          if (response.statusCode == 429)
+            'retry_after_seconds': _retryAfterSeconds(errorData),
+        };
       }
     } catch (e) {
       debugPrint('[REGISTER] Exception: $e');
       return {'success': false, 'message': 'Error: ${e.toString()}'};
     }
+  }
+
+  /// The wait the API announces in a 429: `error.details.retry_after_seconds`.
+  /// Null when the field is missing or is not a whole number. The range is
+  /// judged by whoever shows it. The English message text is never read.
+  static int? _retryAfterSeconds(Object? errorData) {
+    if (errorData is! Map) return null;
+    final error = errorData['error'];
+    if (error is! Map) return null;
+    final details = error['details'];
+    if (details is! Map) return null;
+    final value = details['retry_after_seconds'];
+    return value is int ? value : null;
   }
 
   /// Login user and store tokens

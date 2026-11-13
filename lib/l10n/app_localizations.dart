@@ -1883,11 +1883,23 @@ abstract class AppLocalizations {
   /// **'Some numbers are greyed out: there are not enough questions with this choice.'**
   String get duelCountsGreyedHint;
 
-  /// No description provided for @duelSecondsPerQuestion.
+  /// No description provided for @duelSecondsSection.
   ///
   /// In en, this message translates to:
-  /// **'{seconds} seconds per question, for both of you.'**
-  String duelSecondsPerQuestion(int seconds);
+  /// **'Time per question'**
+  String get duelSecondsSection;
+
+  /// No description provided for @duelSecondsChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} s'**
+  String duelSecondsChoice(int seconds);
+
+  /// No description provided for @duelSecondsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'The same time for both of you.'**
+  String get duelSecondsHelp;
 
   /// No description provided for @duelStartChallenge.
   ///
@@ -2380,6 +2392,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The time to send your answers has run out.'**
   String get duelErrDeadlinePassed;
+
+  /// No description provided for @duelInviteQrCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend can also scan this QR code with their phone\'s camera.'**
+  String get duelInviteQrCaption;
+
+  /// No description provided for @duelCallQrCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{username} can also scan this QR code with their phone\'s camera.'**
+  String duelCallQrCaption(String username);
+
+  /// No description provided for @duelQrSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Link QR code'**
+  String get duelQrSemantics;
+
+  /// No description provided for @duelGameOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline'**
+  String get duelGameOfflineTitle;
+
+  /// No description provided for @duelDeadlineWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers must be sent before {time}, or you forfeit.'**
+  String duelDeadlineWarning(String time);
+
+  /// No description provided for @duelSendTimeLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} left'**
+  String duelSendTimeLeft(String time);
+
+  /// No description provided for @registerThrottledMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Many sign-ups are coming from this connection right now. {wait}'**
+  String registerThrottledMessage(String wait);
+
+  /// No description provided for @registerThrottledWaitShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in less than a minute.'**
+  String get registerThrottledWaitShort;
+
+  /// No description provided for @registerThrottledWait.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes, plural, =1{Try again in about 1 minute.} other{Try again in about {minutes} minutes.}}'**
+  String registerThrottledWait(int minutes);
+
+  /// No description provided for @registerThrottledWaitUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in a little while.'**
+  String get registerThrottledWaitUnknown;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

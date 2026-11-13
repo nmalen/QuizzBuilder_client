@@ -62,6 +62,7 @@ class DuelController extends ChangeNotifier {
     this.resultPollInterval = const Duration(milliseconds: 2500),
     this.tickInterval = const Duration(milliseconds: 250),
     this.retryEvery = const Duration(seconds: 2),
+    this.offlineWarningDelay = const Duration(seconds: 2),
   }) : assert(
          duelId != null || initial != null || joinCode != null,
          'a duel id, a duel or a call code is needed',
@@ -83,6 +84,10 @@ class DuelController extends ChangeNotifier {
   final Duration resultPollInterval;
   final Duration tickInterval;
   final Duration retryEvery;
+
+  /// Offline this long before the forfeit warning shows (a Wi-Fi to mobile
+  /// handover must not flash it).
+  final Duration offlineWarningDelay;
   final DateTime Function() _now;
 
   DuelService get _service => provider.service;
@@ -118,6 +123,22 @@ class DuelController extends ChangeNotifier {
 
   bool get online => _online;
   bool get retryingSend => _submission?.retrying ?? false;
+
+  /// True while the phone has been offline for [offlineWarningDelay] or more
+  /// **during the game** (decision: forfeit warning). Not in the countdown,
+  /// not while waiting for the result (the answers are in by then). Read from
+  /// the clock at every tick, so it needs no timer of its own.
+  bool get offlineWarning {
+    final since = _offlineSince;
+    return phase == DuelPhase.game &&
+        !_online &&
+        since != null &&
+        _now().difference(since) >= offlineWarningDelay;
+  }
+
+  /// The deadline for my answers, as the **phone** clock will show it: the
+  /// server's `deadline_at` minus the offset. Null without a deadline.
+  DateTime? get phoneDeadline => duel?.deadlineAt?.subtract(_offset);
 
   DuelSchedule? get schedule => _schedule;
 
@@ -176,6 +197,9 @@ class DuelController extends ChangeNotifier {
   bool _disposed = false;
   bool _foreground = true;
   bool _online = true;
+
+  /// Phone instant the connection was lost; null while online.
+  DateTime? _offlineSince;
   int _backoff = 1;
   int? _lastIndex;
   DuelSubmission? _submission;
@@ -396,6 +420,7 @@ class DuelController extends ChangeNotifier {
   void setOnline(bool value) {
     if (_online == value) return;
     _online = value;
+    _offlineSince = value ? null : _now();
     if (!value) {
       _pollTimer?.cancel();
     } else if (_pollingAllowed) {
@@ -426,7 +451,9 @@ class DuelController extends ChangeNotifier {
           final last = _lastIndex;
           if (last != index) {
             if (last != null && last < index && answers[last] == null) {
-              _timeUpUntil = _now().add(const Duration(seconds: 2));
+              _timeUpUntil = _now().add(
+                duelTimeUpDuration(s.secondsPerQuestion),
+              );
             }
             _lastIndex = index;
           }

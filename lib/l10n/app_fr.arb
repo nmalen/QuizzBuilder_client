@@ -828,14 +828,16 @@
   "duelDifficultiesSection": "Difficultés",
   "duelQuestionCountSection": "Nombre de questions",
   "duelCountsGreyedHint": "Certains nombres sont grisés : il n'y a pas assez de questions avec ce choix.",
-  "duelSecondsPerQuestion": "{seconds} secondes par question, pour vous deux.",
-  "@duelSecondsPerQuestion": {
+  "duelSecondsSection": "Temps par question",
+  "duelSecondsChoice": "{seconds} s",
+  "@duelSecondsChoice": {
     "placeholders": {
       "seconds": {
         "type": "int"
       }
     }
   },
+  "duelSecondsHelp": "Le même temps pour vous deux.",
   "duelStartChallenge": "Lancer le défi",
   "duelNoPlayableThemes": "Aucun thème n'est jouable pour ce duel pour le moment.",
   "duelAlreadyOpenOpened": "Un duel est déjà ouvert avec {username} : le voici.",
@@ -1102,5 +1104,50 @@
   "duelErrDuelClosed": "Ce duel est terminé ou a été annulé.",
   "duelErrCannotCancel": "La partie est sur le point de commencer : il n'est plus possible d'annuler.",
   "duelErrNotStarted": "Le duel n'a pas encore commencé. Patiente un instant.",
-  "duelErrDeadlinePassed": "Le temps pour envoyer tes réponses est écoulé."
+  "duelErrDeadlinePassed": "Le temps pour envoyer tes réponses est écoulé.",
+  "duelInviteQrCaption": "Ton proche peut aussi scanner ce QR code avec l'appareil photo de son téléphone.",
+  "duelCallQrCaption": "{username} peut aussi scanner ce QR code avec l'appareil photo de son téléphone.",
+  "@duelCallQrCaption": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelQrSemantics": "QR code du lien",
+  "duelGameOfflineTitle": "Tu es hors ligne",
+  "duelDeadlineWarning": "Tes réponses doivent partir avant {time}, sinon forfait.",
+  "@duelDeadlineWarning": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duelSendTimeLeft": "Il reste {time}",
+  "@duelSendTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "registerThrottledMessage": "Beaucoup d'inscriptions viennent de cette connexion en ce moment. {wait}",
+  "@registerThrottledMessage": {
+    "placeholders": {
+      "wait": {
+        "type": "String"
+      }
+    }
+  },
+  "registerThrottledWaitShort": "Réessaie dans moins d'une minute.",
+  "registerThrottledWait": "{minutes, plural, =1{Réessaie dans environ 1 minute.} other{Réessaie dans environ {minutes} minutes.}}",
+  "@registerThrottledWait": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "registerThrottledWaitUnknown": "Réessaie dans un moment."
 }

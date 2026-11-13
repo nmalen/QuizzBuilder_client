@@ -12,6 +12,8 @@ class AuthProvider extends ChangeNotifier {
   String? _errorCode;
   String? _lastMessage;
   String? _successMessage;
+  bool _registerThrottled = false;
+  int? _registerRetryAfterSeconds;
 
   AuthProvider({required AuthService authService}) : _authService = authService;
 
@@ -27,6 +29,12 @@ class AuthProvider extends ChangeNotifier {
   String? get errorCode => _errorCode;
   String? get lastMessage => _lastMessage;
   String? get successMessage => _successMessage;
+
+  /// The last registration was refused by the rate limit (HTTP 429).
+  bool get registerThrottled => _registerThrottled;
+
+  /// Seconds the API says to wait after that 429, or null if it did not say.
+  int? get registerRetryAfterSeconds => _registerRetryAfterSeconds;
   AuthService get authService => _authService;
 
   void clearSuccessMessage() {
@@ -99,10 +107,16 @@ class AuthProvider extends ChangeNotifier {
       _error = null;
       _lastMessage = result['message'];
       _successMessage = result['message'];
+      _registerThrottled = false;
+      _registerRetryAfterSeconds = null;
     } else {
       _error = result['message'];
       _lastMessage = null;
       _successMessage = null;
+      _registerThrottled = result['status_code'] == 429;
+      _registerRetryAfterSeconds = _registerThrottled
+          ? result['retry_after_seconds'] as int?
+          : null;
     }
 
     notifyListeners();

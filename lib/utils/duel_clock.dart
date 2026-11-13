@@ -5,9 +5,24 @@
 /// `server_time − phone time`, recomputed at every server answer.
 library;
 
-/// Seconds a question stays open (decision F1). The API also sends it
-/// (`seconds_per_question`); the app uses the value it receives.
-const int duelSecondsPerQuestion = 20;
+/// Times per question a player can pick when challenging (decision T2). The
+/// API sends the chosen one back (`seconds_per_question`); the app uses the
+/// value it receives.
+const List<int> duelSecondsChoices = [5, 10, 15];
+
+/// Time per question preselected when challenging (decision T1).
+const int duelDefaultSeconds = 10;
+
+/// Time left under which the timer and the bar turn red. A 5 s question would
+/// be red from start to end with the usual 5 s, so it only turns red for its
+/// last 2 s (decision V5); 10 s and 15 s keep 5 s.
+Duration duelUrgentThreshold(int secondsPerQuestion) =>
+    Duration(seconds: secondsPerQuestion <= 5 ? 2 : 5);
+
+/// How long the "time's up" notice stays after a question closed unanswered:
+/// 1 s on a 5 s question, 2 s otherwise (decision V5).
+Duration duelTimeUpDuration(int secondsPerQuestion) =>
+    Duration(seconds: secondsPerQuestion <= 5 ? 1 : 2);
 
 /// Offset to add to the phone clock to get the server clock.
 ///

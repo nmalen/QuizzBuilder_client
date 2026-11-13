@@ -1052,9 +1052,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get duelCountsGreyedHint => 'Some numbers are greyed out: there are not enough questions with this choice.';
 
   @override
-  String duelSecondsPerQuestion(int seconds) {
-    return '$seconds seconds per question, for both of you.';
+  String get duelSecondsSection => 'Time per question';
+
+  @override
+  String duelSecondsChoice(int seconds) {
+    return '$seconds s';
   }
+
+  @override
+  String get duelSecondsHelp => 'The same time for both of you.';
 
   @override
   String get duelStartChallenge => 'Start the challenge';
@@ -1347,4 +1353,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get duelErrDeadlinePassed => 'The time to send your answers has run out.';
+
+  @override
+  String get duelInviteQrCaption => 'Your friend can also scan this QR code with their phone\'s camera.';
+
+  @override
+  String duelCallQrCaption(String username) {
+    return '$username can also scan this QR code with their phone\'s camera.';
+  }
+
+  @override
+  String get duelQrSemantics => 'Link QR code';
+
+  @override
+  String get duelGameOfflineTitle => 'You are offline';
+
+  @override
+  String duelDeadlineWarning(String time) {
+    return 'Your answers must be sent before $time, or you forfeit.';
+  }
+
+  @override
+  String duelSendTimeLeft(String time) {
+    return '$time left';
+  }
+
+  @override
+  String registerThrottledMessage(String wait) {
+    return 'Many sign-ups are coming from this connection right now. $wait';
+  }
+
+  @override
+  String get registerThrottledWaitShort => 'Try again in less than a minute.';
+
+  @override
+  String registerThrottledWait(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Try again in about $minutes minutes.',
+      one: 'Try again in about 1 minute.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get registerThrottledWaitUnknown => 'Try again in a little while.';
 }

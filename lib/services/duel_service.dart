@@ -119,6 +119,7 @@ class DuelService {
     required List<int> themeIds,
     required List<String> difficulties,
     required int questionCount,
+    required int secondsPerQuestion,
   }) async {
     final response = await _send(
       'POST',
@@ -129,6 +130,7 @@ class DuelService {
         'themes': themeIds,
         'difficulties': difficulties,
         'question_count': questionCount,
+        'seconds_per_question': secondsPerQuestion,
       },
     );
     return Duel.fromJson(_object(response));

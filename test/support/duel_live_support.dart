@@ -45,6 +45,7 @@ Map<String, Object?> duelJson({
   String opponent = 'alice',
   bool challengedByMe = true,
   int questionCount = 3,
+  int secondsPerQuestion = 20,
   List<int> themes = const [10],
   List<String> difficulties = const ['easy', 'medium'],
   DateTime? roomExpiresAt,
@@ -64,14 +65,14 @@ Map<String, Object?> duelJson({
   'themes': themes,
   'difficulties': difficulties,
   'question_count': questionCount,
-  'seconds_per_question': 20,
+  'seconds_per_question': secondsPerQuestion,
   'created_at': iso(serverTime),
   'room_expires_at': iso(roomExpiresAt ?? serverTime.add(const Duration(minutes: 10))),
   'starts_at': startsAt == null ? null : iso(startsAt),
   'deadline_at': deadlineAt == null
       ? (startsAt == null
             ? null
-            : iso(startsAt.add(Duration(seconds: 20 * questionCount + 20))))
+            : iso(startsAt.add(Duration(seconds: secondsPerQuestion * questionCount + 20))))
       : iso(deadlineAt),
   'server_time': iso(serverTime),
   'opponent_present': false,
@@ -98,12 +99,13 @@ Map<String, Object?> questionsPayload({
   required int count,
   required DateTime startsAt,
   required DateTime serverTime,
+  int secondsPerQuestion = 20,
 }) => {
   'duel_id': duelId,
   'server_time': iso(serverTime),
   'starts_at': iso(startsAt),
-  'deadline_at': iso(startsAt.add(Duration(seconds: 20 * count + 20))),
-  'seconds_per_question': 20,
+  'deadline_at': iso(startsAt.add(Duration(seconds: secondsPerQuestion * count + 20))),
+  'seconds_per_question': secondsPerQuestion,
   'questions': [for (var i = 1; i <= count; i++) questionJson(i)],
 };
 

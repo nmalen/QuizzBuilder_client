@@ -1052,9 +1052,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get duelCountsGreyedHint => 'Certains nombres sont grisés : il n\'y a pas assez de questions avec ce choix.';
 
   @override
-  String duelSecondsPerQuestion(int seconds) {
-    return '$seconds secondes par question, pour vous deux.';
+  String get duelSecondsSection => 'Temps par question';
+
+  @override
+  String duelSecondsChoice(int seconds) {
+    return '$seconds s';
   }
+
+  @override
+  String get duelSecondsHelp => 'Le même temps pour vous deux.';
 
   @override
   String get duelStartChallenge => 'Lancer le défi';
@@ -1347,4 +1353,50 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get duelErrDeadlinePassed => 'Le temps pour envoyer tes réponses est écoulé.';
+
+  @override
+  String get duelInviteQrCaption => 'Ton proche peut aussi scanner ce QR code avec l\'appareil photo de son téléphone.';
+
+  @override
+  String duelCallQrCaption(String username) {
+    return '$username peut aussi scanner ce QR code avec l\'appareil photo de son téléphone.';
+  }
+
+  @override
+  String get duelQrSemantics => 'QR code du lien';
+
+  @override
+  String get duelGameOfflineTitle => 'Tu es hors ligne';
+
+  @override
+  String duelDeadlineWarning(String time) {
+    return 'Tes réponses doivent partir avant $time, sinon forfait.';
+  }
+
+  @override
+  String duelSendTimeLeft(String time) {
+    return 'Il reste $time';
+  }
+
+  @override
+  String registerThrottledMessage(String wait) {
+    return 'Beaucoup d\'inscriptions viennent de cette connexion en ce moment. $wait';
+  }
+
+  @override
+  String get registerThrottledWaitShort => 'Réessaie dans moins d\'une minute.';
+
+  @override
+  String registerThrottledWait(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: 'Réessaie dans environ $minutes minutes.',
+      one: 'Réessaie dans environ 1 minute.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get registerThrottledWaitUnknown => 'Réessaie dans un moment.';
 }

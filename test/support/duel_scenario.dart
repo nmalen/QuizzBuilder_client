@@ -8,13 +8,18 @@ import 'duel_test_support.dart';
 /// A scripted duel server driven by a fake phone clock. The server clock is
 /// the phone clock plus [skew].
 class Scenario {
-  Scenario({this.skew = Duration.zero, this.questionCount = 3});
+  Scenario({
+    this.skew = Duration.zero,
+    this.questionCount = 3,
+    this.secondsPerQuestion = 20,
+  });
 
   final FakeClock clock = FakeClock();
 
   /// Server time minus phone time.
   Duration skew;
   final int questionCount;
+  final int secondsPerQuestion;
 
   DateTime get serverNow => clock.now().add(skew);
 
@@ -50,6 +55,7 @@ class Scenario {
           count: questionCount,
           startsAt: startsAt ?? serverNow,
           serverTime: serverNow,
+          secondsPerQuestion: secondsPerQuestion,
         ),
       );
     }

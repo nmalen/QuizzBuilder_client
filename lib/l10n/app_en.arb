@@ -828,14 +828,16 @@
   "duelDifficultiesSection": "Difficulties",
   "duelQuestionCountSection": "Number of questions",
   "duelCountsGreyedHint": "Some numbers are greyed out: there are not enough questions with this choice.",
-  "duelSecondsPerQuestion": "{seconds} seconds per question, for both of you.",
-  "@duelSecondsPerQuestion": {
+  "duelSecondsSection": "Time per question",
+  "duelSecondsChoice": "{seconds} s",
+  "@duelSecondsChoice": {
     "placeholders": {
       "seconds": {
         "type": "int"
       }
     }
   },
+  "duelSecondsHelp": "The same time for both of you.",
   "duelStartChallenge": "Start the challenge",
   "duelNoPlayableThemes": "No theme can be played for this duel right now.",
   "duelAlreadyOpenOpened": "A duel is already open with {username}: here it is.",
@@ -1102,5 +1104,50 @@
   "duelErrDuelClosed": "This duel is over or was cancelled.",
   "duelErrCannotCancel": "The game is about to start: it can no longer be cancelled.",
   "duelErrNotStarted": "The duel has not started yet. Please wait a moment.",
-  "duelErrDeadlinePassed": "The time to send your answers has run out."
+  "duelErrDeadlinePassed": "The time to send your answers has run out.",
+  "duelInviteQrCaption": "Your friend can also scan this QR code with their phone's camera.",
+  "duelCallQrCaption": "{username} can also scan this QR code with their phone's camera.",
+  "@duelCallQrCaption": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
+  "duelQrSemantics": "Link QR code",
+  "duelGameOfflineTitle": "You are offline",
+  "duelDeadlineWarning": "Your answers must be sent before {time}, or you forfeit.",
+  "@duelDeadlineWarning": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "duelSendTimeLeft": "{time} left",
+  "@duelSendTimeLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "registerThrottledMessage": "Many sign-ups are coming from this connection right now. {wait}",
+  "@registerThrottledMessage": {
+    "placeholders": {
+      "wait": {
+        "type": "String"
+      }
+    }
+  },
+  "registerThrottledWaitShort": "Try again in less than a minute.",
+  "registerThrottledWait": "{minutes, plural, =1{Try again in about 1 minute.} other{Try again in about {minutes} minutes.}}",
+  "@registerThrottledWait": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "registerThrottledWaitUnknown": "Try again in a little while."
 }

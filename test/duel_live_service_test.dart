@@ -41,6 +41,7 @@ void main() {
       themeIds: [10, 11],
       difficulties: ['easy'],
       questionCount: 10,
+      secondsPerQuestion: 10,
     );
     await s.listOpenDuels();
     await s.listHistory();
@@ -66,7 +67,7 @@ void main() {
     ]);
   });
 
-  test('createDuel sends pair, themes, difficulties and count', () async {
+  test('createDuel sends pair, themes, difficulties, count and time', () async {
     final server = FakeDuelServer(
       (r) => jsonResponse(201, duelJson(serverTime: server0)),
     );
@@ -75,12 +76,14 @@ void main() {
       themeIds: [10, 11],
       difficulties: ['easy', 'hard'],
       questionCount: 15,
+      secondsPerQuestion: 5,
     );
     expect(jsonDecode(server.requests.single.body), {
       'pair_id': 3,
       'themes': [10, 11],
       'difficulties': ['easy', 'hard'],
       'question_count': 15,
+      'seconds_per_question': 5,
     });
   });
 
@@ -202,6 +205,7 @@ void main() {
         themeIds: [1],
         difficulties: ['easy'],
         questionCount: 10,
+        secondsPerQuestion: 10,
       ),
       throwsA(
         isA<ApiException>()

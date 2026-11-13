@@ -9,6 +9,7 @@ import '../../utils/duel_clock.dart';
 import '../../widgets/gradient_background.dart';
 import 'duel_controller.dart';
 import 'duel_errors.dart';
+import 'duel_format.dart';
 import 'duel_hub_screen.dart';
 import 'duel_share.dart';
 import 'duel_widgets.dart';
@@ -255,15 +256,8 @@ class _Opening extends StatelessWidget {
 }
 
 /// Difficulties as the player reads them ("Easy, Medium").
-String _difficultyNames(AppLocalizations l, List<String> difficulties) {
-  String name(String d) => switch (d) {
-    'easy' => l.easy,
-    'medium' => l.medium,
-    'hard' => l.hard,
-    _ => d,
-  };
-  return difficulties.map(name).join(', ');
-}
+String _difficultyNames(AppLocalizations l, List<String> difficulties) =>
+    duelDifficultyNames(l, difficulties);
 
 // ---- Waiting room ----------------------------------------------------------
 
@@ -513,7 +507,7 @@ class _GameView extends StatelessWidget {
       0.0,
       1.0,
     );
-    final urgent = remaining <= const Duration(seconds: 5);
+    final urgent = remaining <= duelUrgentThreshold(duel.secondsPerQuestion);
     final isLast = index == duel.questionCount - 1;
     final textTheme = Theme.of(context).textTheme;
 
@@ -522,70 +516,93 @@ class _GameView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(
-            child: Container(
-              key: const ValueKey('duel-timer'),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+          // Offline for 2 s or more: the answers go at the end, so say by
+          // when (shown once, above everything else).
+          if (c.offlineWarning) ...[
+            _OfflineWarningCard(
+              key: const ValueKey('offline-warning'),
+              deadline: c.phoneDeadline,
+            ),
+            const SizedBox(height: 12),
+          ],
+          // Compact layout, same for every time per question: the timer and
+          // the bar share one row, and the "time's up" notice floats over
+          // the question card instead of pushing the answers down.
+          Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.center,
+            children: [
+              Row(
                 children: [
-                  Icon(
-                    Icons.timer,
-                    size: 18,
-                    color: urgent ? Colors.red : Colors.black87,
+                  Container(
+                    key: const ValueKey('duel-timer'),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.timer,
+                          size: 18,
+                          color: urgent ? Colors.red : Colors.black87,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          duelFormatClock(remaining),
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: urgent ? Colors.red : Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    duelFormatClock(remaining),
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: urgent ? Colors.red : Colors.black87,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        key: const ValueKey('duel-progress'),
+                        value: progress,
+                        minHeight: 8,
+                        backgroundColor: Colors.white24,
+                        color: urgent ? Colors.red : Colors.white,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              key: const ValueKey('duel-progress'),
-              value: progress,
-              minHeight: 8,
-              backgroundColor: Colors.white24,
-              color: urgent ? Colors.red : Colors.white,
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (c.showTimeUp)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Center(
-                child: Container(
-                  key: const ValueKey('time-up'),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    l.duelTimeUp,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+              if (c.showTimeUp)
+                Positioned(
+                  top: 40,
+                  child: Container(
+                    key: const ValueKey('time-up'),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      l.duelTimeUp,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
+            ],
+          ),
+          const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
@@ -659,6 +676,53 @@ class _GameView extends StatelessWidget {
   }
 }
 
+/// Shown in the game when the phone has been offline for 2 s or more: the
+/// answers leave at the end, and later than [deadline] they count as a
+/// forfeit. [deadline] is in the phone's own clock (server offset removed),
+/// to the second, so a short game's narrow margin is not rounded away.
+class _OfflineWarningCard extends StatelessWidget {
+  final DateTime? deadline;
+  const _OfflineWarningCard({super.key, required this.deadline});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    final textTheme = Theme.of(context).textTheme;
+    return DuelCard(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.wifi_off, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.duelGameOfflineTitle,
+                  style: textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (deadline != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    l.duelDeadlineWarning(
+                      duelTimeWithSeconds(context, deadline),
+                    ),
+                    key: const ValueKey('offline-warning-text'),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Answer button of the game: blue like in solo; once answered, the chosen one
 /// is dark blue with a check and the others are grey. Never green or red (F2).
 class _AnswerButton extends StatelessWidget {
@@ -685,7 +749,7 @@ class _AnswerButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
         backgroundColor: color,
         disabledBackgroundColor: color,
@@ -769,6 +833,29 @@ class _WaitingView extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[700]),
               ),
+              // The send failed: say by when it must succeed, and how long
+              // is left (no question timer on this screen to confuse it with).
+              if (c.phoneDeadline != null) ...[
+                const SizedBox(height: 6),
+                Text(
+                  l.duelDeadlineWarning(
+                    duelTimeWithSeconds(context, c.phoneDeadline),
+                  ),
+                  key: const ValueKey('send-deadline-warning'),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+              if (left != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  l.duelSendTimeLeft(duelFormatClock(left)),
+                  key: const ValueKey('send-time-left'),
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ] else if (!sending && c.unstable) ...[
               const SizedBox(height: 10),
               Text(

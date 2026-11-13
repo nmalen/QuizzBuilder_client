@@ -10,6 +10,7 @@ import '../../services/api_exception.dart';
 import '../../utils/duel_clock.dart';
 import '../../widgets/gradient_background.dart';
 import 'duel_errors.dart';
+import 'duel_format.dart';
 import 'duel_live_screen.dart';
 import 'duel_widgets.dart';
 
@@ -71,6 +72,7 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
   Set<String> _selectedDifficulties = {};
   bool _difficultiesTouched = false;
   int _questionCount = 10;
+  int _secondsPerQuestion = duelDefaultSeconds;
 
   @override
   void initState() {
@@ -182,6 +184,7 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
             if (_selectedDifficulties.contains(d)) d,
         ],
         questionCount: _questionCount,
+        secondsPerQuestion: _secondsPerQuestion,
       );
       if (!mounted) return;
       navigator.pushReplacement(
@@ -235,19 +238,36 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
               if (online && _themes != null && _themes!.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      key: const ValueKey('start-challenge'),
-                      onPressed: _canStart ? _start : null,
-                      child: _creating
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Text(l.duelStartChallenge),
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Recap of what the duel will be: follows the choices
+                      // live, so a change made above the fold (a difficulty
+                      // that disappears, a count that falls back) is seen.
+                      Text(
+                        _recap(l),
+                        key: const ValueKey('challenge-recap'),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          key: const ValueKey('start-challenge'),
+                          onPressed: _canStart ? _start : null,
+                          child: _creating
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(l.duelStartChallenge),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             ],
@@ -255,6 +275,18 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
         ),
       ),
     );
+  }
+
+  /// "10 questions · 10 s per question · Easy, Medium": the duel as chosen.
+  String _recap(AppLocalizations l) {
+    final difficulties = duelDifficultyNames(l, [
+      for (final d in duelDifficultyOrder)
+        if (_selectedDifficulties.contains(d)) d,
+    ]);
+    // No difficulty ticked: drop the dangling separator.
+    return l
+        .duelRoomSummary(_questionCount, _secondsPerQuestion, difficulties)
+        .replaceFirst(RegExp(r'\s*·\s*$'), '');
   }
 
   Widget _content(BuildContext context, AppLocalizations l, bool online) {
@@ -300,66 +332,10 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
         : DuelChoice.allowedCounts(total);
     final someGreyed = allowed.length < duelQuestionCounts.length;
 
+    // Order (decision R1): the settings first, the themes below.
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Row(
-          children: [
-            DuelSectionTitle(l.duelThemesSection),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                l.duelThemesChosen(_selectedThemes.length),
-                key: const ValueKey('themes-chosen'),
-                textAlign: TextAlign.end,
-                style: const TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        for (final entry in byCategory.entries) ...[
-          DuelCard(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-            // The tiles paint their ink on the nearest Material: the white
-            // card must not hide it.
-            child: Material(
-              type: MaterialType.transparency,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
-                    child: Text(
-                      entry.value.first.categoryName(languageCode),
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  for (final theme in entry.value)
-                    CheckboxListTile(
-                      key: ValueKey('theme-${theme.id}'),
-                      dense: true,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      value: _selectedThemes.contains(theme.id),
-                      title: Text(theme.name(languageCode)),
-                      onChanged: (value) => setState(() {
-                        if (value == true) {
-                          _selectedThemes.add(theme.id);
-                        } else {
-                          _selectedThemes.remove(theme.id);
-                        }
-                        _refreshDifficulties();
-                      }),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
-        const SizedBox(height: 8),
         DuelSectionTitle(l.duelDifficultiesSection),
         const SizedBox(height: 8),
         DuelCard(
@@ -421,9 +397,33 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
                   ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
                 ),
               ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        DuelSectionTitle(l.duelSecondsSection),
+        const SizedBox(height: 8),
+        DuelCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  for (final n in duelSecondsChoices)
+                    ChoiceChip(
+                      key: ValueKey('seconds-$n'),
+                      label: Text(l.duelSecondsChoice(n)),
+                      selected: _secondsPerQuestion == n,
+                      onSelected: (_) =>
+                          setState(() => _secondsPerQuestion = n),
+                    ),
+                ],
+              ),
               const SizedBox(height: 8),
               Text(
-                l.duelSecondsPerQuestion(duelSecondsPerQuestion),
+                l.duelSecondsHelp,
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
@@ -431,7 +431,63 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
             ],
           ),
         ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            DuelSectionTitle(l.duelThemesSection),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                l.duelThemesChosen(_selectedThemes.length),
+                key: const ValueKey('themes-chosen'),
+                textAlign: TextAlign.end,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
+        for (final entry in byCategory.entries) ...[
+          DuelCard(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            // The tiles paint their ink on the nearest Material: the white
+            // card must not hide it.
+            child: Material(
+              type: MaterialType.transparency,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+                    child: Text(
+                      entry.value.first.categoryName(languageCode),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  for (final theme in entry.value)
+                    CheckboxListTile(
+                      key: ValueKey('theme-${theme.id}'),
+                      dense: true,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      value: _selectedThemes.contains(theme.id),
+                      title: Text(theme.name(languageCode)),
+                      onChanged: (value) => setState(() {
+                        if (value == true) {
+                          _selectedThemes.add(theme.id);
+                        } else {
+                          _selectedThemes.remove(theme.id);
+                        }
+                        _refreshDifficulties();
+                      }),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
       ],
     );
   }
