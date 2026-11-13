@@ -62,6 +62,11 @@ void main() {
     FakeConnectivity? connectivity,
     String locale = 'en',
   }) async {
+    // Tall window: the QR of the call link pushes the summary and "Cancel the
+    // duel" below a 600 px fold, and the list only builds what it shows.
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final provider = DuelProvider(service: s.server.service);
     await pumpLive(
       tester,
@@ -292,6 +297,10 @@ void main() {
   testWidgets('cancel: asks first, then POST cancel, leaves with a message', (tester) async {
     final s = Scenario();
     s.state = (_) => waiting(s);
+    // Tall window, as in pumpRoom: the QR pushes "Cancel the duel" down.
+    tester.view.physicalSize = const Size(800, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final provider = DuelProvider(service: s.server.service);
     await tester.pumpWidget(
       duelApp(

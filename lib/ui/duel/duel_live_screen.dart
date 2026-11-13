@@ -11,6 +11,7 @@ import 'duel_controller.dart';
 import 'duel_errors.dart';
 import 'duel_format.dart';
 import 'duel_hub_screen.dart';
+import 'duel_qr.dart';
 import 'duel_share.dart';
 import 'duel_widgets.dart';
 
@@ -375,6 +376,12 @@ class _RoomView extends StatelessWidget {
                       label: Text(l.duelCopy),
                     ),
                   ],
+                ),
+                // The call link as a QR code, below the buttons. The card
+                // (so the code) goes with the room when it expires.
+                DuelQrCode(
+                  data: duel.callLink!,
+                  caption: l.duelCallQrCaption(name),
                 ),
               ],
             ),

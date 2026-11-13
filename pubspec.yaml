@@ -64,6 +64,7 @@ dependencies:
   # Email & Links
   url_launcher: ^6.2.5
   share_plus: ^13.3.1
+  qr_flutter: 4.1.0
 
 dev_dependencies:
   flutter_test:

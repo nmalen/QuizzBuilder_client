@@ -9,6 +9,7 @@ import '../../services/api_exception.dart';
 import 'duel_errors.dart';
 import 'duel_format.dart';
 import 'duel_invitations_screen.dart';
+import 'duel_qr.dart';
 import 'duel_share.dart';
 import 'duel_widgets.dart';
 
@@ -183,6 +184,11 @@ class _DuelInviteScreenState extends State<DuelInviteScreen>
               ),
             ],
           ),
+          // The same link as a QR code, for someone standing next to you: the
+          // camera of their phone reads it (no reader in the app). Local, so
+          // it stays when the phone goes offline. An expired invitation keeps
+          // it, like the code (the date above says so).
+          DuelQrCode(data: inv.link, caption: l.duelInviteQrCaption),
         ],
       ),
     );
