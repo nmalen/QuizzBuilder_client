@@ -327,6 +327,11 @@ class DuelTheme {
   final String categoryNameEn;
   final Map<String, int> questionCounts;
 
+  /// A premium theme neither player owns: shown with a padlock, never
+  /// playable. Absent from the payload (older server, or no `include_locked`)
+  /// means not locked.
+  final bool isLocked;
+
   const DuelTheme({
     required this.id,
     required this.nameFr,
@@ -335,6 +340,7 @@ class DuelTheme {
     required this.categoryNameFr,
     required this.categoryNameEn,
     required this.questionCounts,
+    this.isLocked = false,
   });
 
   String name(String languageCode) => languageCode == 'fr' ? nameFr : nameEn;
@@ -359,6 +365,7 @@ class DuelTheme {
                 entry.key.toString(): (entry.value as num).toInt(),
             }
           : const {},
+      isLocked: json['is_locked'] == true,
     );
   }
 }

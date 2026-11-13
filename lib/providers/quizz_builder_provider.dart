@@ -116,8 +116,14 @@ class QuizzBuilderProvider extends ChangeNotifier {
     }
   }
 
-  Future<int> unlockThemeWithCredit(theme_model.Theme theme) async {
-    final result = await _creditStoreService.unlockThemeWithCredit(theme.id);
+  Future<int> unlockThemeWithCredit(
+    theme_model.Theme theme, {
+    String? origin,
+  }) async {
+    final result = await _creditStoreService.unlockThemeWithCredit(
+      theme.id,
+      origin: origin,
+    );
     _entitledThemeIds.add(theme.id);
     _creditBalance =
         (result['credits_remaining'] as num?)?.toInt() ??

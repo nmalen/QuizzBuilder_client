@@ -176,10 +176,16 @@ class CreditStoreService {
     throw Exception(error);
   }
 
-  Future<Map<String, dynamic>> unlockThemeWithCredit(int themeId) async {
+  /// [origin] names the screen the unlock comes from (the server only knows
+  /// `duel_challenge`). The key is left out when null: the server refuses any
+  /// other value present, `null` included, before it debits anything.
+  Future<Map<String, dynamic>> unlockThemeWithCredit(
+    int themeId, {
+    String? origin,
+  }) async {
     final response = await _authorizedPost(
       '$baseUrl${ApiConfig.themesEndpoint}$themeId/unlock/',
-      const <String, dynamic>{},
+      <String, dynamic>{if (origin != null) 'origin': origin},
     );
 
     final Map<String, dynamic> body =

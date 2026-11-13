@@ -9,6 +9,7 @@ import '../../providers/duel_provider.dart';
 import '../../services/api_exception.dart';
 import '../../utils/duel_clock.dart';
 import '../../widgets/gradient_background.dart';
+import '../premium_theme_unlock_screen.dart';
 import 'duel_errors.dart';
 import 'duel_format.dart';
 import 'duel_live_screen.dart';
@@ -69,6 +70,10 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
   bool _creating = false;
 
   final Set<int> _selectedThemes = {};
+
+  /// Themes unlocked from this screen: playable from then on, even if the
+  /// list has not been fetched again yet (or its refresh failed).
+  final Set<int> _unlockedHere = {};
   Set<String> _selectedDifficulties = {};
   bool _difficultiesTouched = false;
   int _questionCount = 10;
@@ -98,11 +103,15 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
     try {
       final themes = await context.read<DuelProvider>().service.listThemes(
         widget.opponent.id,
+        includeLocked: true,
       );
       if (!mounted) return;
       setState(() {
         _themes = themes;
-        _selectedThemes.removeWhere((id) => !themes.any((t) => t.id == id));
+        // A ticked theme that is gone, or came back locked, is unticked.
+        _selectedThemes.removeWhere(
+          (id) => !themes.any((t) => t.id == id && !_isLocked(t)),
+        );
         _loading = false;
         _refreshDifficulties();
       });
@@ -126,16 +135,56 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
     ).showSnackBar(SnackBar(content: Text(duelLiveErrorMessage(l, error))));
   }
 
-  List<DuelTheme> get _chosenThemes => [
+  bool _isLocked(DuelTheme theme) =>
+      theme.isLocked && !_unlockedHere.contains(theme.id);
+
+  /// The themes that can be ticked (a locked one never can).
+  List<DuelTheme> get _playableThemes => [
     for (final t in _themes ?? const <DuelTheme>[])
+      if (!_isLocked(t)) t,
+  ];
+
+  List<DuelTheme> get _chosenThemes => [
+    for (final t in _playableThemes)
       if (_selectedThemes.contains(t.id)) t,
   ];
 
   /// Difficulties offered: those with questions among the ticked themes (all
-  /// themes while none is ticked).
+  /// playable themes while none is ticked).
   List<String> get _offeredDifficulties {
-    final pool = _chosenThemes.isEmpty ? (_themes ?? const []) : _chosenThemes;
+    final pool = _chosenThemes.isEmpty ? _playableThemes : _chosenThemes;
     return DuelChoice.availableDifficulties(pool);
+  }
+
+  /// A padlock row was touched: the unlock screen opens on that theme. Back
+  /// from it, an unlocked theme is ticked and the list is fetched again; the
+  /// other choices stay as they were.
+  Future<void> _unlock(DuelTheme theme) async {
+    final l = AppLocalizations.of(context)!;
+    if (!context.read<ConnectivityProvider>().isOnline) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l.offlinePurchaseUnavailable),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    final unlocked = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) =>
+            PremiumThemeUnlockScreen(duelChallengeThemeId: theme.id),
+      ),
+    );
+    if (!mounted || unlocked == null) return;
+    if (unlocked) {
+      setState(() {
+        _unlockedHere.add(theme.id);
+        _selectedThemes.add(theme.id);
+        _refreshDifficulties();
+      });
+    }
+    await _load();
   }
 
   void _refreshDifficulties() {
@@ -235,7 +284,7 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
           child: Column(
             children: [
               Expanded(child: _content(context, l, online)),
-              if (online && _themes != null && _themes!.isNotEmpty)
+              if (online && _playableThemes.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
                   child: Column(
@@ -289,6 +338,32 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
         .replaceFirst(RegExp(r'\s*·\s*$'), '');
   }
 
+  /// A premium theme neither player owns: a padlock instead of the box, never
+  /// ticked, a touch opens the unlock screen. Not told by colour alone (the
+  /// subtitle says it), and read as one button by a screen reader.
+  Widget _lockedTile(AppLocalizations l, DuelTheme theme, String languageCode) {
+    final name = theme.name(languageCode);
+    return Semantics(
+      // Its own node: otherwise it merges into the category block above.
+      container: true,
+      button: true,
+      label: l.duelThemeLockedSemantics(name),
+      excludeSemantics: true,
+      onTap: () => _unlock(theme),
+      child: ListTile(
+        key: ValueKey('locked-theme-${theme.id}'),
+        dense: true,
+        leading: Icon(Icons.lock, color: Colors.grey[700]),
+        title: Text(name, style: TextStyle(color: Colors.grey[700])),
+        subtitle: Text(
+          l.duelThemeLockedSubtitle,
+          style: TextStyle(color: Colors.grey[700]),
+        ),
+        onTap: () => _unlock(theme),
+      ),
+    );
+  }
+
   Widget _content(BuildContext context, AppLocalizations l, bool online) {
     if (!online) {
       return ListView(
@@ -320,6 +395,7 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
     }
 
     final languageCode = Localizations.localeOf(context).languageCode;
+    final onlyLocked = _playableThemes.isEmpty;
     final byCategory = <int, List<DuelTheme>>{};
     for (final t in themes) {
       byCategory.putIfAbsent(t.categoryId, () => []).add(t);
@@ -332,106 +408,115 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
         : DuelChoice.allowedCounts(total);
     final someGreyed = allowed.length < duelQuestionCounts.length;
 
-    // Order (decision R1): the settings first, the themes below.
+    // Order (decision R1): the settings first, the themes below. When every
+    // theme is locked there is nothing to set: an explanation, then the list.
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        DuelSectionTitle(l.duelDifficultiesSection),
-        const SizedBox(height: 8),
-        DuelCard(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: [
-              for (final d in offered)
-                FilterChip(
-                  key: ValueKey('difficulty-$d'),
-                  label: Text(switch (d) {
-                    'easy' => l.easy,
-                    'medium' => l.medium,
-                    _ => l.hard,
-                  }),
-                  selected: _selectedDifficulties.contains(d),
-                  onSelected: (value) => setState(() {
-                    _difficultiesTouched = true;
-                    if (value) {
-                      _selectedDifficulties.add(d);
-                    } else {
-                      _selectedDifficulties.remove(d);
-                    }
-                    _fitQuestionCount();
-                  }),
-                ),
-            ],
+        if (onlyLocked) ...[
+          DuelMessageCard(
+            key: const ValueKey('only-locked-themes'),
+            message: l.duelOnlyLockedThemes(widget.opponent.username),
           ),
-        ),
-        const SizedBox(height: 16),
-        DuelSectionTitle(l.duelQuestionCountSection),
-        const SizedBox(height: 8),
-        DuelCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  for (final n in duelQuestionCounts)
-                    ChoiceChip(
-                      key: ValueKey('count-$n'),
-                      label: Text('$n'),
-                      selected: _questionCount == n,
-                      onSelected: allowed.contains(n)
-                          ? (_) => setState(() => _questionCount = n)
-                          : null,
-                    ),
+          const SizedBox(height: 16),
+        ] else ...[
+          DuelSectionTitle(l.duelDifficultiesSection),
+          const SizedBox(height: 8),
+          DuelCard(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                for (final d in offered)
+                  FilterChip(
+                    key: ValueKey('difficulty-$d'),
+                    label: Text(switch (d) {
+                      'easy' => l.easy,
+                      'medium' => l.medium,
+                      _ => l.hard,
+                    }),
+                    selected: _selectedDifficulties.contains(d),
+                    onSelected: (value) => setState(() {
+                      _difficultiesTouched = true;
+                      if (value) {
+                        _selectedDifficulties.add(d);
+                      } else {
+                        _selectedDifficulties.remove(d);
+                      }
+                      _fitQuestionCount();
+                    }),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          DuelSectionTitle(l.duelQuestionCountSection),
+          const SizedBox(height: 8),
+          DuelCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final n in duelQuestionCounts)
+                      ChoiceChip(
+                        key: ValueKey('count-$n'),
+                        label: Text('$n'),
+                        selected: _questionCount == n,
+                        onSelected: allowed.contains(n)
+                            ? (_) => setState(() => _questionCount = n)
+                            : null,
+                      ),
+                  ],
+                ),
+                if (someGreyed) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l.duelCountsGreyedHint,
+                    key: const ValueKey('counts-hint'),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
+                  ),
                 ],
-              ),
-              if (someGreyed) ...[
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          DuelSectionTitle(l.duelSecondsSection),
+          const SizedBox(height: 8),
+          DuelCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final n in duelSecondsChoices)
+                      ChoiceChip(
+                        key: ValueKey('seconds-$n'),
+                        label: Text(l.duelSecondsChoice(n)),
+                        selected: _secondsPerQuestion == n,
+                        onSelected: (_) =>
+                            setState(() => _secondsPerQuestion = n),
+                      ),
+                  ],
+                ),
                 const SizedBox(height: 8),
                 Text(
-                  l.duelCountsGreyedHint,
-                  key: const ValueKey('counts-hint'),
+                  l.duelSecondsHelp,
                   style: Theme.of(
                     context,
                   ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
                 ),
               ],
-            ],
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        DuelSectionTitle(l.duelSecondsSection),
-        const SizedBox(height: 8),
-        DuelCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  for (final n in duelSecondsChoices)
-                    ChoiceChip(
-                      key: ValueKey('seconds-$n'),
-                      label: Text(l.duelSecondsChoice(n)),
-                      selected: _secondsPerQuestion == n,
-                      onSelected: (_) =>
-                          setState(() => _secondsPerQuestion = n),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l.duelSecondsHelp,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
+          const SizedBox(height: 16),
+        ],
         Row(
           children: [
             DuelSectionTitle(l.duelThemesSection),
@@ -447,6 +532,14 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
           ],
         ),
         const SizedBox(height: 8),
+        if (themes.any(_isLocked)) ...[
+          Text(
+            l.duelThemesLockedHint,
+            key: const ValueKey('themes-locked-hint'),
+            style: const TextStyle(color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+        ],
         for (final entry in byCategory.entries) ...[
           DuelCard(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
@@ -467,21 +560,24 @@ class _DuelChallengeScreenState extends State<DuelChallengeScreen>
                     ),
                   ),
                   for (final theme in entry.value)
-                    CheckboxListTile(
-                      key: ValueKey('theme-${theme.id}'),
-                      dense: true,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      value: _selectedThemes.contains(theme.id),
-                      title: Text(theme.name(languageCode)),
-                      onChanged: (value) => setState(() {
-                        if (value == true) {
-                          _selectedThemes.add(theme.id);
-                        } else {
-                          _selectedThemes.remove(theme.id);
-                        }
-                        _refreshDifficulties();
-                      }),
-                    ),
+                    if (_isLocked(theme))
+                      _lockedTile(l, theme, languageCode)
+                    else
+                      CheckboxListTile(
+                        key: ValueKey('theme-${theme.id}'),
+                        dense: true,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        value: _selectedThemes.contains(theme.id),
+                        title: Text(theme.name(languageCode)),
+                        onChanged: (value) => setState(() {
+                          if (value == true) {
+                            _selectedThemes.add(theme.id);
+                          } else {
+                            _selectedThemes.remove(theme.id);
+                          }
+                          _refreshDifficulties();
+                        }),
+                      ),
                 ],
               ),
             ),

@@ -1055,6 +1055,30 @@ abstract class AppLocalizations {
   /// **'You need at least 1 credit to unlock this theme.'**
   String get unlockThemeNoCredits;
 
+  /// No description provided for @unlockThemeFocusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock this theme'**
+  String get unlockThemeFocusTitle;
+
+  /// No description provided for @unlockThemeFocusHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocking this theme costs 1 credit. Once unlocked, you can pick it for your duels.'**
+  String get unlockThemeFocusHelp;
+
+  /// No description provided for @unlockThemeAlreadyUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{theme} is already unlocked.'**
+  String unlockThemeAlreadyUnlocked(String theme);
+
+  /// No description provided for @unlockThemeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This theme is no longer available.'**
+  String get unlockThemeUnavailable;
+
   /// No description provided for @openStore.
   ///
   /// In en, this message translates to:
@@ -1912,6 +1936,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No theme can be played for this duel right now.'**
   String get duelNoPlayableThemes;
+
+  /// No description provided for @duelThemesLockedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Themes with a padlock are premium: tap one to unlock it with 1 credit.'**
+  String get duelThemesLockedHint;
+
+  /// No description provided for @duelThemeLockedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium theme'**
+  String get duelThemeLockedSubtitle;
+
+  /// No description provided for @duelThemeLockedSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, locked premium theme. Tap to unlock it.'**
+  String duelThemeLockedSemantics(String name);
+
+  /// No description provided for @duelOnlyLockedThemes.
+  ///
+  /// In en, this message translates to:
+  /// **'No theme can be played for this duel yet. Unlock a premium theme below to challenge {username}.'**
+  String duelOnlyLockedThemes(String username);
 
   /// No description provided for @duelAlreadyOpenOpened.
   ///

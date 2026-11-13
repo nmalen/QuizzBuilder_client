@@ -332,6 +332,17 @@
     }
   },
   "unlockThemeNoCredits": "Il faut au moins 1 crédit pour débloquer ce thème.",
+  "unlockThemeFocusTitle": "Débloquer ce thème",
+  "unlockThemeFocusHelp": "Débloquer ce thème coûte 1 crédit. Une fois débloqué, tu pourras le choisir pour tes duels.",
+  "unlockThemeAlreadyUnlocked": "{theme} est déjà débloqué.",
+  "@unlockThemeAlreadyUnlocked": {
+    "placeholders": {
+      "theme": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockThemeUnavailable": "Ce thème n'est plus disponible.",
   "openStore": "Ouvrir la boutique",
   "unlockThemeSuccess": "{theme} débloqué. Crédits restants : {balance}",
   "@unlockThemeSuccess": {
@@ -840,6 +851,24 @@
   "duelSecondsHelp": "Le même temps pour vous deux.",
   "duelStartChallenge": "Lancer le défi",
   "duelNoPlayableThemes": "Aucun thème n'est jouable pour ce duel pour le moment.",
+  "duelThemesLockedHint": "Les thèmes avec un cadenas sont premium : touchez-en un pour le débloquer avec 1 crédit.",
+  "duelThemeLockedSubtitle": "Thème premium",
+  "duelThemeLockedSemantics": "{name}, thème premium verrouillé. Touchez pour le débloquer.",
+  "@duelThemeLockedSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "duelOnlyLockedThemes": "Aucun thème n'est jouable pour ce duel pour le moment. Débloque un thème premium ci-dessous pour défier {username}.",
+  "@duelOnlyLockedThemes": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
   "duelAlreadyOpenOpened": "Un duel est déjà ouvert avec {username} : le voici.",
   "@duelAlreadyOpenOpened": {
     "placeholders": {

@@ -332,6 +332,17 @@
     }
   },
   "unlockThemeNoCredits": "You need at least 1 credit to unlock this theme.",
+  "unlockThemeFocusTitle": "Unlock this theme",
+  "unlockThemeFocusHelp": "Unlocking this theme costs 1 credit. Once unlocked, you can pick it for your duels.",
+  "unlockThemeAlreadyUnlocked": "{theme} is already unlocked.",
+  "@unlockThemeAlreadyUnlocked": {
+    "placeholders": {
+      "theme": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockThemeUnavailable": "This theme is no longer available.",
   "openStore": "Open store",
   "unlockThemeSuccess": "{theme} unlocked. Remaining credits: {balance}",
   "@unlockThemeSuccess": {
@@ -840,6 +851,24 @@
   "duelSecondsHelp": "The same time for both of you.",
   "duelStartChallenge": "Start the challenge",
   "duelNoPlayableThemes": "No theme can be played for this duel right now.",
+  "duelThemesLockedHint": "Themes with a padlock are premium: tap one to unlock it with 1 credit.",
+  "duelThemeLockedSubtitle": "Premium theme",
+  "duelThemeLockedSemantics": "{name}, locked premium theme. Tap to unlock it.",
+  "@duelThemeLockedSemantics": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "duelOnlyLockedThemes": "No theme can be played for this duel yet. Unlock a premium theme below to challenge {username}.",
+  "@duelOnlyLockedThemes": {
+    "placeholders": {
+      "username": {
+        "type": "String"
+      }
+    }
+  },
   "duelAlreadyOpenOpened": "A duel is already open with {username}: here it is.",
   "@duelAlreadyOpenOpened": {
     "placeholders": {

@@ -78,7 +78,8 @@ class RecordedRequest {
   final String method;
   final String path;
   final String body;
-  RecordedRequest(this.method, this.path, this.body);
+  final String query;
+  RecordedRequest(this.method, this.path, this.body, [this.query = '']);
   @override
   String toString() => '$method $path';
 }
@@ -96,6 +97,7 @@ class FakeDuelServer {
       request.method,
       request.url.path,
       request.body,
+      request.url.query,
     );
     requests.add(recorded);
     return handler(recorded);

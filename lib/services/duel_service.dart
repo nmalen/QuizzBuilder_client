@@ -103,10 +103,15 @@ class DuelService {
 
   /// Themes playable against one opponent (by pair id): free ones plus those
   /// either player owns. Nothing says who owns what.
-  Future<List<DuelTheme>> listThemes(int pairId) async {
+  /// With [includeLocked], the premium themes neither player owns come back
+  /// too, each flagged `is_locked` (the server only reads the exact value 1).
+  Future<List<DuelTheme>> listThemes(
+    int pairId, {
+    bool includeLocked = false,
+  }) async {
     final response = await _send(
       'GET',
-      'opponents/$pairId/themes/',
+      'opponents/$pairId/themes/${includeLocked ? '?include_locked=1' : ''}',
       expected: {200},
     );
     return _results(response).map(DuelTheme.fromJson).toList(growable: false);

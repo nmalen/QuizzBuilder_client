@@ -543,6 +543,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unlockThemeNoCredits => 'You need at least 1 credit to unlock this theme.';
 
   @override
+  String get unlockThemeFocusTitle => 'Unlock this theme';
+
+  @override
+  String get unlockThemeFocusHelp => 'Unlocking this theme costs 1 credit. Once unlocked, you can pick it for your duels.';
+
+  @override
+  String unlockThemeAlreadyUnlocked(String theme) {
+    return '$theme is already unlocked.';
+  }
+
+  @override
+  String get unlockThemeUnavailable => 'This theme is no longer available.';
+
+  @override
   String get openStore => 'Open store';
 
   @override
@@ -1067,6 +1081,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get duelNoPlayableThemes => 'No theme can be played for this duel right now.';
+
+  @override
+  String get duelThemesLockedHint => 'Themes with a padlock are premium: tap one to unlock it with 1 credit.';
+
+  @override
+  String get duelThemeLockedSubtitle => 'Premium theme';
+
+  @override
+  String duelThemeLockedSemantics(String name) {
+    return '$name, locked premium theme. Tap to unlock it.';
+  }
+
+  @override
+  String duelOnlyLockedThemes(String username) {
+    return 'No theme can be played for this duel yet. Unlock a premium theme below to challenge $username.';
+  }
 
   @override
   String duelAlreadyOpenOpened(String username) {

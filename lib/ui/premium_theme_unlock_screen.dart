@@ -11,9 +11,32 @@ import '../providers/connectivity_provider.dart';
 import '../providers/quizz_builder_provider.dart';
 import '../services/catalog_service.dart';
 import '../widgets/offline_banner.dart';
+import 'credit_store_screen.dart';
 
+/// The origin the server records for an unlock that starts from a padlock row
+/// of the duel challenge screen (the only value it accepts).
+const String duelChallengeUnlockOrigin = 'duel_challenge';
+
+/// Unlocks premium themes with credits.
+///
+/// Without [duelChallengeThemeId] it lists every locked premium theme and
+/// stays open after an unlock, exactly as it always did (and sends no origin).
+/// With it, the screen is opened from a padlock row of the duel challenge
+/// screen: it shows that one theme, sends [duelChallengeUnlockOrigin], and
+/// closes itself with `true` (the theme is now the player's) or `false`
+/// (nothing was unlocked).
 class PremiumThemeUnlockScreen extends StatefulWidget {
-  const PremiumThemeUnlockScreen({super.key});
+  final int? duelChallengeThemeId;
+
+  /// Replaces the credit store screen (tests: the real one needs the store
+  /// plugins).
+  final WidgetBuilder? storeBuilder;
+
+  const PremiumThemeUnlockScreen({
+    super.key,
+    this.duelChallengeThemeId,
+    this.storeBuilder,
+  });
 
   @override
   State<PremiumThemeUnlockScreen> createState() =>
@@ -27,6 +50,8 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
   String? _error;
   int? _unlockingThemeId;
   List<theme_model.Theme> _premiumThemes = const [];
+
+  bool get _singleTheme => widget.duelChallengeThemeId != null;
 
   @override
   void initState() {
@@ -48,6 +73,7 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
       await builder.refreshThemeAccess();
       final themes = await _catalogService.getAllThemes();
       if (!mounted) return;
+      if (_singleTheme && _leaveIfSettled(themes)) return;
 
       setState(() {
         _premiumThemes =
@@ -70,6 +96,78 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
         _error = e.toString();
       });
     }
+  }
+
+  /// Single-theme mode: closes the screen when the theme can no longer be
+  /// unlocked from here. Returns whether it did.
+  bool _leaveIfSettled(List<theme_model.Theme> all) {
+    final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+    final l10n = AppLocalizations.of(context)!;
+    theme_model.Theme? theme;
+    for (final t in all) {
+      if (t.id == widget.duelChallengeThemeId) theme = t;
+    }
+    if (theme == null || !theme.isActive || theme.isFree) {
+      _leave(l10n.unlockThemeUnavailable, unlocked: false);
+      return true;
+    }
+    if (builder.isThemeEntitled(theme)) {
+      final name = theme.getName(Localizations.localeOf(context).languageCode);
+      _leave(l10n.unlockThemeAlreadyUnlocked(name), unlocked: true);
+      return true;
+    }
+    return false;
+  }
+
+  /// The message is shown by the screen underneath (snack bars outlive the
+  /// route that raised them).
+  void _leave(String message, {required bool unlocked, bool success = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: success ? Colors.green : null,
+      ),
+    );
+    Navigator.of(context).pop(unlocked);
+  }
+
+  /// Single-theme mode, after the server refused an unlock. The refusals
+  /// carry no code (three identical 400s, English text), so the text is never
+  /// read: the state is fetched again and decides.
+  Future<void> _resyncAfterRefusal() async {
+    final builder = Provider.of<QuizzBuilderProvider>(context, listen: false);
+    final l10n = AppLocalizations.of(context)!;
+    var resynced = false;
+    try {
+      await builder.refreshThemeAccess();
+      if (builder.themeAccessError == null) {
+        final all = await _catalogService.getAllThemes();
+        if (!mounted) return;
+        if (_leaveIfSettled(all)) return;
+        resynced = true;
+      }
+    } catch (_) {
+      // Handled below: the state could not be fetched again.
+    }
+    if (!mounted) return;
+    // No credit left: the screen now shows that state, nothing more to say.
+    if (resynced && builder.creditBalance < 1) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.errorGenericTryAgain),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  Future<void> _openStore() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: widget.storeBuilder ?? (_) => const CreditStoreScreen(),
+      ),
+    );
+    if (!mounted) return;
+    await _load();
   }
 
   Future<void> _unlockTheme(theme_model.Theme theme) async {
@@ -95,28 +193,35 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
     });
 
     try {
-      final remaining = await builder.unlockThemeWithCredit(theme);
+      final remaining = await builder.unlockThemeWithCredit(
+        theme,
+        origin: _singleTheme ? duelChallengeUnlockOrigin : null,
+      );
       // Download the newly-unlocked theme's questions right away so it's
       // playable offline without waiting for the next background sync.
       unawaited(catalogProvider.syncThemeQuestions(theme));
       if (!mounted) return;
 
+      final message = l10n.unlockThemeSuccess(
+        theme.getName(Localizations.localeOf(context).languageCode),
+        l10n.storeQuestionPackCount(remaining),
+      );
+      if (_singleTheme) {
+        _leave(message, unlocked: true, success: true);
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.unlockThemeSuccess(
-              theme.getName(Localizations.localeOf(context).languageCode),
-              l10n.storeQuestionPackCount(remaining),
-            ),
-          ),
-          backgroundColor: Colors.green,
-        ),
+        SnackBar(content: Text(message), backgroundColor: Colors.green),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-      );
+      if (_singleTheme) {
+        await _resyncAfterRefusal();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -125,6 +230,21 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
       }
     }
   }
+
+  /// Single-theme mode without credit: the reason, and the way to the store.
+  List<Widget> _noCreditActions(AppLocalizations l10n) => [
+    Text(l10n.unlockThemeNoCredits, key: const ValueKey('unlock-no-credits')),
+    const SizedBox(height: 12),
+    SizedBox(
+      width: double.infinity,
+      child: FilledButton.icon(
+        key: const ValueKey('unlock-open-store'),
+        onPressed: _openStore,
+        icon: const Icon(Icons.storefront),
+        label: Text(l10n.openStore),
+      ),
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +255,11 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.unlockPremiumThemesTitle),
+        title: Text(
+          _singleTheme
+              ? l10n.unlockThemeFocusTitle
+              : l10n.unlockPremiumThemesTitle,
+        ),
         actions: [
           IconButton(
             onPressed: _loading ? null : _load,
@@ -146,7 +270,11 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
       body: Consumer<QuizzBuilderProvider>(
         builder: (context, builder, _) {
           final lockedThemes = _premiumThemes
-              .where((theme) => !builder.isThemeEntitled(theme))
+              .where(
+                (theme) =>
+                    !builder.isThemeEntitled(theme) &&
+                    (!_singleTheme || theme.id == widget.duelChallengeThemeId),
+              )
               .toList(growable: false);
 
           if (_loading) {
@@ -198,14 +326,18 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(l10n.tapLockedThemeToUnlock),
-                    const SizedBox(height: 4),
-                    Text(
-                      l10n.storeLockedPaidThemesCount(lockedThemes.length),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                    if (_singleTheme)
+                      Text(l10n.unlockThemeFocusHelp)
+                    else ...[
+                      Text(l10n.tapLockedThemeToUnlock),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.storeLockedPaidThemesCount(lockedThemes.length),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
@@ -274,27 +406,31 @@ class _PremiumThemeUnlockScreenState extends State<PremiumThemeUnlockScreen> {
                                     ).textTheme.bodySmall,
                                   ),
                                   const SizedBox(height: 14),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: FilledButton.icon(
-                                      onPressed:
-                                          builder.creditBalance < 1 ||
-                                              isUnlocking ||
-                                              !isOnline
-                                          ? null
-                                          : () => _unlockTheme(theme),
-                                      icon: isUnlocking
-                                          ? const SizedBox(
-                                              width: 16,
-                                              height: 16,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                              ),
-                                            )
-                                          : const Icon(Icons.lock_open),
-                                      label: Text(l10n.unlockThemeAction),
+                                  if (_singleTheme && builder.creditBalance < 1)
+                                    ..._noCreditActions(l10n)
+                                  else
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: FilledButton.icon(
+                                        onPressed:
+                                            builder.creditBalance < 1 ||
+                                                isUnlocking ||
+                                                !isOnline
+                                            ? null
+                                            : () => _unlockTheme(theme),
+                                        icon: isUnlocking
+                                            ? const SizedBox(
+                                                width: 16,
+                                                height: 16,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                    ),
+                                              )
+                                            : const Icon(Icons.lock_open),
+                                        label: Text(l10n.unlockThemeAction),
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ),
