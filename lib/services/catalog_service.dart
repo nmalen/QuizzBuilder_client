@@ -102,6 +102,11 @@ class CatalogService {
 
   CatalogService({required this.authService});
 
+  /// Pages of themes read at most (the server sends 50 per page: 1000
+  /// themes). A guard against a link that never ends; reaching it is an
+  /// error, never a list presented as complete.
+  static const int maxThemePages = 20;
+
   /// Support both legacy list responses and DRF paginated responses.
   List<dynamic> _decodeListPayload(String responseBody) {
     final decoded = jsonDecode(responseBody);
@@ -323,26 +328,50 @@ class CatalogService {
     await getQuestionsByTheme(themeId);
   }
 
-  /// Fetch all themes (with optional free/paid filter)
+  /// Fetch all themes (with optional free/paid filter), every page of them.
+  ///
+  /// The server paginates `themes/` (50 per page). Each page is asked on the
+  /// base URL this app knows (`?page=N`), never on the `next` link: behind
+  /// the proxy that link can carry another scheme or lose the path prefix. The
+  /// first page is asked exactly as it always was; the reading stops when
+  /// `next` is empty, and a bare list (no pagination) is still accepted. A
+  /// page in error fails the whole reading with the error it always gave, and
+  /// more than [maxThemePages] pages is an error too: a partial list is never
+  /// presented as the full catalog.
   Future<List<Theme>> getAllThemes({bool? isFree}) async {
     try {
-      String url = '$baseUrl${ApiConfig.themesEndpoint}';
-      if (isFree != null) {
-        url += '?is_free=$isFree';
+      final items = <dynamic>[];
+      for (var page = 1; page <= maxThemePages; page++) {
+        final query = [
+          if (isFree != null) 'is_free=$isFree',
+          if (page > 1) 'page=$page',
+        ].join('&');
+        final response = await _authorizedGet(
+          '$baseUrl${ApiConfig.themesEndpoint}${query.isEmpty ? '' : '?$query'}',
+        );
+        if (response.statusCode != 200) {
+          throw Exception('Failed to load themes: ${response.statusCode}');
+        }
+        final decoded = jsonDecode(response.body);
+        if (decoded is List) {
+          items.addAll(decoded);
+          return _themesFrom(items);
+        }
+        if (decoded is! Map<String, dynamic> || decoded['results'] is! List) {
+          throw const FormatException('Unexpected API payload format');
+        }
+        items.addAll(decoded['results'] as List);
+        final next = decoded['next'];
+        if (next is! String || next.trim().isEmpty) return _themesFrom(items);
       }
-
-      final response = await _authorizedGet(url);
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = _decodeListPayload(response.body);
-        return data.map((item) => Theme.fromJson(item as Map<String, dynamic>)).toList();
-      } else {
-        throw Exception('Failed to load themes: ${response.statusCode}');
-      }
+      throw Exception('More than $maxThemePages pages of themes');
     } catch (e) {
       throw Exception('Error: ${e.toString()}');
     }
   }
+
+  List<Theme> _themesFrom(List<dynamic> items) =>
+      items.map((item) => Theme.fromJson(item as Map<String, dynamic>)).toList();
 
   /// Fetch catalog statistics (totals)
   Future<CatalogStats> getStatistics() async {

@@ -32,8 +32,22 @@ class FakeCreditStore {
 
   int unlockCalls = 0;
 
-  /// Catalog answer (`GET themes/`).
-  http.Response catalogResponse() => jsonResponse(200, [
+  /// When set, `GET themes/` answers like the server: pages of this many
+  /// themes in a `{count, next, previous, results}` envelope (`?page=N`, the
+  /// `next` link deliberately on another scheme, as behind a proxy).
+  int? pageSize;
+
+  /// Every `GET themes/` the fake received.
+  final List<Uri> catalogRequests = [];
+
+  /// Premium themes added to the catalog by id, on top of [catalog].
+  void addPremiumThemes(int count, {int firstId = 100}) {
+    for (var i = 0; i < count; i++) {
+      catalog[firstId + i] = true;
+    }
+  }
+
+  List<Map<String, Object?>> _rows() => [
     for (final e in catalog.entries)
       {
         'id': e.key,
@@ -47,11 +61,32 @@ class FakeCreditStore {
         'questions_count': 40 + e.key,
         'source_url': null,
       },
-  ]);
+  ];
+
+  /// Catalog answer (`GET themes/`).
+  http.Response catalogResponse([Uri? uri]) {
+    final size = pageSize;
+    if (size == null) return _flatCatalogResponse();
+    final rows = _rows();
+    final page = int.tryParse(uri?.queryParameters['page'] ?? '') ?? 1;
+    final from = (page - 1) * size;
+    if (from >= rows.length && page > 1) return jsonResponse(404, {'detail': 'Invalid page.'});
+    final to = (from + size).clamp(0, rows.length);
+    final hasNext = to < rows.length;
+    return jsonResponse(200, {
+      'count': rows.length,
+      'next': hasNext ? 'http://booksnotify.com/themes/?page=${page + 1}' : null,
+      'previous': page > 1 ? 'http://booksnotify.com/themes/?page=${page - 1}' : null,
+      'results': rows.sublist(from, to),
+    });
+  }
+
+  http.Response _flatCatalogResponse() => jsonResponse(200, _rows());
 
   MockClient get client => MockClient((request) async {
     if (request.method == 'GET' && request.url.path.endsWith('/themes/')) {
-      return catalogResponse();
+      catalogRequests.add(request.url);
+      return catalogResponse(request.url);
     }
     return jsonResponse(404, null);
   });
