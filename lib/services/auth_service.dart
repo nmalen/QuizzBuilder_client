@@ -455,12 +455,27 @@ class AuthService {
     }
   }
 
-  /// Get authorization header
+  /// Header telling the server the language chosen in the app (not the
+  /// phone's). Exact lowercase `fr` or `en`: the server ignores anything else.
+  static const String appLanguageHeader = 'X-App-Language';
+  static const Set<String> _appLanguages = {'fr', 'en'};
+
+  /// Gives the interface language code at the time of each call, so a change
+  /// in the settings is sent with the very next request. Set once in `main()`
+  /// (the language provider is created after this service); without it, no
+  /// language header is sent.
+  String Function()? appLanguageSource;
+
+  /// Get authorization header. The language header goes only with a token:
+  /// the single place where every authenticated call gets it.
   Future<Map<String, String>> getAuthHeaders() async {
     final token = await getAccessToken();
+    final language = appLanguageSource?.call();
     return {
       ...ApiConfig.defaultHeaders,
       if (token != null) 'Authorization': 'Bearer $token',
+      if (token != null && _appLanguages.contains(language))
+        appLanguageHeader: language!,
     };
   }
 }

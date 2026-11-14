@@ -28,6 +28,8 @@ void main() async {
   
   final languageProvider = LanguageProvider();
   await languageProvider.initialize();
+  // Every authenticated call tells the server the interface language.
+  authService.appLanguageSource = () => languageProvider.languageCode;
   
   final navigatorKey = GlobalKey<NavigatorState>();
 
