@@ -107,9 +107,8 @@ void main() {
   });
 
   for (final locale in ['fr', 'en']) {
-    testWidgets('[$locale] smallest screen (320 x 568): the tiles do not overflow', (tester) async {
-      // The stats block below the tiles already overflows on such a screen
-      // (not touched by this lot): only overflows raised inside a tile count.
+    testWidgets('[$locale] smallest screen (320 x 568): nothing on the home screen overflows', (tester) async {
+      // Any RenderFlex overflow on the home screen (tiles, header, stats).
       final raised = <String>[];
       final previous = FlutterError.onError;
       FlutterError.onError = (d) => raised.add(d.toString());
@@ -120,9 +119,9 @@ void main() {
         expect(find.text(title), findsOneWidget);
       }
       expect(
-        raised.where((e) => e.contains('_ActionButton')),
+        raised.where((e) => e.contains('overflowed')),
         isEmpty,
-        reason: 'a tile overflowed',
+        reason: 'something overflowed',
       );
     });
   }

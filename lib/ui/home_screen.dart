@@ -248,13 +248,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          AppLocalizations.of(context)!.availableContent,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                        Expanded(
+                          child: Text(
+                            AppLocalizations.of(context)!.availableContent,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                          ),
                         ),
                         IconButton(
                           tooltip: 'Refresh',
@@ -323,12 +325,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _StatItem(
-                                icon: Icons.school,
-                                label: AppLocalizations.of(context)!.categories,
-                                value: _formatStatValue(
-                                  catalogProvider.stats?.totalCategories,
-                                  catalogProvider.isStatsLoading,
+                              Flexible(
+                                child: _StatItem(
+                                  icon: Icons.school,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.categories,
+                                  value: _formatStatValue(
+                                    catalogProvider.stats?.totalCategories,
+                                    catalogProvider.isStatsLoading,
+                                  ),
                                 ),
                               ),
                               Container(
@@ -336,12 +342,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 1,
                                 color: Colors.grey.shade300,
                               ),
-                              _StatItem(
-                                icon: Icons.bookmark,
-                                label: AppLocalizations.of(context)!.themes,
-                                value: _formatStatValue(
-                                  catalogProvider.stats?.totalThemes,
-                                  catalogProvider.isStatsLoading,
+                              Flexible(
+                                child: _StatItem(
+                                  icon: Icons.bookmark,
+                                  label: AppLocalizations.of(context)!.themes,
+                                  value: _formatStatValue(
+                                    catalogProvider.stats?.totalThemes,
+                                    catalogProvider.isStatsLoading,
+                                  ),
                                 ),
                               ),
                               Container(
@@ -349,12 +357,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 1,
                                 color: Colors.grey.shade300,
                               ),
-                              _StatItem(
-                                icon: Icons.help_center,
-                                label: AppLocalizations.of(context)!.questions,
-                                value: _formatStatValue(
-                                  catalogProvider.stats?.totalQuestions,
-                                  catalogProvider.isStatsLoading,
+                              Flexible(
+                                child: _StatItem(
+                                  icon: Icons.help_center,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.questions,
+                                  value: _formatStatValue(
+                                    catalogProvider.stats?.totalQuestions,
+                                    catalogProvider.isStatsLoading,
+                                  ),
                                 ),
                               ),
                             ],
@@ -408,12 +420,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _StatItem(
-                                icon: Icons.school,
-                                label: AppLocalizations.of(context)!.categories,
-                                value: _formatStatValue(
-                                  catalogProvider.stats?.totalCategoriesAll,
-                                  catalogProvider.isStatsLoading,
+                              Flexible(
+                                child: _StatItem(
+                                  icon: Icons.school,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.categories,
+                                  value: _formatStatValue(
+                                    catalogProvider.stats?.totalCategoriesAll,
+                                    catalogProvider.isStatsLoading,
+                                  ),
                                 ),
                               ),
                               Container(
@@ -421,12 +437,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 1,
                                 color: Colors.grey.shade300,
                               ),
-                              _StatItem(
-                                icon: Icons.bookmark,
-                                label: AppLocalizations.of(context)!.themes,
-                                value: _formatStatValue(
-                                  catalogProvider.stats?.totalThemesAll,
-                                  catalogProvider.isStatsLoading,
+                              Flexible(
+                                child: _StatItem(
+                                  icon: Icons.bookmark,
+                                  label: AppLocalizations.of(context)!.themes,
+                                  value: _formatStatValue(
+                                    catalogProvider.stats?.totalThemesAll,
+                                    catalogProvider.isStatsLoading,
+                                  ),
                                 ),
                               ),
                               Container(
@@ -434,12 +452,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: 1,
                                 color: Colors.grey.shade300,
                               ),
-                              _StatItem(
-                                icon: Icons.help_center,
-                                label: AppLocalizations.of(context)!.questions,
-                                value: _formatStatValue(
-                                  catalogProvider.stats?.totalQuestionsAll,
-                                  catalogProvider.isStatsLoading,
+                              Flexible(
+                                child: _StatItem(
+                                  icon: Icons.help_center,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.questions,
+                                  value: _formatStatValue(
+                                    catalogProvider.stats?.totalQuestionsAll,
+                                    catalogProvider.isStatsLoading,
+                                  ),
                                 ),
                               ),
                             ],
