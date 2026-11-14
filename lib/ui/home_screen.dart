@@ -196,27 +196,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 10),
                     _ActionButton(
                       icon: Icons.quiz,
-                      title: AppLocalizations.of(context)!.playQuiz,
-                      subtitle: AppLocalizations.of(context)!.playQuizSubtitle,
+                      title: AppLocalizations.of(context)!.classicGame,
+                      subtitle: AppLocalizations.of(context)!.classicGameSubtitle,
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => const GameModeScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    _ActionButton(
-                      icon: Icons.shopping_cart,
-                      title: AppLocalizations.of(context)!.store,
-                      subtitle: AppLocalizations.of(context)!.storeSubtitle,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const CreditStoreScreen(),
                           ),
                         );
                       },
@@ -231,6 +217,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           MaterialPageRoute(
                             builder: (_) => const DuelHubScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    _ActionButton(
+                      icon: Icons.shopping_cart,
+                      title: AppLocalizations.of(context)!.store,
+                      subtitle: AppLocalizations.of(context)!.storeSubtitle,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CreditStoreScreen(),
                           ),
                         );
                       },

@@ -16,8 +16,8 @@
     }
   },
   "readyToTest": "Ready to test your knowledge?",
-  "playQuiz": "Play Quiz",
-  "playQuizSubtitle": "Select categories, themes, and challenge yourself",
+  "classicGame": "Classic game",
+  "classicGameSubtitle": "Alone or together on this phone",
   "buildQuiz": "Build Quiz",
   "buildQuizSubtitle": "Compose your own quiz from themes",
   "store": "Store",

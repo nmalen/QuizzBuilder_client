@@ -16,8 +16,8 @@
     }
   },
   "readyToTest": "Prêt à tester vos connaissances?",
-  "playQuiz": "Jouer au Quiz",
-  "playQuizSubtitle": "Sélectionnez des catégories, des thèmes et défiez-vous",
+  "classicGame": "Partie classique",
+  "classicGameSubtitle": "Seul ou à plusieurs sur ce téléphone",
   "buildQuiz": "Construire un Quiz",
   "buildQuizSubtitle": "Composez votre propre quiz à partir de thèmes",
   "store": "Boutique",

@@ -143,17 +143,17 @@ abstract class AppLocalizations {
   /// **'Ready to test your knowledge?'**
   String get readyToTest;
 
-  /// No description provided for @playQuiz.
+  /// No description provided for @classicGame.
   ///
   /// In en, this message translates to:
-  /// **'Play Quiz'**
-  String get playQuiz;
+  /// **'Classic game'**
+  String get classicGame;
 
-  /// No description provided for @playQuizSubtitle.
+  /// No description provided for @classicGameSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Select categories, themes, and challenge yourself'**
-  String get playQuizSubtitle;
+  /// **'Alone or together on this phone'**
+  String get classicGameSubtitle;
 
   /// No description provided for @buildQuiz.
   ///

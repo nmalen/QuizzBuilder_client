@@ -35,10 +35,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readyToTest => 'Ready to test your knowledge?';
 
   @override
-  String get playQuiz => 'Play Quiz';
+  String get classicGame => 'Classic game';
 
   @override
-  String get playQuizSubtitle => 'Select categories, themes, and challenge yourself';
+  String get classicGameSubtitle => 'Alone or together on this phone';
 
   @override
   String get buildQuiz => 'Build Quiz';
