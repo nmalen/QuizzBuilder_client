@@ -178,7 +178,7 @@ void main() {
     });
 
     testWidgets(
-      '"Turn on": the system is asked once, the token is read, never shown again',
+      '"Turn on": the system is asked once, the installation ID is asked for, never shown again',
       (tester) async {
         await setUpPush(tester);
         final context = await pumpBare(tester);
@@ -191,15 +191,15 @@ void main() {
           0,
           reason: 'nothing before the player answers',
         );
-        expect(service.token, isNull);
+        expect(service.installationId, isNull);
 
         await tester.tap(find.text(_en.pushPromptTurnOn));
         await frames(tester);
         expect(gateway.requestCalls, 1);
         expect(
-          service.token,
-          fakeDeviceToken,
-          reason: 'token read once allowed',
+          service.installationId,
+          fakeInstallationId,
+          reason: 'installation ID asked for once allowed',
         );
         expect(await proposed(), isTrue);
         expect(title(), findsNothing);
@@ -221,7 +221,7 @@ void main() {
         await tester.tap(find.text(_en.pushPromptLater));
         await frames(tester);
         expect(gateway.requestCalls, 0);
-        expect(service.token, isNull);
+        expect(service.installationId, isNull);
         expect(await proposed(), isTrue);
 
         unawaited(controller.propose(context));
@@ -240,7 +240,7 @@ void main() {
       await tester.tap(find.text(_en.pushPromptTurnOn));
       await frames(tester);
       expect(gateway.requestCalls, 1);
-      expect(service.token, isNull, reason: 'no permission, no token');
+      expect(service.installationId, isNull, reason: 'no permission, no installation ID');
 
       unawaited(controller.propose(context));
       await frames(tester);
@@ -249,10 +249,10 @@ void main() {
     });
 
     testWidgets(
-      'Android 12 and older (always allowed): no window, the token is already read',
+      'Android 12 and older (always allowed): no window, the installation ID is already known',
       (tester) async {
         await setUpPush(tester, permission: PushPermission.granted);
-        expect(service.token, fakeDeviceToken);
+        expect(service.installationId, fakeInstallationId);
         final context = await pumpBare(tester);
         unawaited(controller.propose(context));
         await frames(tester);

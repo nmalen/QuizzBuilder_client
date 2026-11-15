@@ -17,6 +17,11 @@ class AuthProvider extends ChangeNotifier {
 
   AuthProvider({required AuthService authService}) : _authService = authService;
 
+  /// Runs at sign-out **before** the auth token is erased (the server still
+  /// has to know who is asking): removes this phone from the account's push
+  /// notifications. A failure or a delay never prevents signing out.
+  Future<void> Function()? beforeLogout;
+
   // Getters
   User? get user => _user;
   bool get isLoggedIn => _isLoggedIn;
@@ -176,6 +181,11 @@ class AuthProvider extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
+    try {
+      await beforeLogout?.call();
+    } catch (_) {
+      // Signing out comes first.
+    }
     await _authService.logout();
     _user = null;
     _isLoggedIn = false;

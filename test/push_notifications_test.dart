@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -82,59 +81,99 @@ void main() {
 
   group('service', () {
     test(
-      'start() never asks for the permission and reads no token without it',
+      'start() never asks for the permission and asks for no installation ID without it',
       () async {
         final gateway = FakePushGateway(authorized: false);
         final service = PushNotificationService(gateway: gateway);
         await service.start();
         expect(gateway.initCalls, 1);
-        expect(gateway.tokenReads, 0);
-        expect(service.token, isNull);
+        expect(gateway.registerCalls, 0);
+        expect(service.installationId, isNull);
         await service.dispose();
       },
     );
 
-    test('with the permission granted, the token is kept in memory', () async {
+    test(
+      'with the permission granted, the installation ID is kept in memory',
+      () async {
+        final gateway = FakePushGateway(authorized: true);
+        final service = PushNotificationService(gateway: gateway);
+        final seen = <String?>[];
+        service.installationIdChanges.listen(seen.add);
+        await service.start();
+        expect(service.installationId, fakeInstallationId);
+        await pumpEventQueue();
+        expect(seen, [fakeInstallationId]);
+        await service.dispose();
+      },
+    );
+
+    test(
+      'an ID handed out by the provider is followed, and still needs the permission',
+      () async {
+        final gateway = FakePushGateway(authorized: false);
+        final service = PushNotificationService(gateway: gateway);
+        final seen = <String?>[];
+        service.installationIdChanges.listen(seen.add);
+        await service.start();
+        gateway.refreshes.add('fid-handed-out-fictional');
+        await pumpEventQueue();
+        expect(
+          service.installationId,
+          isNull,
+          reason: 'no permission, no installation ID',
+        );
+        gateway.authorized = true;
+        gateway.refreshes.add('fid-handed-out-fictional');
+        await pumpEventQueue();
+        expect(service.installationId, 'fid-handed-out-fictional');
+        gateway.refreshes.add('fid-changed-fictional');
+        await pumpEventQueue();
+        expect(service.installationId, 'fid-changed-fictional');
+        expect(seen, ['fid-handed-out-fictional', 'fid-changed-fictional']);
+        await service.dispose();
+      },
+    );
+
+    test(
+      'the provider gives no ID (it failed): what is known is kept, nothing breaks',
+      () async {
+        final gateway = FakePushGateway(authorized: true);
+        final service = PushNotificationService(gateway: gateway);
+        await service.start();
+        expect(service.installationId, fakeInstallationId);
+        gateway.installationId = null;
+        await service.refreshInstallationId();
+        expect(service.installationId, fakeInstallationId);
+        await service.dispose();
+      },
+    );
+
+    test('the permission taken away clears the ID', () async {
       final gateway = FakePushGateway(authorized: true);
       final service = PushNotificationService(gateway: gateway);
-      final seen = <String?>[];
-      service.tokenChanges.listen(seen.add);
       await service.start();
-      expect(service.token, fakeDeviceToken);
-      await pumpEventQueue();
-      expect(seen, [fakeDeviceToken]);
-      await service.dispose();
-    });
-
-    test('a renewal is followed, and still needs the permission', () async {
-      final gateway = FakePushGateway(authorized: false);
-      final service = PushNotificationService(gateway: gateway);
-      await service.start();
-      gateway.refreshes.add('renewed');
-      await pumpEventQueue();
-      expect(service.token, isNull, reason: 'no permission, no token');
-      gateway.authorized = true;
-      gateway.refreshes.add('renewed');
-      await pumpEventQueue();
-      expect(service.token, fakeDeviceToken);
+      gateway.authorized = false;
+      await service.refreshInstallationId();
+      expect(service.installationId, isNull);
       await service.dispose();
     });
 
     test(
-      'refreshToken() picks the token up once the player allowed notifications',
+      'refreshInstallationId() picks the installation ID up once the player allowed notifications',
       () async {
         final gateway = FakePushGateway(authorized: false);
         final service = PushNotificationService(gateway: gateway);
         await service.start();
-        expect(service.token, isNull);
+        expect(service.installationId, isNull);
         gateway.authorized = true;
-        await service.refreshToken();
-        expect(service.token, fakeDeviceToken);
+        await service.refreshInstallationId();
+        expect(service.installationId, fakeInstallationId);
         await service.dispose();
       },
     );
 
-    test('the token never reaches a log', () async {
+    test('the installation ID never reaches a log', () async {
       final logs = <String>[];
       final original = debugPrint;
       debugPrint = (String? message, {int? wrapWidth}) =>
@@ -145,12 +184,12 @@ void main() {
       await service.start();
       gateway.refreshes.add('renewed');
       await pumpEventQueue();
-      expect(logs.join('\n'), isNot(contains(fakeDeviceToken)));
+      expect(logs.join('\n'), isNot(contains(fakeInstallationId)));
       await service.dispose();
     });
 
     test(
-      'a provider that fails to start leaves the app working: no token, no destination',
+      'a provider that fails to start leaves the app working: no installation ID, no destination',
       () async {
         final gateway = FakePushGateway(
           authorized: true,
@@ -162,7 +201,7 @@ void main() {
         service.destinations.listen(out.add);
         await service.start();
         await pumpEventQueue();
-        expect(service.token, isNull);
+        expect(service.installationId, isNull);
         expect(out, isEmpty);
         await service.dispose();
       },

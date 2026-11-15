@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:QuizzBuilder/services/push/push_gateway.dart';
 
-/// A fake device token: tests check it never reaches a log.
-const String fakeDeviceToken = 'fake-device-token-must-never-be-logged';
+/// A fictional Firebase Installation ID: tests check it never reaches a log.
+const String fakeInstallationId = 'fid-fictional-must-never-be-logged';
 
 /// A [PushGateway] with no Firebase: the permission, the answer to the system
 /// prompt and the notifications are scripted by the test.
@@ -25,7 +25,7 @@ class FakePushGateway implements PushGateway {
   PushPermission requestAnswer;
   bool failInit;
   Map<String, Object?>? initial;
-  int tokenReads = 0;
+  int registerCalls = 0;
   int initCalls = 0;
   int requestCalls = 0;
   final refreshes = StreamController<String>.broadcast();
@@ -50,14 +50,17 @@ class FakePushGateway implements PushGateway {
     return requestAnswer;
   }
 
+  /// What `registerInstallation()` answers (null: no FID, the provider failed).
+  String? installationId = fakeInstallationId;
+
   @override
-  Future<String?> readToken() async {
-    tokenReads++;
-    return fakeDeviceToken;
+  Future<String?> registerInstallation() async {
+    registerCalls++;
+    return installationId;
   }
 
   @override
-  Stream<String> get tokenRefreshes => refreshes.stream;
+  Stream<String> get installationIds => refreshes.stream;
 
   @override
   Future<Map<String, Object?>?> initialMessageData() async => initial;

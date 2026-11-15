@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/material.dart';
@@ -14,8 +15,10 @@ import 'providers/quizz_builder_provider.dart';
 import 'providers/language_provider.dart';
 import 'services/auth_service.dart';
 import 'services/duel_service.dart';
+import 'services/push/device_registration_api.dart';
 import 'services/push/firebase_push_gateway.dart';
 import 'services/push/push_notification_service.dart';
+import 'services/push/push_registration.dart';
 import 'ui/splash_screen.dart';
 import 'ui/auth_screen.dart';
 import 'ui/duel/invitation_link_host.dart';
@@ -36,6 +39,15 @@ void main() async {
   
   final navigatorKey = GlobalKey<NavigatorState>();
 
+  // Push notifications: the service (Firebase behind an interface) and what
+  // tells the server which installation gets the signed-in account's pushes.
+  final pushService = PushNotificationService(gateway: FirebasePushGateway());
+  final pushRegistration = PushRegistration(
+    push: pushService,
+    api: DeviceRegistrationApi(authService: authService),
+    platform: Platform.isIOS ? 'ios' : 'android',
+  );
+
   runApp(
     MultiProvider(
       providers: [
@@ -43,7 +55,13 @@ void main() async {
           value: languageProvider,
         ),
         ChangeNotifierProvider(
-          create: (_) => AuthProvider(authService: authService),
+          create: (_) {
+            final auth = AuthProvider(authService: authService)
+              // Removed from the account before the auth token is erased.
+              ..beforeLogout = pushRegistration.unregisterForSignOut;
+            pushRegistration.attach(auth);
+            return auth;
+          },
         ),
         ChangeNotifierProvider(
           create: (_) => ConnectivityProvider(),
@@ -64,7 +82,7 @@ void main() async {
       // Universal links (/d/<code>): the host sits above MaterialApp so it
       // sees the route information before the app's own route handling.
       child: PushNavigationHost(
-        service: PushNotificationService(gateway: FirebasePushGateway()),
+        service: pushService,
         navigatorKey: navigatorKey,
         child: InvitationLinkHost(
           navigatorKey: navigatorKey,

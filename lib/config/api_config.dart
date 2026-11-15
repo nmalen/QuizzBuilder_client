@@ -30,6 +30,10 @@ class ApiConfig {
       '/auth/registration/verify-email/';
   static const String statisticsEndpoint = '/statistics/';
 
+  /// Push notification target of this installation (POST to register the
+  /// Firebase Installation ID, DELETE to remove it).
+  static const String notificationDevicesEndpoint = '/notifications/devices/';
+
   /// Prefix of the duel routes (invitations, opponents, blocks).
   static const String duelPrefix = '/duel/';
 

@@ -24,11 +24,14 @@ abstract class PushGateway {
   /// Shows the system prompt (iOS; Android 13+) and returns the answer.
   Future<PushPermission> requestPermission();
 
-  /// The device token, or null when there is none yet.
-  Future<String?> readToken();
+  /// Registers this installation with the provider and returns its Firebase
+  /// Installation ID (FID), or null when there is none (provider error, no
+  /// answer in time). The FID, never the FCM registration token, is what the
+  /// server gets.
+  Future<String?> registerInstallation();
 
-  /// New device tokens, after a renewal.
-  Stream<String> get tokenRefreshes;
+  /// Installation IDs handed out by the provider, each time one is.
+  Stream<String> get installationIds;
 
   /// Data of the notification that started the app (app killed), once.
   Future<Map<String, Object?>?> initialMessageData();

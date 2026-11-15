@@ -8,9 +8,9 @@ import 'push_payload.dart';
 /// The single entry point of push notifications.
 ///
 /// - [start] starts the provider **without asking for the permission**;
-/// - the device token is read **only when the permission is granted**, and
-///   kept in memory ([token]) for the server registration (QB-C-021); it is
-///   never logged;
+/// - the Firebase Installation ID (FID) is asked for **only when the
+///   permission is granted**, and kept in memory ([installationId]) for the
+///   server registration (`PushRegistration`); it is never logged;
 /// - a tapped notification (app killed or in the background) comes out on
 ///   [destinations].
 ///
@@ -21,18 +21,19 @@ class PushNotificationService {
 
   final PushGateway _gateway;
   final _destinations = StreamController<PushDestination>.broadcast();
-  final _tokenChanges = StreamController<String?>.broadcast();
-  StreamSubscription<String>? _refreshSub;
+  final _idChanges = StreamController<String?>.broadcast();
+  StreamSubscription<String>? _idSub;
   StreamSubscription<Map<String, Object?>>? _openedSub;
   bool _started = false;
   bool _available = false;
-  String? _token;
+  String? _installationId;
 
-  /// Device token, in memory only; null until the permission is granted.
-  String? get token => _token;
+  /// Firebase Installation ID, in memory only; null until the permission is
+  /// granted and the provider has handed it over.
+  String? get installationId => _installationId;
 
-  /// Emits each time [token] changes.
-  Stream<String?> get tokenChanges => _tokenChanges.stream;
+  /// Emits each time [installationId] changes.
+  Stream<String?> get installationIdChanges => _idChanges.stream;
 
   /// Where each tapped notification leads. Listen before calling [start].
   Stream<PushDestination> get destinations => _destinations.stream;
@@ -52,12 +53,12 @@ class PushNotificationService {
       onError: (Object e) =>
           debugPrint('[PUSH] Opened message error: ${e.runtimeType}'),
     );
-    _refreshSub = _gateway.tokenRefreshes.listen(
-      (_) => unawaited(refreshToken()),
+    _idSub = _gateway.installationIds.listen(
+      (id) => unawaited(_onInstallationId(id)),
       onError: (Object e) =>
-          debugPrint('[PUSH] Token refresh error: ${e.runtimeType}'),
+          debugPrint('[PUSH] Installation id error: ${e.runtimeType}'),
     );
-    await refreshToken();
+    await refreshInstallationId();
     try {
       final initial = await _gateway.initialMessageData();
       if (initial != null) _destinations.add(parsePushPayload(initial));
@@ -66,22 +67,37 @@ class PushNotificationService {
     }
   }
 
-  /// Reads the token if (and only if) notifications are allowed. To call
-  /// again once the player has answered the permission request.
-  Future<void> refreshToken() async {
+  /// Asks for the installation ID if (and only if) notifications are allowed.
+  /// To call again once the player has answered the permission request.
+  Future<void> refreshInstallationId() async {
     if (!_available) return;
-    String? next;
     try {
-      if (await _gateway.permission() == PushPermission.granted) {
-        next = await _gateway.readToken();
+      if (await _gateway.permission() != PushPermission.granted) {
+        _set(null);
+        return;
       }
+      // No answer (null) keeps what is already known.
+      final id = await _gateway.registerInstallation();
+      if (id != null) _set(id);
     } catch (e) {
-      debugPrint('[PUSH] Token unavailable: ${e.runtimeType}');
+      debugPrint('[PUSH] Installation id unavailable: ${e.runtimeType}');
+    }
+  }
+
+  /// An ID handed out by the provider (first registration, or a change).
+  Future<void> _onInstallationId(String id) async {
+    try {
+      if (await _gateway.permission() != PushPermission.granted) return;
+    } catch (_) {
       return;
     }
-    if (next == _token) return;
-    _token = next;
-    _tokenChanges.add(next);
+    _set(id);
+  }
+
+  void _set(String? next) {
+    if (next == _installationId) return;
+    _installationId = next;
+    _idChanges.add(next);
   }
 
   /// Where the permission stands; `denied` when the provider is unavailable
@@ -96,7 +112,7 @@ class PushNotificationService {
     }
   }
 
-  /// Shows the system prompt, then reads the token if it was allowed.
+  /// Shows the system prompt, then asks for the installation ID if it was allowed.
   Future<PushPermission> requestPermission() async {
     if (!_available) return PushPermission.denied;
     PushPermission answer;
@@ -106,14 +122,14 @@ class PushNotificationService {
       debugPrint('[PUSH] Permission request failed: ${e.runtimeType}');
       return PushPermission.denied;
     }
-    await refreshToken();
+    await refreshInstallationId();
     return answer;
   }
 
   Future<void> dispose() async {
     await _openedSub?.cancel();
-    await _refreshSub?.cancel();
+    await _idSub?.cancel();
     await _destinations.close();
-    await _tokenChanges.close();
+    await _idChanges.close();
   }
 }
