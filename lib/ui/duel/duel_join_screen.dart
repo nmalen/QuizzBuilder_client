@@ -6,6 +6,7 @@ import '../../l10n/app_localizations.dart';
 import '../../models/duel.dart';
 import '../../providers/duel_provider.dart';
 import '../../utils/invitation_link.dart';
+import '../../widgets/paste_invitation_code_button.dart';
 import 'duel_errors.dart';
 import 'duel_join_confirm_screen.dart';
 import 'duel_widgets.dart';
@@ -109,6 +110,13 @@ class _DuelJoinScreenState extends State<DuelJoinScreen> {
                     errorText: _error,
                     errorMaxLines: 3,
                     border: const OutlineInputBorder(),
+                    suffixIcon: PasteInvitationCodeButton(
+                      enabled: !_loading,
+                      onCode: (code) => setState(() {
+                        _controller.text = code;
+                        _error = null;
+                      }),
+                    ),
                   ),
                   onSubmitted: (_) {
                     if (_complete && !_loading) _continue();

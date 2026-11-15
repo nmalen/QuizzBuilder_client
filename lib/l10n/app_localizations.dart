@@ -2524,6 +2524,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not now'**
   String get pushPromptLater;
+
+  /// No description provided for @pasteInvitationCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get pasteInvitationCode;
+
+  /// No description provided for @noInvitationCodeInClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'No invitation code in the clipboard.'**
+  String get noInvitationCodeInClipboard;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

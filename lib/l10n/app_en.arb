@@ -1182,5 +1182,7 @@
   "pushPromptTitle": "Turn on notifications?",
   "pushPromptBody": "Turn on notifications to know when a friend is waiting for you in a duel or accepts your invitation, even when the app is closed.",
   "pushPromptTurnOn": "Turn on",
-  "pushPromptLater": "Not now"
+  "pushPromptLater": "Not now",
+  "pasteInvitationCode": "Paste",
+  "noInvitationCodeInClipboard": "No invitation code in the clipboard."
 }

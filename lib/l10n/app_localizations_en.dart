@@ -1441,4 +1441,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pushPromptLater => 'Not now';
+
+  @override
+  String get pasteInvitationCode => 'Paste';
+
+  @override
+  String get noInvitationCodeInClipboard => 'No invitation code in the clipboard.';
 }

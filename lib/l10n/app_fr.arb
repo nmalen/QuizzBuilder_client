@@ -1182,5 +1182,7 @@
   "pushPromptTitle": "Activer les notifications ?",
   "pushPromptBody": "Active les notifications pour savoir quand un proche t'attend pour un duel ou accepte ton invitation, même si l'app est fermée.",
   "pushPromptTurnOn": "Activer",
-  "pushPromptLater": "Plus tard"
+  "pushPromptLater": "Plus tard",
+  "pasteInvitationCode": "Coller",
+  "noInvitationCodeInClipboard": "Aucun code d'invitation dans le presse-papiers."
 }

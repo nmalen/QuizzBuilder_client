@@ -1441,4 +1441,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pushPromptLater => 'Plus tard';
+
+  @override
+  String get pasteInvitationCode => 'Coller';
+
+  @override
+  String get noInvitationCodeInClipboard => 'Aucun code d\'invitation dans le presse-papiers.';
 }

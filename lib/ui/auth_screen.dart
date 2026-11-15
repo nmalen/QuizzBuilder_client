@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/invitation_link_provider.dart';
 import '../providers/language_provider.dart';
+import '../widgets/paste_invitation_code_button.dart';
 import 'push_permission_prompt.dart';
 import '../utils/invitation_link.dart';
 import '../utils/register_throttle_message.dart';
@@ -940,12 +941,23 @@ class _AuthScreenState extends State<AuthScreen> {
                                         helperText: AppLocalizations.of(
                                           context,
                                         )!.invitationCodeHelp,
+                                        // Both texts are long on a 393 pt phone (the
+                                        // help line, and the hint once the paste
+                                        // button takes room): let them wrap.
+                                        helperMaxLines: 3,
+                                        hintMaxLines: 2,
                                         helperStyle: const TextStyle(
                                           color: Colors.white70,
                                         ),
                                         prefixIcon: const Icon(
                                           Icons.pin,
                                           color: Colors.white70,
+                                        ),
+                                        suffixIcon: PasteInvitationCodeButton(
+                                          color: Colors.white70,
+                                          enabled: !authProvider.isLoading,
+                                          onCode: (code) =>
+                                              _invitationController.text = code,
                                         ),
                                         filled: true,
                                         fillColor: Colors.white.withValues(
