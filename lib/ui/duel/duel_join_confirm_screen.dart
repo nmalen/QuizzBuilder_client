@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../models/duel.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/duel_provider.dart';
+import '../push_permission_prompt.dart';
 import 'duel_errors.dart';
 import 'duel_format.dart';
 import 'duel_join_screen.dart';
@@ -69,12 +70,16 @@ class _DuelJoinConfirmScreenState extends State<DuelJoinConfirmScreen> {
     final navigator = Navigator.of(context);
     final duel = context.read<DuelProvider>();
     final userId = context.read<AuthProvider>().user?.id;
+    final prompt = PushPromptScope.maybeOf(context);
     setState(() => _accepting = true);
     try {
       final opponent = await duel.acceptInvitation(widget.code, userId: userId);
       messenger.showSnackBar(
         SnackBar(content: Text(l.duelNowOpponent(opponent.username))),
       );
+      // Invitation accepted: the one-time "turn on notifications?" proposal,
+      // before leaving this screen.
+      if (mounted && prompt != null) await prompt.propose(context);
       if (mounted) navigator.pop(opponent);
     } catch (e) {
       if (!mounted) return;

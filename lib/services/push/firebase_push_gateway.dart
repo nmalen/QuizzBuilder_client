@@ -13,11 +13,20 @@ class FirebasePushGateway implements PushGateway {
   }
 
   @override
-  Future<bool> isAuthorized() async {
-    final settings = await _messaging.getNotificationSettings();
-    return settings.authorizationStatus == AuthorizationStatus.authorized ||
-        settings.authorizationStatus == AuthorizationStatus.provisional;
-  }
+  Future<PushPermission> permission() async =>
+      _map((await _messaging.getNotificationSettings()).authorizationStatus);
+
+  @override
+  Future<PushPermission> requestPermission() async =>
+      _map((await _messaging.requestPermission()).authorizationStatus);
+
+  PushPermission _map(AuthorizationStatus status) => switch (status) {
+    AuthorizationStatus.authorized ||
+    AuthorizationStatus.provisional => PushPermission.granted,
+    AuthorizationStatus.notDetermined => PushPermission.notDetermined,
+    AuthorizationStatus.denied ||
+    AuthorizationStatus.deniedPermanently => PushPermission.denied,
+  };
 
   // `getToken` / `onTokenRefresh` are deprecated in firebase_messaging 17 in
   // favour of `register()` / `onRegistered`, which hand out a Firebase

@@ -2500,6 +2500,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again in a little while.'**
   String get registerThrottledWaitUnknown;
+
+  /// No description provided for @pushPromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications?'**
+  String get pushPromptTitle;
+
+  /// No description provided for @pushPromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications to know when a friend is waiting for you in a duel or accepts your invitation, even when the app is closed.'**
+  String get pushPromptBody;
+
+  /// No description provided for @pushPromptTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get pushPromptTurnOn;
+
+  /// No description provided for @pushPromptLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get pushPromptLater;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

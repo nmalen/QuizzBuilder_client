@@ -1178,5 +1178,9 @@
       }
     }
   },
-  "registerThrottledWaitUnknown": "Réessaie dans un moment."
+  "registerThrottledWaitUnknown": "Réessaie dans un moment.",
+  "pushPromptTitle": "Activer les notifications ?",
+  "pushPromptBody": "Active les notifications pour savoir quand un proche t'attend pour un duel ou accepte ton invitation, même si l'app est fermée.",
+  "pushPromptTurnOn": "Activer",
+  "pushPromptLater": "Plus tard"
 }

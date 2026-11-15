@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,6 +8,7 @@ import '../../models/duel.dart';
 import '../../providers/connectivity_provider.dart';
 import '../../providers/duel_provider.dart';
 import '../../services/api_exception.dart';
+import '../push_permission_prompt.dart';
 import 'duel_errors.dart';
 import 'duel_format.dart';
 import 'duel_invitations_screen.dart';
@@ -61,6 +64,10 @@ class _DuelInviteScreenState extends State<DuelInviteScreen>
         _invitation = invitation;
         _loading = false;
       });
+      // First invitation created: the one-time "turn on notifications?"
+      // proposal (nothing when the scope is absent or it was already shown).
+      final prompt = PushPromptScope.maybeOf(context);
+      if (prompt != null) unawaited(prompt.propose(context));
     } catch (e) {
       if (!mounted) return;
       setState(() {

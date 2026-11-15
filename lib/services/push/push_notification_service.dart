@@ -72,7 +72,9 @@ class PushNotificationService {
     if (!_available) return;
     String? next;
     try {
-      if (await _gateway.isAuthorized()) next = await _gateway.readToken();
+      if (await _gateway.permission() == PushPermission.granted) {
+        next = await _gateway.readToken();
+      }
     } catch (e) {
       debugPrint('[PUSH] Token unavailable: ${e.runtimeType}');
       return;
@@ -80,6 +82,32 @@ class PushNotificationService {
     if (next == _token) return;
     _token = next;
     _tokenChanges.add(next);
+  }
+
+  /// Where the permission stands; `denied` when the provider is unavailable
+  /// (nothing can be asked then).
+  Future<PushPermission> permission() async {
+    if (!_available) return PushPermission.denied;
+    try {
+      return await _gateway.permission();
+    } catch (e) {
+      debugPrint('[PUSH] Permission unreadable: ${e.runtimeType}');
+      return PushPermission.denied;
+    }
+  }
+
+  /// Shows the system prompt, then reads the token if it was allowed.
+  Future<PushPermission> requestPermission() async {
+    if (!_available) return PushPermission.denied;
+    PushPermission answer;
+    try {
+      answer = await _gateway.requestPermission();
+    } catch (e) {
+      debugPrint('[PUSH] Permission request failed: ${e.runtimeType}');
+      return PushPermission.denied;
+    }
+    await refreshToken();
+    return answer;
   }
 
   Future<void> dispose() async {

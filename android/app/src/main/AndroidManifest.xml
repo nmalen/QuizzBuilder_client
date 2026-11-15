@@ -44,6 +44,11 @@
                     android:pathPrefix="/d/"/>
             </intent-filter>
         </activity>
+        <!-- Channel of the duel notifications (created in MainActivity); used
+             when the server does not name one. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="duels" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

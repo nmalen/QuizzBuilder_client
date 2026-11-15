@@ -1429,4 +1429,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get registerThrottledWaitUnknown => 'Réessaie dans un moment.';
+
+  @override
+  String get pushPromptTitle => 'Activer les notifications ?';
+
+  @override
+  String get pushPromptBody => 'Active les notifications pour savoir quand un proche t\'attend pour un duel ou accepte ton invitation, même si l\'app est fermée.';
+
+  @override
+  String get pushPromptTurnOn => 'Activer';
+
+  @override
+  String get pushPromptLater => 'Plus tard';
 }

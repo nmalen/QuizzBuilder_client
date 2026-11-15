@@ -8,6 +8,7 @@ import '../services/push/push_notification_service.dart';
 import '../services/push/push_payload.dart';
 import 'duel/duel_hub_screen.dart';
 import 'duel/duel_live_screen.dart';
+import 'push_permission_prompt.dart';
 
 /// Starts [PushNotificationService] and opens what a tapped notification
 /// points to, through the shared navigator.
@@ -36,11 +37,13 @@ class _PushNavigationHostState extends State<PushNavigationHost> {
   late final AuthProvider _auth;
   StreamSubscription<PushDestination>? _sub;
   bool _scheduled = false;
+  late final PushPromptController _prompt;
 
   @override
   void initState() {
     super.initState();
     _auth = context.read<AuthProvider>();
+    _prompt = PushPromptController(service: widget.service);
     _auth.addListener(_process);
     // Listen first: a notification that started the app comes out of start().
     _sub = widget.service.destinations.listen((destination) {
@@ -103,5 +106,6 @@ class _PushNavigationHostState extends State<PushNavigationHost> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) =>
+      PushPromptScope(controller: _prompt, child: widget.child);
 }

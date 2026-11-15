@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +14,7 @@ import 'duel/duel_hub_screen.dart';
 import 'duel/duel_open_widgets.dart';
 import 'duel/duel_widgets.dart';
 import 'game_mode_screen.dart';
+import 'push_permission_prompt.dart';
 import 'settings_screen.dart';
 import 'setup_solo_screen.dart';
 
@@ -32,7 +35,17 @@ class _HomeScreenState extends State<HomeScreen> {
       Provider.of<CatalogProvider>(context, listen: false).loadStatistics();
       _maybeShowPendingDeletionWarning();
       _announceNewOpponents();
+      _maybeProposePushToInvitee();
     });
+  }
+
+  /// A player who signed up with an invitation code never saw the "join"
+  /// screen: the one-time "turn on notifications?" proposal is made here, at
+  /// the first sign-in. Not over the pending-deletion warning (next visit).
+  void _maybeProposePushToInvitee() {
+    if (!mounted || _pendingDeletionDialogShown) return;
+    final prompt = PushPromptScope.maybeOf(context);
+    if (prompt != null) unawaited(prompt.proposeToInvitee(context));
   }
 
   /// Silently checks for a pair created while the player was away (an invited

@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
 import '../providers/invitation_link_provider.dart';
 import '../providers/language_provider.dart';
+import 'push_permission_prompt.dart';
 import '../utils/invitation_link.dart';
 import '../utils/register_throttle_message.dart';
 
@@ -270,6 +271,7 @@ class _AuthScreenState extends State<AuthScreen> {
       debugPrint('[AuthScreen] calling authProvider.register');
       // Captured before the await: this screen may be replaced meanwhile.
       final linkProvider = context.read<InvitationLinkProvider>();
+      final pushPrompt = PushPromptScope.maybeOf(context);
       final invitationCode = normalizeInvitationCode(
         _invitationController.text,
       );
@@ -283,6 +285,11 @@ class _AuthScreenState extends State<AuthScreen> {
       // The server now holds the code: forget the one kept from a link, so it
       // is not used a second time after sign-in.
       if (success) linkProvider.clear();
+      // Signed up with a code: this player never sees the "join" screen, so
+      // the notification proposal is due on the home screen at first sign-in.
+      if (success && invitationCode.isNotEmpty) {
+        await pushPrompt?.markInviteePending();
+      }
 
       debugPrint('[AuthScreen] AFTER await: success=$success, mounted=$mounted');
       if (mounted) {

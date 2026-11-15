@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">QuizzBuilder</string>
+    <!-- Name of the duel notification channel (phone notification settings). -->
+    <string name="notification_channel_duels">Duels</string>
 </resources>

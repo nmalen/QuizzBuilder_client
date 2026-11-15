@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -11,7 +10,6 @@ import 'package:QuizzBuilder/providers/auth_provider.dart';
 import 'package:QuizzBuilder/providers/connectivity_provider.dart';
 import 'package:QuizzBuilder/providers/duel_provider.dart';
 import 'package:QuizzBuilder/providers/invitation_link_provider.dart';
-import 'package:QuizzBuilder/services/push/push_gateway.dart';
 import 'package:QuizzBuilder/services/push/push_notification_service.dart';
 import 'package:QuizzBuilder/services/push/push_payload.dart';
 import 'package:QuizzBuilder/ui/duel/duel_hub_screen.dart';
@@ -20,46 +18,10 @@ import 'package:QuizzBuilder/ui/push_navigation_host.dart';
 
 import 'support/duel_live_support.dart';
 import 'support/duel_test_support.dart';
+import 'support/push_test_support.dart';
 
 /// QB-C-020 step 1: the push service and what a tapped notification opens.
 /// Nothing here loads Firebase: the provider is a fake.
-const _secretToken = 'fake-device-token-must-never-be-logged';
-
-class _FakeGateway implements PushGateway {
-  _FakeGateway({this.authorized = false, this.failInit = false, this.initial});
-
-  bool authorized;
-  bool failInit;
-  Map<String, Object?>? initial;
-  int tokenReads = 0;
-  int initCalls = 0;
-  final refreshes = StreamController<String>.broadcast();
-  final opened = StreamController<Map<String, Object?>>.broadcast();
-
-  @override
-  Future<void> initialize() async {
-    initCalls++;
-    if (failInit) throw StateError('no firebase here');
-  }
-
-  @override
-  Future<bool> isAuthorized() async => authorized;
-
-  @override
-  Future<String?> readToken() async {
-    tokenReads++;
-    return _secretToken;
-  }
-
-  @override
-  Stream<String> get tokenRefreshes => refreshes.stream;
-
-  @override
-  Future<Map<String, Object?>?> initialMessageData() async => initial;
-
-  @override
-  Stream<Map<String, Object?>> get openedMessageData => opened.stream;
-}
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -122,7 +84,7 @@ void main() {
     test(
       'start() never asks for the permission and reads no token without it',
       () async {
-        final gateway = _FakeGateway(authorized: false);
+        final gateway = FakePushGateway(authorized: false);
         final service = PushNotificationService(gateway: gateway);
         await service.start();
         expect(gateway.initCalls, 1);
@@ -133,19 +95,19 @@ void main() {
     );
 
     test('with the permission granted, the token is kept in memory', () async {
-      final gateway = _FakeGateway(authorized: true);
+      final gateway = FakePushGateway(authorized: true);
       final service = PushNotificationService(gateway: gateway);
       final seen = <String?>[];
       service.tokenChanges.listen(seen.add);
       await service.start();
-      expect(service.token, _secretToken);
+      expect(service.token, fakeDeviceToken);
       await pumpEventQueue();
-      expect(seen, [_secretToken]);
+      expect(seen, [fakeDeviceToken]);
       await service.dispose();
     });
 
     test('a renewal is followed, and still needs the permission', () async {
-      final gateway = _FakeGateway(authorized: false);
+      final gateway = FakePushGateway(authorized: false);
       final service = PushNotificationService(gateway: gateway);
       await service.start();
       gateway.refreshes.add('renewed');
@@ -154,20 +116,20 @@ void main() {
       gateway.authorized = true;
       gateway.refreshes.add('renewed');
       await pumpEventQueue();
-      expect(service.token, _secretToken);
+      expect(service.token, fakeDeviceToken);
       await service.dispose();
     });
 
     test(
       'refreshToken() picks the token up once the player allowed notifications',
       () async {
-        final gateway = _FakeGateway(authorized: false);
+        final gateway = FakePushGateway(authorized: false);
         final service = PushNotificationService(gateway: gateway);
         await service.start();
         expect(service.token, isNull);
         gateway.authorized = true;
         await service.refreshToken();
-        expect(service.token, _secretToken);
+        expect(service.token, fakeDeviceToken);
         await service.dispose();
       },
     );
@@ -178,19 +140,19 @@ void main() {
       debugPrint = (String? message, {int? wrapWidth}) =>
           logs.add(message ?? '');
       addTearDown(() => debugPrint = original);
-      final gateway = _FakeGateway(authorized: true);
+      final gateway = FakePushGateway(authorized: true);
       final service = PushNotificationService(gateway: gateway);
       await service.start();
       gateway.refreshes.add('renewed');
       await pumpEventQueue();
-      expect(logs.join('\n'), isNot(contains(_secretToken)));
+      expect(logs.join('\n'), isNot(contains(fakeDeviceToken)));
       await service.dispose();
     });
 
     test(
       'a provider that fails to start leaves the app working: no token, no destination',
       () async {
-        final gateway = _FakeGateway(
+        final gateway = FakePushGateway(
           authorized: true,
           failInit: true,
           initial: {PushPayloadKeys.type: 'duel_call'},
@@ -209,7 +171,7 @@ void main() {
     test(
       'app killed: the notification that started the app comes out, once',
       () async {
-        final gateway = _FakeGateway(
+        final gateway = FakePushGateway(
           initial: {
             PushPayloadKeys.type: 'duel_call',
             PushPayloadKeys.duelId: '9',
@@ -228,7 +190,7 @@ void main() {
     );
 
     test('app in the background: a tapped notification comes out', () async {
-      final gateway = _FakeGateway();
+      final gateway = FakePushGateway();
       final service = PushNotificationService(gateway: gateway);
       final out = <PushDestination>[];
       service.destinations.listen(out.add);
@@ -246,7 +208,7 @@ void main() {
 
   group('navigation host', () {
     late FakeAuthProvider auth;
-    late _FakeGateway gateway;
+    late FakePushGateway gateway;
     late PushNotificationService service;
     final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -259,7 +221,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       auth = withAuth ?? FakeAuthProvider();
-      gateway = _FakeGateway(initial: initial);
+      gateway = FakePushGateway(initial: initial);
       service = PushNotificationService(gateway: gateway);
       final server = FakeDuelServer((r) {
         if (r.method == 'GET' &&

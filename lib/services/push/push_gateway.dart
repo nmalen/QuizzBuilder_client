@@ -1,3 +1,15 @@
+/// Where the notification permission stands.
+enum PushPermission {
+  /// Allowed (also the case of Android 12 and older, which has no prompt).
+  granted,
+
+  /// Never asked: the system prompt can still be shown.
+  notDetermined,
+
+  /// Refused, or the provider is unavailable: nothing more can be asked.
+  denied,
+}
+
 /// What the app needs from the push provider (Firebase Cloud Messaging).
 ///
 /// The only implementation that loads Firebase is `FirebasePushGateway`;
@@ -6,8 +18,11 @@ abstract class PushGateway {
   /// Starts the provider. Never asks for the notification permission.
   Future<void> initialize();
 
-  /// The player allowed notifications (nothing is asked here).
-  Future<bool> isAuthorized();
+  /// Where the permission stands (nothing is asked here).
+  Future<PushPermission> permission();
+
+  /// Shows the system prompt (iOS; Android 13+) and returns the answer.
+  Future<PushPermission> requestPermission();
 
   /// The device token, or null when there is none yet.
   Future<String?> readToken();
