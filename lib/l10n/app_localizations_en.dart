@@ -956,7 +956,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invitationCodeOptional => 'Invitation code (optional)';
 
   @override
-  String get invitationCodeHelp => 'If a friend invited you, enter their code.';
+  String get invitationCodeHelp => 'Did a friend send you a link or a QR code? Tap it again: the code fills in by itself.';
 
   @override
   String get invitationCodeBanner => 'A friend invited you. Sign up: the code is already filled in.';

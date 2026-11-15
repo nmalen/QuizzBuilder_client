@@ -735,7 +735,7 @@
   "duelErrBlockNotFound": "Ce blocage n'existe plus. La liste a été actualisée.",
   "duelErrNetwork": "Connexion impossible. Vérifie ta connexion internet puis réessaie.",
   "invitationCodeOptional": "Code d'invitation (facultatif)",
-  "invitationCodeHelp": "Si un proche t'a invité, saisis son code.",
+  "invitationCodeHelp": "Un proche t'a envoyé un lien ou un QR code ? Touche-le à nouveau : le code se remplit tout seul.",
   "invitationCodeBanner": "Un proche t'invite à jouer. Inscris-toi : le code est déjà rempli.",
   "invitationCodeLength": "Le code comporte 6 caractères",
   "duelBannerPlaying": "Duel en cours contre {username}",

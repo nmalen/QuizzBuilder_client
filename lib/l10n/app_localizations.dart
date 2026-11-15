@@ -1748,7 +1748,7 @@ abstract class AppLocalizations {
   /// No description provided for @invitationCodeHelp.
   ///
   /// In en, this message translates to:
-  /// **'If a friend invited you, enter their code.'**
+  /// **'Did a friend send you a link or a QR code? Tap it again: the code fills in by itself.'**
   String get invitationCodeHelp;
 
   /// No description provided for @invitationCodeBanner.

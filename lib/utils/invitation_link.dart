@@ -80,3 +80,37 @@ InvitationLink? parseInvitationLocation(String location) {
   final uri = Uri.tryParse(location);
   return uri == null ? null : parseInvitationUri(uri);
 }
+
+final String _hostPattern = RegExp.escape(invitationLinkHost);
+
+/// The invitation code (6 characters, normalized) carried by pasted [text],
+/// or null when there is none.
+///
+/// [text] is either a code alone, in any of the shapes a player may copy
+/// (`k7p3qx`, `K7P-3QX`, `K7P 3QX`), or a text holding a
+/// `play.quizzbuilder.fr/d/<code>` link (a shared message holds both a link
+/// and the code: the link wins). The link of a live duel call (8 characters)
+/// is not an invitation: null.
+String? invitationCodeFromPastedText(String? text) {
+  final trimmed = text?.trim() ?? '';
+  if (trimmed.isEmpty) return null;
+
+  final link = RegExp(
+    '(?:https?://)?$_hostPattern/d/[A-Za-z0-9-]+',
+    caseSensitive: false,
+  ).firstMatch(trimmed);
+  if (link != null) {
+    // The link is read like one received by the app (same rules).
+    final raw = link.group(0)!;
+    final parsed = parseInvitationLocation(
+      raw.toLowerCase().startsWith('http') ? raw : 'https://$raw',
+    );
+    return parsed is JoinInvitationLink ? parsed.code : null;
+  }
+
+  final code = normalizeInvitationCode(trimmed);
+  final valid =
+      code.length == invitationCodeLength &&
+      RegExp(r'^[A-Z0-9]+$').hasMatch(code);
+  return valid ? code : null;
+}
