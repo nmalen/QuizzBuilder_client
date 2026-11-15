@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "221001608649",
+    "project_id": "quizzbuilder-f0a3e",
+    "storage_bucket": "quizzbuilder-f0a3e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:221001608649:android:0e90b107e4388cecfe8c18",
+        "android_client_info": {
+          "package_name": "com.quizzbuilder.mobile_client"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGgR7xsqr20Mj8tNNMANVWD23kKSJVGFc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

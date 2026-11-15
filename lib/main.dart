@@ -14,10 +14,13 @@ import 'providers/quizz_builder_provider.dart';
 import 'providers/language_provider.dart';
 import 'services/auth_service.dart';
 import 'services/duel_service.dart';
+import 'services/push/firebase_push_gateway.dart';
+import 'services/push/push_notification_service.dart';
 import 'ui/splash_screen.dart';
 import 'ui/auth_screen.dart';
 import 'ui/duel/invitation_link_host.dart';
 import 'ui/home_screen.dart';
+import 'ui/push_navigation_host.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,10 +63,14 @@ void main() async {
       ],
       // Universal links (/d/<code>): the host sits above MaterialApp so it
       // sees the route information before the app's own route handling.
-      child: InvitationLinkHost(
+      child: PushNavigationHost(
+        service: PushNotificationService(gateway: FirebasePushGateway()),
         navigatorKey: navigatorKey,
-        initialLocation: PlatformDispatcher.instance.defaultRouteName,
-        child: MyApp(navigatorKey: navigatorKey),
+        child: InvitationLinkHost(
+          navigatorKey: navigatorKey,
+          initialLocation: PlatformDispatcher.instance.defaultRouteName,
+          child: MyApp(navigatorKey: navigatorKey),
+        ),
       ),
     ),
   );
