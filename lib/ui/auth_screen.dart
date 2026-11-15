@@ -59,7 +59,9 @@ class _AuthScreenState extends State<AuthScreen> {
       final authProvider = context.read<AuthProvider>();
       final successMsg = authProvider.successMessage;
       if (successMsg != null && successMsg.isNotEmpty) {
-        debugPrint('[AuthScreen] found successMessage in provider: $successMsg');
+        debugPrint(
+          '[AuthScreen] found successMessage in provider: $successMsg',
+        );
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -195,7 +197,9 @@ class _AuthScreenState extends State<AuthScreen> {
               final email = dialogEmail.trim();
               if (!_isValidEmail(email)) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(localizations.passwordResetInvalidEmail)),
+                  SnackBar(
+                    content: Text(localizations.passwordResetInvalidEmail),
+                  ),
                 );
                 return;
               }
@@ -212,7 +216,9 @@ class _AuthScreenState extends State<AuthScreen> {
     }
 
     final authProvider = context.read<AuthProvider>();
-    final success = await authProvider.requestPasswordReset(email: submittedEmail);
+    final success = await authProvider.requestPasswordReset(
+      email: submittedEmail,
+    );
     if (!mounted) {
       return;
     }
@@ -253,7 +259,9 @@ class _AuthScreenState extends State<AuthScreen> {
       if (mounted) {
         if (success) {
           // Navigation handled automatically by _AppRouter when auth state changes
-          debugPrint('[AuthScreen] Login successful, _AppRouter will navigate to HomeScreen');
+          debugPrint(
+            '[AuthScreen] Login successful, _AppRouter will navigate to HomeScreen',
+          );
         } else {
           // Show error message when login fails
           final error = context.read<AuthProvider>().error;
@@ -292,7 +300,9 @@ class _AuthScreenState extends State<AuthScreen> {
         await pushPrompt?.markInviteePending();
       }
 
-      debugPrint('[AuthScreen] AFTER await: success=$success, mounted=$mounted');
+      debugPrint(
+        '[AuthScreen] AFTER await: success=$success, mounted=$mounted',
+      );
       if (mounted) {
         debugPrint('[AuthScreen] mounted is true AFTER rebuild');
       } else {
@@ -390,11 +400,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   String? _validatePassword(BuildContext context, String? value) {
     if (value == null || value.isEmpty) {
-      return _localized(
-        context,
-        'Password is required',
-        'Mot de passe requis',
-      );
+      return _localized(context, 'Password is required', 'Mot de passe requis');
     }
     if (value.length < 8) {
       return _localized(
@@ -529,178 +535,124 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ),
                 ),
-                // NDSH Logo anchored to absolute bottom - keyboard will cover it
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 24,
-                  child: Center(
-                    child: Image.asset(
-                      'assets/images/Logo_NDSH_white.png',
-                      height: 120,
-                      width: 120,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-                // Main scrollable content on top
+                // Main scrollable content on top. The form is centered when it
+                // fits; the NDSH logo sits at the bottom of the screen, or,
+                // when the form is taller than the screen, after the toggle
+                // line inside the scroll (it never covers the form). The
+                // keyboard does not move it (resizeToAvoidBottomInset: false).
                 SafeArea(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            // Logo & Title
-                            Icon(Icons.quiz, size: 64, color: Colors.white),
-                            const SizedBox(height: 16),
-                            Text(
-                              AppLocalizations.of(context)!.appTitle,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.headlineMedium
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              _isLogin
-                                  ? AppLocalizations.of(context)!.welcomeBack
-                                  : AppLocalizations.of(context)!.createAccount,
-                              textAlign: TextAlign.center,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(color: Colors.white70),
-                            ),
-                            const SizedBox(height: 32),
-
-                            // Error Message
-                            if (authProvider.error != null)
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.red.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.red.withValues(alpha: 0.5),
-                                  ),
-                                ),
-                                child: Text(
-                                  authProvider.errorCode ==
-                                          'account_pending_deletion'
-                                      ? AppLocalizations.of(context)!
-                                          .pendingDeletionLoginBlockedMessage
-                                      : authProvider.error!,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            if (authProvider.error != null)
+                  bottom: false,
+                  child: CustomScrollView(
+                    slivers: [
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Spacer(),
+                              // Logo & Title
+                              Icon(Icons.quiz, size: 64, color: Colors.white),
                               const SizedBox(height: 16),
-
-                            // Invitation received through a link (sign-up mode)
-                            if (!_isLogin && link.pendingCode != null) ...[
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.white24),
-                                ),
-                                child: Text(
-                                  AppLocalizations.of(context)!
-                                      .invitationCodeBanner,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-
-                            // Form
-                            Form(
-                              key: _formKey,
-                              child: Column(
-                                children: [
-                                  // Email/Username Field (Login) or Email Field (Register)
-                                  TextFormField(
-                                    controller: _emailController,
-                                    keyboardType: TextInputType.emailAddress,
-                                    validator: (value) =>
-                                        _validateIdentifier(context, value),
-                                    enabled: !authProvider.isLoading,
-                                    decoration: InputDecoration(
-                                      hintText: _isLogin
-                                          ? AppLocalizations.of(context)!
-                                              .emailOrUsername
-                                          : AppLocalizations.of(context)!.email,
-                                      hintStyle: const TextStyle(
-                                        color: Colors.white70,
-                                      ),
-                                      prefixIcon: Icon(
-                                        _isLogin ? Icons.person : Icons.email,
-                                        color: Colors.white70,
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white24,
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white24,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(
-                                          color: Colors.red,
-                                        ),
-                                      ),
+                              Text(
+                                AppLocalizations.of(context)!.appTitle,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
                                     ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _isLogin
+                                    ? AppLocalizations.of(context)!.welcomeBack
+                                    : AppLocalizations.of(
+                                        context,
+                                      )!.createAccount,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(color: Colors.white70),
+                              ),
+                              const SizedBox(height: 32),
+
+                              // Error Message
+                              if (authProvider.error != null)
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.red.withValues(alpha: 0.5),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    authProvider.errorCode ==
+                                            'account_pending_deletion'
+                                        ? AppLocalizations.of(
+                                            context,
+                                          )!.pendingDeletionLoginBlockedMessage
+                                        : authProvider.error!,
                                     style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.2,
+                                      fontSize: 14,
                                     ),
                                   ),
-                                  const SizedBox(height: 16),
+                                ),
+                              if (authProvider.error != null)
+                                const SizedBox(height: 16),
 
-                                  // Username Field (Register only)
-                                  if (!_isLogin) ...[
+                              // Invitation received through a link (sign-up mode)
+                              if (!_isLogin && link.pendingCode != null) ...[
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(color: Colors.white24),
+                                  ),
+                                  child: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.invitationCodeBanner,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+
+                              // Form
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: [
+                                    // Email/Username Field (Login) or Email Field (Register)
                                     TextFormField(
-                                      controller: _usernameController,
+                                      controller: _emailController,
+                                      keyboardType: TextInputType.emailAddress,
                                       validator: (value) =>
-                                          _validateUsername(context, value),
+                                          _validateIdentifier(context, value),
                                       enabled: !authProvider.isLoading,
                                       decoration: InputDecoration(
-                                        hintText: AppLocalizations.of(
-                                          context,
-                                        )!.username,
-                                        hintStyle: TextStyle(
+                                        hintText: _isLogin
+                                            ? AppLocalizations.of(
+                                                context,
+                                              )!.emailOrUsername
+                                            : AppLocalizations.of(
+                                                context,
+                                              )!.email,
+                                        hintStyle: const TextStyle(
                                           color: Colors.white70,
                                         ),
-                                        prefixIcon: const Icon(
-                                          Icons.person,
+                                        prefixIcon: Icon(
+                                          _isLogin ? Icons.person : Icons.email,
                                           color: Colors.white70,
                                         ),
                                         filled: true,
@@ -748,109 +700,83 @@ class _AuthScreenState extends State<AuthScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 16),
-                                  ],
 
-                                  // Password Field
-                                  TextFormField(
-                                    controller: _passwordController,
-                                    obscureText: _obscurePassword,
-                                    validator: (value) =>
-                                        _validatePassword(context, value),
-                                    enabled: !authProvider.isLoading,
-                                    decoration: InputDecoration(
-                                      hintText: AppLocalizations.of(
-                                        context,
-                                      )!.password,
-                                      hintStyle: TextStyle(
-                                        color: Colors.white70,
-                                      ),
-                                      prefixIcon: const Icon(
-                                        Icons.lock,
-                                        color: Colors.white70,
-                                      ),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscurePassword
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
-                                          color: Colors.white70,
-                                        ),
-                                        onPressed: () {
-                                          setState(
-                                            () => _obscurePassword =
-                                                !_obscurePassword,
-                                          );
-                                        },
-                                      ),
-                                      filled: true,
-                                      fillColor: Colors.white.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white24,
-                                        ),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white24,
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      errorBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                        borderSide: const BorderSide(
-                                          color: Colors.red,
-                                        ),
-                                      ),
-                                    ),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.2,
-                                    ),
-                                  ),
-                                  if (_isLogin)
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: TextButton(
-                                        onPressed: authProvider.isLoading
-                                            ? null
-                                            : _handleForgotPassword,
-                                        child: Text(
-                                          AppLocalizations.of(context)!
-                                              .forgotPassword,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
+                                    // Username Field (Register only)
+                                    if (!_isLogin) ...[
+                                      TextFormField(
+                                        controller: _usernameController,
+                                        validator: (value) =>
+                                            _validateUsername(context, value),
+                                        enabled: !authProvider.isLoading,
+                                        decoration: InputDecoration(
+                                          hintText: AppLocalizations.of(
+                                            context,
+                                          )!.username,
+                                          hintStyle: TextStyle(
+                                            color: Colors.white70,
+                                          ),
+                                          prefixIcon: const Icon(
+                                            Icons.person,
+                                            color: Colors.white70,
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.white.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.white24,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.white24,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.red,
+                                            ),
                                           ),
                                         ),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.2,
+                                        ),
                                       ),
-                                    ),
-                                  const SizedBox(height: 16),
+                                      const SizedBox(height: 16),
+                                    ],
 
-                                  // Confirm Password Field (Register only)
-                                  if (!_isLogin) ...[
+                                    // Password Field
                                     TextFormField(
-                                      controller: _password2Controller,
-                                      obscureText: _obscurePassword2,
-                                      validator: (value) => _validatePasswordMatch(
-                                        context,
-                                        value,
-                                      ),
+                                      controller: _passwordController,
+                                      obscureText: _obscurePassword,
+                                      validator: (value) =>
+                                          _validatePassword(context, value),
                                       enabled: !authProvider.isLoading,
                                       decoration: InputDecoration(
                                         hintText: AppLocalizations.of(
                                           context,
-                                        )!.confirmPassword,
+                                        )!.password,
                                         hintStyle: TextStyle(
                                           color: Colors.white70,
                                         ),
@@ -860,15 +786,15 @@ class _AuthScreenState extends State<AuthScreen> {
                                         ),
                                         suffixIcon: IconButton(
                                           icon: Icon(
-                                            _obscurePassword2
+                                            _obscurePassword
                                                 ? Icons.visibility_off
                                                 : Icons.visibility,
                                             color: Colors.white70,
                                           ),
                                           onPressed: () {
                                             setState(
-                                              () => _obscurePassword2 =
-                                                  !_obscurePassword2,
+                                              () => _obscurePassword =
+                                                  !_obscurePassword,
                                             );
                                           },
                                         ),
@@ -916,195 +842,317 @@ class _AuthScreenState extends State<AuthScreen> {
                                         letterSpacing: 0.2,
                                       ),
                                     ),
+                                    if (_isLogin)
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: TextButton(
+                                          onPressed: authProvider.isLoading
+                                              ? null
+                                              : _handleForgotPassword,
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.forgotPassword,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     const SizedBox(height: 16),
 
-                                    // Invitation code (Register only, optional)
-                                    TextFormField(
-                                      controller: _invitationController,
-                                      validator: (value) =>
-                                          _validateInvitationCode(
+                                    // Confirm Password Field (Register only)
+                                    if (!_isLogin) ...[
+                                      TextFormField(
+                                        controller: _password2Controller,
+                                        obscureText: _obscurePassword2,
+                                        validator: (value) =>
+                                            _validatePasswordMatch(
+                                              context,
+                                              value,
+                                            ),
+                                        enabled: !authProvider.isLoading,
+                                        decoration: InputDecoration(
+                                          hintText: AppLocalizations.of(
                                             context,
-                                            value,
+                                          )!.confirmPassword,
+                                          hintStyle: TextStyle(
+                                            color: Colors.white70,
                                           ),
-                                      enabled: !authProvider.isLoading,
-                                      textCapitalization:
-                                          TextCapitalization.characters,
-                                      autocorrect: false,
-                                      enableSuggestions: false,
-                                      decoration: InputDecoration(
-                                        hintText: AppLocalizations.of(
-                                          context,
-                                        )!.invitationCodeOptional,
-                                        hintStyle: const TextStyle(
-                                          color: Colors.white70,
-                                        ),
-                                        helperText: AppLocalizations.of(
-                                          context,
-                                        )!.invitationCodeHelp,
-                                        // Both texts are long on a 393 pt phone (the
-                                        // help line, and the hint once the paste
-                                        // button takes room): let them wrap.
-                                        helperMaxLines: 3,
-                                        hintMaxLines: 2,
-                                        helperStyle: const TextStyle(
-                                          color: Colors.white70,
-                                        ),
-                                        prefixIcon: const Icon(
-                                          Icons.pin,
-                                          color: Colors.white70,
-                                        ),
-                                        suffixIcon: PasteInvitationCodeButton(
-                                          color: Colors.white70,
-                                          enabled: !authProvider.isLoading,
-                                          onCode: (code) =>
-                                              _invitationController.text = code,
-                                        ),
-                                        filled: true,
-                                        fillColor: Colors.white.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                          prefixIcon: const Icon(
+                                            Icons.lock,
+                                            color: Colors.white70,
                                           ),
-                                          borderSide: const BorderSide(
-                                            color: Colors.white24,
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              _obscurePassword2
+                                                  ? Icons.visibility_off
+                                                  : Icons.visibility,
+                                              color: Colors.white70,
+                                            ),
+                                            onPressed: () {
+                                              setState(
+                                                () => _obscurePassword2 =
+                                                    !_obscurePassword2,
+                                              );
+                                            },
                                           ),
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                          filled: true,
+                                          fillColor: Colors.white.withValues(
+                                            alpha: 0.1,
                                           ),
-                                          borderSide: const BorderSide(
-                                            color: Colors.white24,
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.white24,
+                                            ),
                                           ),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.white24,
+                                            ),
                                           ),
-                                          borderSide: const BorderSide(
-                                            color: Colors.white,
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.red,
+                                            ),
                                           ),
                                         ),
-                                        errorBorder: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          borderSide: const BorderSide(
-                                            color: Colors.red,
-                                          ),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.2,
                                         ),
                                       ),
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                        letterSpacing: 0.2,
+                                      const SizedBox(height: 16),
+
+                                      // Invitation code (Register only, optional)
+                                      TextFormField(
+                                        controller: _invitationController,
+                                        validator: (value) =>
+                                            _validateInvitationCode(
+                                              context,
+                                              value,
+                                            ),
+                                        enabled: !authProvider.isLoading,
+                                        textCapitalization:
+                                            TextCapitalization.characters,
+                                        autocorrect: false,
+                                        enableSuggestions: false,
+                                        decoration: InputDecoration(
+                                          hintText: AppLocalizations.of(
+                                            context,
+                                          )!.invitationCodeOptional,
+                                          hintStyle: const TextStyle(
+                                            color: Colors.white70,
+                                          ),
+                                          helperText: AppLocalizations.of(
+                                            context,
+                                          )!.invitationCodeHelp,
+                                          // Both texts are long on a 393 pt phone (the
+                                          // help line, and the hint once the paste
+                                          // button takes room): let them wrap.
+                                          helperMaxLines: 3,
+                                          hintMaxLines: 2,
+                                          helperStyle: const TextStyle(
+                                            color: Colors.white70,
+                                          ),
+                                          prefixIcon: const Icon(
+                                            Icons.pin,
+                                            color: Colors.white70,
+                                          ),
+                                          suffixIcon: PasteInvitationCodeButton(
+                                            color: Colors.white70,
+                                            enabled: !authProvider.isLoading,
+                                            onCode: (code) =>
+                                                _invitationController.text =
+                                                    code,
+                                          ),
+                                          filled: true,
+                                          fillColor: Colors.white.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.white24,
+                                            ),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.white24,
+                                            ),
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          errorBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: const BorderSide(
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          letterSpacing: 0.2,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 24),
+                                    ],
+
+                                    // Submit Button
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: authProvider.isLoading
+                                            ? null
+                                            : _handleSubmit,
+                                        style: ElevatedButton.styleFrom(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 14,
+                                          ),
+                                          backgroundColor: Colors.white,
+                                          disabledBackgroundColor:
+                                              Colors.white54,
+                                        ),
+                                        child: authProvider.isLoading
+                                            ? const SizedBox(
+                                                height: 20,
+                                                width: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                    ),
+                                              )
+                                            : Text(
+                                                _isLogin
+                                                    ? AppLocalizations.of(
+                                                        context,
+                                                      )!.login
+                                                    : AppLocalizations.of(
+                                                        context,
+                                                      )!.register,
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).primaryColor,
+                                                ),
+                                              ),
                                       ),
                                     ),
-                                    const SizedBox(height: 24),
                                   ],
+                                ),
+                              ),
+                              const SizedBox(height: 24),
 
-                                  // Submit Button
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: ElevatedButton(
-                                      onPressed: authProvider.isLoading
-                                          ? null
-                                          : _handleSubmit,
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 14,
-                                        ),
-                                        backgroundColor: Colors.white,
-                                        disabledBackgroundColor: Colors.white54,
+                              // Toggle Login/Register: wraps on a narrow screen
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                spacing: 6,
+                                runSpacing: 4,
+                                children: [
+                                  Text(
+                                    _isLogin
+                                        ? AppLocalizations.of(
+                                            context,
+                                          )!.switchToRegister
+                                        : AppLocalizations.of(
+                                            context,
+                                          )!.switchToLogin,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: authProvider.isLoading
+                                        ? null
+                                        : () {
+                                            setState(() {
+                                              _isLogin = !_isLogin;
+                                              _formKey.currentState?.reset();
+                                              _emailController.clear();
+                                              _passwordController.clear();
+                                              _usernameController.clear();
+                                              _password2Controller.clear();
+                                              _invitationController.clear();
+                                              // Switching to sign-up: put back
+                                              // the code received by a link.
+                                              final pending =
+                                                  _linkProvider?.pendingCode;
+                                              if (!_isLogin &&
+                                                  pending != null) {
+                                                _invitationController.text =
+                                                    pending;
+                                              }
+                                            });
+                                          },
+                                    child: Text(
+                                      _isLogin
+                                          ? AppLocalizations.of(
+                                              context,
+                                            )!.register
+                                          : AppLocalizations.of(context)!.login,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.underline,
                                       ),
-                                      child: authProvider.isLoading
-                                          ? const SizedBox(
-                                              height: 20,
-                                              width: 20,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                              ),
-                                            )
-                                          : Text(
-                                              _isLogin
-                                                  ? AppLocalizations.of(
-                                                      context,
-                                                    )!.login
-                                                  : AppLocalizations.of(
-                                                      context,
-                                                    )!.register,
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Theme.of(
-                                                  context,
-                                                ).primaryColor,
-                                              ),
-                                            ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(height: 24),
-
-                            // Toggle Login/Register
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  _isLogin
-                                      ? AppLocalizations.of(
-                                          context,
-                                        )!.switchToRegister
-                                      : AppLocalizations.of(
-                                          context,
-                                        )!.switchToLogin,
-                                  style: const TextStyle(color: Colors.white70),
+                              const Spacer(),
+                              const SizedBox(height: 24),
+                              Center(
+                                child: Image.asset(
+                                  'assets/images/Logo_NDSH_white.png',
+                                  height: 120,
+                                  width: 120,
+                                  fit: BoxFit.contain,
                                 ),
-                                GestureDetector(
-                                  onTap: authProvider.isLoading
-                                      ? null
-                                      : () {
-                                          setState(() {
-                                            _isLogin = !_isLogin;
-                                            _formKey.currentState?.reset();
-                                            _emailController.clear();
-                                            _passwordController.clear();
-                                            _usernameController.clear();
-                                            _password2Controller.clear();
-                                            _invitationController.clear();
-                                            // Switching to sign-up: put back
-                                            // the code received by a link.
-                                            final pending =
-                                                _linkProvider?.pendingCode;
-                                            if (!_isLogin && pending != null) {
-                                              _invitationController.text =
-                                                  pending;
-                                            }
-                                          });
-                                        },
-                                  child: Text(
-                                    _isLogin
-                                        ? AppLocalizations.of(context)!.register
-                                        : AppLocalizations.of(context)!.login,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      decoration: TextDecoration.underline,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 80),
-                          ],
+                              ),
+                              const SizedBox(height: 24),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],

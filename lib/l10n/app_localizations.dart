@@ -596,13 +596,13 @@ abstract class AppLocalizations {
   /// No description provided for @switchToLogin.
   ///
   /// In en, this message translates to:
-  /// **'Already have an account? Login'**
+  /// **'Already have an account?'**
   String get switchToLogin;
 
   /// No description provided for @switchToRegister.
   ///
   /// In en, this message translates to:
-  /// **'Don\'t have an account? Register'**
+  /// **'Don\'t have an account?'**
   String get switchToRegister;
 
   /// No description provided for @setupSoloGame.

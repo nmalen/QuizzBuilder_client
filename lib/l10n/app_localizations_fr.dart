@@ -268,10 +268,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get confirmPassword => 'Confirmer le mot de passe';
 
   @override
-  String get switchToLogin => 'Vous avez déjà un compte? Connectez-vous';
+  String get switchToLogin => 'Vous avez déjà un compte ?';
 
   @override
-  String get switchToRegister => 'Vous n\'avez pas de compte? S\'inscrire';
+  String get switchToRegister => 'Vous n\'avez pas de compte ?';
 
   @override
   String get setupSoloGame => 'Configurer une partie solo';

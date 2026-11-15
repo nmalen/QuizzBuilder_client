@@ -268,10 +268,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmPassword => 'Confirm Password';
 
   @override
-  String get switchToLogin => 'Already have an account? Login';
+  String get switchToLogin => 'Already have an account?';
 
   @override
-  String get switchToRegister => 'Don\'t have an account? Register';
+  String get switchToRegister => 'Don\'t have an account?';
 
   @override
   String get setupSoloGame => 'Setup solo game';
