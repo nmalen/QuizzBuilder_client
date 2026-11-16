@@ -995,7 +995,7 @@
       }
     }
   },
-  "duelAnswerSaved": "Réponse enregistrée. Question suivante dans {time}",
+  "duelAnswerSaved": "Réponse enregistrée, tu peux encore la changer. Question suivante dans {time}",
   "@duelAnswerSaved": {
     "placeholders": {
       "time": {
@@ -1003,7 +1003,7 @@
       }
     }
   },
-  "duelAnswerSavedLast": "Réponse enregistrée. Fin de la partie dans {time}",
+  "duelAnswerSavedLast": "Réponse enregistrée, tu peux encore la changer. Fin de la partie dans {time}",
   "@duelAnswerSavedLast": {
     "placeholders": {
       "time": {

@@ -511,14 +511,27 @@ class DuelController extends ChangeNotifier {
 
   // ---- Playing -----------------------------------------------------------------
 
-  /// Records [choice] (1-4) for the open question. One answer per question,
-  /// final. Returns false when nothing was recorded.
+  /// Records [choice] (1-4) for the open question. The answer can be changed
+  /// for as long as the time of the question runs: the one kept is the last
+  /// chosen before it ends. Returns false when nothing was recorded: the same
+  /// choice again, a choice outside 1-4, a question that is over, or the
+  /// sending has begun.
   bool answer(int choice) {
     final index = currentIndex;
-    if (phase != DuelPhase.game || index == null || questions == null) {
+    final schedule = _schedule;
+    if (phase != DuelPhase.game ||
+        index == null ||
+        questions == null ||
+        schedule == null) {
       return false;
     }
-    if (choice < 1 || choice > 4 || answers[index] != null) return false;
+    if (choice < 1 || choice > 4 || answers[index] == choice) return false;
+    // The screen follows the clock tick by tick: ask the clock itself, so a
+    // tap landing just after the end of the question never changes it.
+    final live = schedule.momentAt(_now(), _offset);
+    if (live.stage != DuelStage.question || live.questionIndex != index) {
+      return false;
+    }
     answers = [...answers]..[index] = choice;
     _notify();
     return true;

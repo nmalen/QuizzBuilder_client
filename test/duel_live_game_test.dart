@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +7,7 @@ import 'package:QuizzBuilder/providers/duel_provider.dart';
 import 'package:QuizzBuilder/ui/duel/duel_live_screen.dart';
 
 import 'support/duel_live_support.dart';
+import 'support/duel_game_support.dart';
 import 'support/duel_scenario.dart';
 import 'support/duel_test_support.dart';
 
@@ -46,45 +45,6 @@ void _foreground(WidgetTester tester) {
   }
 }
 
-/// A game of [count] questions that starts 8 s after the test begins (on the
-/// server clock), with the phone [skew] behind the server.
-class Game {
-  Game({Duration skew = Duration.zero, this.count = 3, Duration startsIn = const Duration(seconds: 8)})
-    : s = Scenario(skew: skew, questionCount: count) {
-    s.startsAt = s.serverNow.add(startsIn);
-    s.state = (now) => duelJson(
-      serverTime: now,
-      status: 'playing',
-      startsAt: s.startsAt,
-      questionCount: count,
-      mySubmitted: submitted,
-      opponentSubmitted: opponentSubmitted,
-      challengedByMe: false,
-    );
-    s.intercept = (r) {
-      if (r.method == 'POST' &&
-          r.path.endsWith('/answers/') &&
-          s.answersOverride == null) {
-        submitted = true;
-      }
-      return null;
-    };
-  }
-
-  final Scenario s;
-  final int count;
-  bool submitted = false;
-  bool opponentSubmitted = false;
-
-  FakeClock get clock => s.clock;
-
-  List<RecordedRequest> get answerPosts =>
-      requestsTo(s.server, 'POST', '/answers/').toList();
-
-  List<Object?> answersOf(RecordedRequest r) =>
-      (jsonDecode(r.body) as Map)['answers'] as List<Object?>;
-}
-
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
@@ -120,6 +80,15 @@ void main() {
     addTearDown(() async => tester.pumpWidget(const SizedBox()));
     return provider;
   }
+
+  bool isTouchable(WidgetTester tester, int n) => tester
+      .widget<ElevatedButton>(
+        find.descendant(
+          of: find.byKey(ValueKey('duel-answer-$n')),
+          matching: find.byType(ElevatedButton),
+        ),
+      )
+      .onPressed != null;
 
   String questionLabel(int n) => _l.duelQuestionOf(n, 3);
 
@@ -187,7 +156,7 @@ void main() {
   });
 
   group('answering', () {
-    testWidgets('an answer waits for the next question: dark blue with a check, others grey, no green or red', (tester) async {
+    testWidgets('an answer waits for the next question: dark blue with a check, the others stay blue and touchable, no green or red', (tester) async {
       final g = Game();
       await pumpGame(tester, g);
       await elapse(tester, g.clock, const Duration(seconds: 11)); // 3 s into Q1
@@ -196,9 +165,14 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('duel-answer-2')));
       await tester.pump();
       expect(find.text(_l.duelAnswerSaved('0:17')), findsOneWidget);
+      expect(
+        find.text('Answer saved, you can still change it. Next question in 0:17'),
+        findsOneWidget,
+      );
       expect(answerColor(tester, 2), Colors.blue.shade900);
       for (final n in [1, 3, 4]) {
-        expect(answerColor(tester, n), Colors.grey);
+        expect(answerColor(tester, n), Colors.blue, reason: 'answer $n is still a normal answer');
+        expect(isTouchable(tester, n), isTrue, reason: 'answer $n can still be touched');
       }
       for (final n in [1, 2, 3, 4]) {
         final color = answerColor(tester, n);
@@ -215,16 +189,57 @@ void main() {
       expect(find.text(questionLabel(1)), findsOneWidget, reason: 'still question 1');
     });
 
-    testWidgets('the answer is final: a second tap changes nothing', (tester) async {
+    testWidgets('the answer can be changed: a tap on another answer replaces it, the same one changes nothing', (tester) async {
       final g = Game();
       await pumpGame(tester, g);
       await elapse(tester, g.clock, const Duration(seconds: 10));
       await tester.tap(find.byKey(const ValueKey('duel-answer-2')));
       await tester.pump();
-      await tester.tap(find.byKey(const ValueKey('duel-answer-3')), warnIfMissed: false);
+      await tester.tap(find.byKey(const ValueKey('duel-answer-3')));
       await tester.pump();
-      expect(answerColor(tester, 2), Colors.blue.shade900);
-      expect(answerColor(tester, 3), Colors.grey);
+      expect(answerColor(tester, 3), Colors.blue.shade900);
+      expect(answerColor(tester, 2), Colors.blue, reason: 'the first choice is a normal answer again');
+      expect(find.byIcon(Icons.check), findsOneWidget, reason: 'one single check, on the kept answer');
+      expect(
+        find.descendant(of: find.byKey(const ValueKey('duel-answer-3')), matching: find.byIcon(Icons.check)),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.byKey(const ValueKey('duel-answer-3'))); // same again
+      await tester.pump();
+      expect(answerColor(tester, 3), Colors.blue.shade900, reason: 'no way back to "no answer"');
+      expect(find.byIcon(Icons.check), findsOneWidget);
+      expect(find.byKey(const ValueKey('answer-saved')), findsOneWidget);
+    });
+
+    testWidgets('the answer kept is the last one before the end of the question, and it is the one sent', (tester) async {
+      final g = Game();
+      await pumpGame(tester, g);
+      await elapse(tester, g.clock, const Duration(seconds: 10));
+      await tester.tap(find.byKey(const ValueKey('duel-answer-2')));
+      await tester.pump();
+      await elapse(tester, g.clock, const Duration(seconds: 8)); // 6 s left of Q1
+      await tester.tap(find.byKey(const ValueKey('duel-answer-4')));
+      await tester.pump();
+      await elapse(tester, g.clock, const Duration(seconds: 12)); // Q2 opens, Q1 is over
+      expect(find.text(questionLabel(2)), findsOneWidget);
+      expect(find.byKey(const ValueKey('answer-saved')), findsNothing, reason: 'Q2 has no answer yet');
+
+      await elapse(tester, g.clock, const Duration(seconds: 20 + 21)); // Q3 over, sending
+      await _settle(tester);
+      expect(g.answersOf(g.answerPosts.single), [4, null, null]);
+    });
+
+    testWidgets('on the last question the text says the game ends, and that the answer can still change', (tester) async {
+      final g = Game();
+      await pumpGame(tester, g);
+      await elapse(tester, g.clock, const Duration(seconds: 8 + 40));
+      await tester.tap(find.byKey(const ValueKey('duel-answer-1')));
+      await tester.pump();
+      expect(
+        find.text('Answer saved, you can still change it. The game ends in 0:20'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('the next question opens on time, and the last one says the game ends', (tester) async {

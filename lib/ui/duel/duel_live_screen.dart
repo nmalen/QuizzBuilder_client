@@ -659,8 +659,7 @@ class _GameView extends StatelessWidget {
                 key: ValueKey('duel-answer-${i + 1}'),
                 text: answers[i],
                 selected: chosen == i + 1,
-                dimmed: answered && chosen != i + 1,
-                onPressed: answered ? null : () => c.answer(i + 1),
+                onPressed: () => c.answer(i + 1),
               ),
             ),
           if (answered)
@@ -736,28 +735,23 @@ class _OfflineWarningCard extends StatelessWidget {
 }
 
 /// Answer button of the game: blue like in solo; once answered, the chosen one
-/// is dark blue with a check and the others are grey. Never green or red (F2).
+/// is dark blue with a check and the others stay blue and touchable (the answer
+/// can be changed until the question ends). Never green or red (F2).
 class _AnswerButton extends StatelessWidget {
   final String text;
   final bool selected;
-  final bool dimmed;
   final VoidCallback? onPressed;
 
   const _AnswerButton({
     super.key,
     required this.text,
     required this.selected,
-    required this.dimmed,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    final color = selected
-        ? Colors.blue.shade900
-        : dimmed
-        ? Colors.grey
-        : Colors.blue;
+    final color = selected ? Colors.blue.shade900 : Colors.blue;
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(

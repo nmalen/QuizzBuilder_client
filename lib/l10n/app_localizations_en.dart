@@ -1205,12 +1205,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String duelAnswerSaved(String time) {
-    return 'Answer saved. Next question in $time';
+    return 'Answer saved, you can still change it. Next question in $time';
   }
 
   @override
   String duelAnswerSavedLast(String time) {
-    return 'Answer saved. The game ends in $time';
+    return 'Answer saved, you can still change it. The game ends in $time';
   }
 
   @override

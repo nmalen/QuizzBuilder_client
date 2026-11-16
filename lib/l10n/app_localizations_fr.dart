@@ -1205,12 +1205,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String duelAnswerSaved(String time) {
-    return 'Réponse enregistrée. Question suivante dans $time';
+    return 'Réponse enregistrée, tu peux encore la changer. Question suivante dans $time';
   }
 
   @override
   String duelAnswerSavedLast(String time) {
-    return 'Réponse enregistrée. Fin de la partie dans $time';
+    return 'Réponse enregistrée, tu peux encore la changer. Fin de la partie dans $time';
   }
 
   @override

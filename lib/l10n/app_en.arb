@@ -995,7 +995,7 @@
       }
     }
   },
-  "duelAnswerSaved": "Answer saved. Next question in {time}",
+  "duelAnswerSaved": "Answer saved, you can still change it. Next question in {time}",
   "@duelAnswerSaved": {
     "placeholders": {
       "time": {
@@ -1003,7 +1003,7 @@
       }
     }
   },
-  "duelAnswerSavedLast": "Answer saved. The game ends in {time}",
+  "duelAnswerSavedLast": "Answer saved, you can still change it. The game ends in {time}",
   "@duelAnswerSavedLast": {
     "placeholders": {
       "time": {

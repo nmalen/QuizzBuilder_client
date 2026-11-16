@@ -2126,13 +2126,13 @@ abstract class AppLocalizations {
   /// No description provided for @duelAnswerSaved.
   ///
   /// In en, this message translates to:
-  /// **'Answer saved. Next question in {time}'**
+  /// **'Answer saved, you can still change it. Next question in {time}'**
   String duelAnswerSaved(String time);
 
   /// No description provided for @duelAnswerSavedLast.
   ///
   /// In en, this message translates to:
-  /// **'Answer saved. The game ends in {time}'**
+  /// **'Answer saved, you can still change it. The game ends in {time}'**
   String duelAnswerSavedLast(String time);
 
   /// No description provided for @duelTimeUp.
