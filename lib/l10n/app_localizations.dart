@@ -2536,6 +2536,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No invitation code in the clipboard.'**
   String get noInvitationCodeInClipboard;
+
+  /// No description provided for @pushBannerJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get pushBannerJoin;
+
+  /// No description provided for @pushBannerView.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get pushBannerView;
+
+  /// No description provided for @pushBannerClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get pushBannerClose;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

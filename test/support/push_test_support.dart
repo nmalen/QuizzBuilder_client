@@ -30,6 +30,7 @@ class FakePushGateway implements PushGateway {
   int requestCalls = 0;
   final refreshes = StreamController<String>.broadcast();
   final opened = StreamController<Map<String, Object?>>.broadcast();
+  final foreground = StreamController<PushMessage>.broadcast();
 
   set authorized(bool value) =>
       state = value ? PushPermission.granted : PushPermission.notDetermined;
@@ -53,9 +54,13 @@ class FakePushGateway implements PushGateway {
   /// What `registerInstallation()` answers (null: no FID, the provider failed).
   String? installationId = fakeInstallationId;
 
+  /// When set, `registerInstallation()` waits for it (the provider is slow).
+  Completer<void>? registerGate;
+
   @override
   Future<String?> registerInstallation() async {
     registerCalls++;
+    await registerGate?.future;
     return installationId;
   }
 
@@ -67,4 +72,7 @@ class FakePushGateway implements PushGateway {
 
   @override
   Stream<Map<String, Object?>> get openedMessageData => opened.stream;
+
+  @override
+  Stream<PushMessage> get foregroundMessages => foreground.stream;
 }

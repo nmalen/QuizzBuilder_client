@@ -13,6 +13,7 @@ import 'credit_store_screen.dart';
 import 'duel/duel_hub_screen.dart';
 import 'duel/duel_open_widgets.dart';
 import 'duel/duel_widgets.dart';
+import 'duel/open_duels_poller.dart';
 import 'game_mode_screen.dart';
 import 'push_permission_prompt.dart';
 import 'settings_screen.dart';
@@ -27,16 +28,33 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _pendingDeletionDialogShown = false;
+  late final OpenDuelsPoller _poller;
 
   @override
   void initState() {
     super.initState();
+    // Calls that arrive while the home screen is on top show up in the banner
+    // without leaving it.
+    _poller = OpenDuelsPoller(
+      isActive: () =>
+          mounted &&
+          (ModalRoute.of(context)?.isCurrent ?? true) &&
+          context.read<ConnectivityProvider>().isOnline &&
+          context.read<AuthProvider>().isLoggedIn,
+      refresh: () => context.read<DuelProvider>().loadOpenDuels(),
+    )..start();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<CatalogProvider>(context, listen: false).loadStatistics();
       _maybeShowPendingDeletionWarning();
       _announceNewOpponents();
       _maybeProposePushToInvitee();
     });
+  }
+
+  @override
+  void dispose() {
+    _poller.dispose();
+    super.dispose();
   }
 
   /// A player who signed up with an invitation code never saw the "join"

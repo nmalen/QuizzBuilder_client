@@ -1184,5 +1184,8 @@
   "pushPromptTurnOn": "Activer",
   "pushPromptLater": "Plus tard",
   "pasteInvitationCode": "Coller",
-  "noInvitationCodeInClipboard": "Aucun code d'invitation dans le presse-papiers."
+  "noInvitationCodeInClipboard": "Aucun code d'invitation dans le presse-papiers.",
+  "pushBannerJoin": "Rejoindre",
+  "pushBannerView": "Voir",
+  "pushBannerClose": "Fermer"
 }

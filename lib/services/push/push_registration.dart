@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
-
 import '../../providers/auth_provider.dart';
 import 'device_registration_api.dart';
+import 'push_log.dart';
 import 'push_notification_service.dart';
 
 /// Keeps the server told which installation gets this account's
@@ -104,7 +103,7 @@ class PushRegistration {
     try {
       await api.unregister(id).timeout(signOutTimeout);
     } catch (e) {
-      debugPrint('[PUSH] Removal skipped: ${e.runtimeType}');
+      pushLog('Removal skipped: ${e.runtimeType}');
     }
   }
 }

@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'push_gateway.dart';
+import 'push_log.dart';
 
 /// [PushGateway] on Firebase Cloud Messaging. The only file that loads it.
 class FirebasePushGateway implements PushGateway {
@@ -45,18 +45,18 @@ class FirebasePushGateway implements PushGateway {
         .then<String?>(
           (fid) => fid,
           onError: (Object e) {
-            debugPrint(
-              '[PUSH] No installation ID handed over: ${e.runtimeType}',
-            );
+            pushLog('No installation ID handed over: ${e.runtimeType}');
             return null;
           },
         );
+    pushLog('register() called');
     try {
       await _messaging.register();
     } catch (e) {
-      debugPrint('[PUSH] register() failed: ${e.runtimeType}');
+      pushLog('register() failed: ${e.runtimeType}');
       return null;
     }
+    pushLog('register() returned');
     return handedOver;
   }
 
@@ -69,4 +69,14 @@ class FirebasePushGateway implements PushGateway {
   @override
   Stream<Map<String, Object?>> get openedMessageData =>
       FirebaseMessaging.onMessageOpenedApp.map((message) => message.data);
+
+  @override
+  Stream<PushMessage> get foregroundMessages =>
+      FirebaseMessaging.onMessage.map(
+        (message) => PushMessage(
+          data: message.data,
+          title: message.notification?.title,
+          body: message.notification?.body,
+        ),
+      );
 }

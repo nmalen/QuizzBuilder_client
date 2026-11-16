@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../config/api_config.dart';
 import '../auth_service.dart';
+import 'push_log.dart';
 
 /// What came of a registration call.
 enum DeviceCallResult {
@@ -49,8 +49,10 @@ class DeviceRegistrationApi {
       final headers = await authService.getAuthHeaders();
       // Signed out: nothing to send (and the server would answer 401).
       if (!headers.containsKey('Authorization')) {
+        pushLog('$method devices skipped: no signed-in session');
         return DeviceCallResult.notAccepted;
       }
+      pushLog('$method devices attempted');
       final request =
           http.Request(
               method,
@@ -63,13 +65,13 @@ class DeviceRegistrationApi {
       final streamed = await _client.send(request).timeout(_timeout);
       final status = streamed.statusCode;
       await streamed.stream.drain<void>();
+      pushLog('$method devices answered HTTP $status');
       if (status == 204) return DeviceCallResult.done;
-      debugPrint('[PUSH] $method devices answered HTTP $status');
       return status == 400 || status == 401
           ? DeviceCallResult.notAccepted
           : DeviceCallResult.retryLater;
     } catch (e) {
-      debugPrint('[PUSH] $method devices failed: ${e.runtimeType}');
+      pushLog('$method devices failed: ${e.runtimeType}');
       return DeviceCallResult.retryLater;
     }
   }

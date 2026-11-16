@@ -1184,5 +1184,8 @@
   "pushPromptTurnOn": "Turn on",
   "pushPromptLater": "Not now",
   "pasteInvitationCode": "Paste",
-  "noInvitationCodeInClipboard": "No invitation code in the clipboard."
+  "noInvitationCodeInClipboard": "No invitation code in the clipboard.",
+  "pushBannerJoin": "Join",
+  "pushBannerView": "View",
+  "pushBannerClose": "Close"
 }

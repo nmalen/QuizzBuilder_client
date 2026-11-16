@@ -1447,4 +1447,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noInvitationCodeInClipboard => 'No invitation code in the clipboard.';
+
+  @override
+  String get pushBannerJoin => 'Join';
+
+  @override
+  String get pushBannerView => 'View';
+
+  @override
+  String get pushBannerClose => 'Close';
 }

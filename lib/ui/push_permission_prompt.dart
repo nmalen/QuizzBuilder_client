@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../services/push/push_gateway.dart';
+import '../services/push/push_log.dart';
 import '../services/push/push_notification_service.dart';
 import '../services/push/push_prompt_state.dart';
 
@@ -25,9 +26,17 @@ class PushPromptController {
     if (_busy) return;
     _busy = true;
     try {
-      if (await _state.wasProposed()) return;
-      if (await service.permission() != PushPermission.notDetermined) return;
+      if (await _state.wasProposed()) {
+        pushLog('Prompt skipped: already proposed on this phone');
+        return;
+      }
+      final permission = await service.permission();
+      if (permission != PushPermission.notDetermined) {
+        pushLog('Prompt skipped: permission ${permission.name}');
+        return;
+      }
       if (!context.mounted) return;
+      pushLog('Prompt proposed');
       final accepted = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
@@ -50,9 +59,10 @@ class PushPromptController {
         },
       );
       await _state.markProposed();
+      pushLog('Prompt answered: ${accepted == true ? 'turn on' : 'later'}');
       if (accepted == true) await service.requestPermission();
     } catch (e) {
-      debugPrint('[PUSH] Prompt failed: ${e.runtimeType}');
+      pushLog('Prompt failed: ${e.runtimeType}');
     } finally {
       _busy = false;
     }
@@ -70,7 +80,7 @@ class PushPromptController {
       await propose(context);
       await _state.setInviteePending(false);
     } catch (e) {
-      debugPrint('[PUSH] Invitee prompt failed: ${e.runtimeType}');
+      pushLog('Invitee prompt failed: ${e.runtimeType}');
     }
   }
 }

@@ -7,6 +7,7 @@ import '../../providers/connectivity_provider.dart';
 import '../../providers/duel_provider.dart';
 import '../../utils/duel_clock.dart';
 import '../../widgets/gradient_background.dart';
+import '../push_banner.dart';
 import 'duel_controller.dart';
 import 'duel_errors.dart';
 import 'duel_format.dart';
@@ -55,12 +56,15 @@ class DuelLiveScreen extends StatefulWidget {
 class _DuelLiveScreenState extends State<DuelLiveScreen>
     with WidgetsBindingObserver {
   late final DuelController _controller;
+  PushBannerController? _banner;
   bool _handledNotFound = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // No notification banner over a live duel.
+    _banner = PushBannerScope.maybeOf(context)?..enterLive();
     _controller = DuelController(
       provider: context.read<DuelProvider>(),
       duelId: widget.duelId,
@@ -90,6 +94,7 @@ class _DuelLiveScreenState extends State<DuelLiveScreen>
 
   @override
   void dispose() {
+    _banner?.leaveLive();
     WidgetsBinding.instance.removeObserver(this);
     _controller.removeListener(_onChanged);
     _controller.dispose();

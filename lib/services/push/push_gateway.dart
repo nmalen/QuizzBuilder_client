@@ -10,6 +10,23 @@ enum PushPermission {
   denied,
 }
 
+/// A notification received while the app is open (foreground).
+class PushMessage {
+  const PushMessage({required this.data, this.title, this.body});
+
+  /// The data block (`type`, `duel_id`, ...), as sent by the server.
+  final Map<String, Object?> data;
+
+  /// The `notification` block, already in the recipient's language. Both null
+  /// when the message carries no such block.
+  final String? title;
+  final String? body;
+
+  /// True when there is something to show in a banner.
+  bool get hasNotificationBlock =>
+      (title?.trim().isNotEmpty ?? false) || (body?.trim().isNotEmpty ?? false);
+}
+
 /// What the app needs from the push provider (Firebase Cloud Messaging).
 ///
 /// The only implementation that loads Firebase is `FirebasePushGateway`;
@@ -38,4 +55,7 @@ abstract class PushGateway {
 
   /// Data of a notification tapped while the app was in the background.
   Stream<Map<String, Object?>> get openedMessageData;
+
+  /// Notifications received while the app is open (foreground).
+  Stream<PushMessage> get foregroundMessages;
 }

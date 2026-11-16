@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +19,8 @@ import 'duel_invite_screen.dart';
 import 'duel_join_screen.dart';
 import 'duel_open_widgets.dart';
 import 'duel_widgets.dart';
+import 'open_duels_poller.dart';
+import '../push_permission_prompt.dart';
 
 enum _OpponentAction { remove, block }
 
@@ -31,10 +35,27 @@ class DuelHubScreen extends StatefulWidget {
 
 class _DuelHubScreenState extends State<DuelHubScreen>
     with OnlineReloadMixin<DuelHubScreen> {
+  late final OpenDuelsPoller _poller;
+  bool _pushProposed = false;
+
   @override
   void initState() {
     super.initState();
+    // Calls that arrive while this screen is open show up without a pull.
+    _poller = OpenDuelsPoller(
+      isActive: () =>
+          mounted &&
+          (ModalRoute.of(context)?.isCurrent ?? true) &&
+          context.read<ConnectivityProvider>().isOnline,
+      refresh: () => context.read<DuelProvider>().loadOpenDuels(),
+    )..start();
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  @override
+  void dispose() {
+    _poller.dispose();
+    super.dispose();
   }
 
   @override
@@ -54,6 +75,16 @@ class _DuelHubScreenState extends State<DuelHubScreen>
     ]);
     if (!mounted) return;
     showNewOpponentsSnackBar(context, duel.takeAnnouncement());
+    _maybeProposePush(duel);
+  }
+
+  /// The one-time "turn on notifications?" proposal (same rules as the other
+  /// moments), once, when this screen opens with at least one opponent.
+  void _maybeProposePush(DuelProvider duel) {
+    if (_pushProposed || duel.opponents.isEmpty) return;
+    _pushProposed = true;
+    final prompt = PushPromptScope.maybeOf(context);
+    if (prompt != null) unawaited(prompt.propose(context));
   }
 
   void _showError(Object error) {

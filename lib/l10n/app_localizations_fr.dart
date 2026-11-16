@@ -1447,4 +1447,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noInvitationCodeInClipboard => 'Aucun code d\'invitation dans le presse-papiers.';
+
+  @override
+  String get pushBannerJoin => 'Rejoindre';
+
+  @override
+  String get pushBannerView => 'Voir';
+
+  @override
+  String get pushBannerClose => 'Fermer';
 }
