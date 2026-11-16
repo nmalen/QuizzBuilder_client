@@ -53,7 +53,13 @@ class FirebasePushGateway implements PushGateway {
     try {
       await _messaging.register();
     } catch (e) {
-      pushLog('register() failed: ${e.runtimeType}');
+      final firebase = e is FirebaseException ? e : null;
+      final why = describeNativeFailure(
+        e.runtimeType.toString(),
+        code: firebase?.code,
+        message: firebase?.message,
+      );
+      pushLog('register() failed: $why');
       return null;
     }
     pushLog('register() returned');
@@ -71,12 +77,11 @@ class FirebasePushGateway implements PushGateway {
       FirebaseMessaging.onMessageOpenedApp.map((message) => message.data);
 
   @override
-  Stream<PushMessage> get foregroundMessages =>
-      FirebaseMessaging.onMessage.map(
-        (message) => PushMessage(
-          data: message.data,
-          title: message.notification?.title,
-          body: message.notification?.body,
-        ),
-      );
+  Stream<PushMessage> get foregroundMessages => FirebaseMessaging.onMessage.map(
+    (message) => PushMessage(
+      data: message.data,
+      title: message.notification?.title,
+      body: message.notification?.body,
+    ),
+  );
 }
