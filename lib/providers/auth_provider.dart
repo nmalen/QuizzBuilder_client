@@ -92,6 +92,7 @@ class AuthProvider extends ChangeNotifier {
     required String password1,
     required String password2,
     String? invitationCode,
+    bool newsEmailsOptIn = false,
   }) async {
     _isLoading = true;
     _error = null;
@@ -104,6 +105,7 @@ class AuthProvider extends ChangeNotifier {
       password1: password1,
       password2: password2,
       invitationCode: invitationCode,
+      newsEmailsOptIn: newsEmailsOptIn,
     );
 
     _isLoading = false;

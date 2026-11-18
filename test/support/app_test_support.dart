@@ -187,6 +187,7 @@ class ScriptedAuthService extends AuthService {
     required String password1,
     required String password2,
     String? invitationCode,
+    bool newsEmailsOptIn = false,
   }) async {
     await Future<void>.delayed(registerDelay);
     return {'success': true, 'message': 'Check your e-mail'};

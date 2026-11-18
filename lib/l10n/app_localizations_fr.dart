@@ -1456,4 +1456,22 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pushBannerClose => 'Fermer';
+
+  @override
+  String get newsEmailsOptInLabel => 'Je souhaite recevoir par e-mail les nouveautés de QuizzBuilder (nouvelles fonctions, nouveaux thèmes). Désinscription possible à tout moment.';
+
+  @override
+  String get emailsSection => 'E-mails';
+
+  @override
+  String get newsEmailsTitle => 'Nouveautés par e-mail';
+
+  @override
+  String get newsEmailsSubtitle => 'Nouvelles fonctions et nouveaux thèmes, rarement.';
+
+  @override
+  String get newsEmailsSaveError => 'Impossible d\'enregistrer ce choix. Réessaie plus tard.';
+
+  @override
+  String get privacyPolicy => 'Politique de confidentialité';
 }

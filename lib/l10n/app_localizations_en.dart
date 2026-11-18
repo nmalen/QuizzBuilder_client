@@ -1456,4 +1456,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pushBannerClose => 'Close';
+
+  @override
+  String get newsEmailsOptInLabel => 'Email me what\'s new in QuizzBuilder (new features, new themes). You can unsubscribe at any time.';
+
+  @override
+  String get emailsSection => 'Emails';
+
+  @override
+  String get newsEmailsTitle => 'News by email';
+
+  @override
+  String get newsEmailsSubtitle => 'New features and new themes, occasionally.';
+
+  @override
+  String get newsEmailsSaveError => 'Couldn\'t save this choice. Please try again later.';
+
+  @override
+  String get privacyPolicy => 'Privacy policy';
 }

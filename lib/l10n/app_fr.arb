@@ -1187,5 +1187,11 @@
   "noInvitationCodeInClipboard": "Aucun code d'invitation dans le presse-papiers.",
   "pushBannerJoin": "Rejoindre",
   "pushBannerView": "Voir",
-  "pushBannerClose": "Fermer"
+  "pushBannerClose": "Fermer",
+  "newsEmailsOptInLabel": "Je souhaite recevoir par e-mail les nouveautés de QuizzBuilder (nouvelles fonctions, nouveaux thèmes). Désinscription possible à tout moment.",
+  "emailsSection": "E-mails",
+  "newsEmailsTitle": "Nouveautés par e-mail",
+  "newsEmailsSubtitle": "Nouvelles fonctions et nouveaux thèmes, rarement.",
+  "newsEmailsSaveError": "Impossible d'enregistrer ce choix. Réessaie plus tard.",
+  "privacyPolicy": "Politique de confidentialité"
 }

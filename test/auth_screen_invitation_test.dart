@@ -27,6 +27,7 @@ class _RecordingAuth extends FakeAuthProvider {
     required String password1,
     required String password2,
     String? invitationCode,
+    bool newsEmailsOptIn = false,
   }) async {
     calls.add(invitationCode);
     return succeed;

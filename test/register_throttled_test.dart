@@ -57,6 +57,7 @@ class _StubService extends AuthService {
     required String password1,
     required String password2,
     String? invitationCode,
+    bool newsEmailsOptIn = false,
   }) async => result;
 }
 

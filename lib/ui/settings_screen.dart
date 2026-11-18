@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../l10n/app_localizations.dart';
 import '../providers/auth_provider.dart';
+import '../providers/connectivity_provider.dart';
 import '../providers/language_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -16,6 +17,71 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDeletionLoading = false;
+
+  // News e-mails choice: null until the server has answered.
+  bool? _newsEmails;
+  bool _newsEmailsLoading = false;
+  bool _newsEmailsSaving = false;
+  // One read per stretch online: no loop when the server keeps failing.
+  bool _newsEmailsLoadAttempted = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final online = Provider.of<ConnectivityProvider>(context).isOnline;
+    if (!online) {
+      _newsEmailsLoadAttempted = false;
+    } else if (_newsEmails == null &&
+        !_newsEmailsLoading &&
+        !_newsEmailsLoadAttempted) {
+      _loadNewsEmails();
+    }
+  }
+
+  Future<void> _loadNewsEmails() async {
+    _newsEmailsLoadAttempted = true;
+    _newsEmailsLoading = true;
+    final result = await context
+        .read<AuthProvider>()
+        .authService
+        .fetchNewsEmailsEnabled();
+    if (!mounted) return;
+    setState(() {
+      _newsEmailsLoading = false;
+      // A choice made meanwhile (none can be: the switch is off until read)
+      // is never overwritten.
+      if (result['success'] == true && _newsEmails == null) {
+        _newsEmails = result['enabled'] as bool;
+      }
+    });
+  }
+
+  Future<void> _setNewsEmails(bool value) async {
+    final previous = _newsEmails;
+    setState(() {
+      _newsEmails = value;
+      _newsEmailsSaving = true;
+    });
+    final result = await context
+        .read<AuthProvider>()
+        .authService
+        .setNewsEmailsEnabled(value);
+    if (!mounted) return;
+    final saved = result['success'] == true;
+    setState(() {
+      _newsEmailsSaving = false;
+      // On failure the switch goes back to what it was; on success it shows
+      // what the server now holds.
+      _newsEmails = saved ? result['enabled'] as bool : previous;
+    });
+    if (!saved) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.newsEmailsSaveError),
+        ),
+      );
+    }
+  }
 
   Future<void> _openExternalLink(
     Uri uri, {
@@ -140,6 +206,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final websiteUrl = isEnglish
         ? 'https://www.quizzbuilder.fr/en'
         : 'https://www.quizzbuilder.fr';
+    final privacyUrl = isEnglish
+        ? 'https://www.quizzbuilder.fr/en/privacy.html'
+        : 'https://www.quizzbuilder.fr/privacy.html';
+    final online = Provider.of<ConnectivityProvider>(context).isOnline;
 
     return Scaffold(
       appBar: AppBar(title: Text(localizations.settings)),
@@ -177,6 +247,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           onTap: () {
                             languageProvider.setLanguage('fr');
                           },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          localizations.emailsSection,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        SwitchListTile(
+                          key: const Key('newsEmailsSwitch'),
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(localizations.newsEmailsTitle),
+                          subtitle: Text(localizations.newsEmailsSubtitle),
+                          value: _newsEmails ?? false,
+                          // Off until the server has answered, while saving,
+                          // and offline.
+                          onChanged:
+                              (_newsEmails == null ||
+                                  _newsEmailsSaving ||
+                                  !online)
+                              ? null
+                              : _setNewsEmails,
                         ),
                       ],
                     ),
@@ -241,6 +341,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       color: Colors.blue,
                                       decoration: TextDecoration.underline,
                                     ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.privacy_tip_outlined,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: InkWell(
+                                onTap: () async {
+                                  await _openExternalLink(
+                                    Uri.parse(privacyUrl),
+                                    failureMessage:
+                                        'Unable to open website on this device.',
+                                    modes: const [
+                                      LaunchMode.externalApplication,
+                                      LaunchMode.platformDefault,
+                                      LaunchMode.inAppBrowserView,
+                                    ],
+                                  );
+                                },
+                                child: Text(
+                                  localizations.privacyPolicy,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: Colors.blue,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                ),
                               ),
                             ),
                           ],

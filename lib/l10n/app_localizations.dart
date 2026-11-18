@@ -2554,6 +2554,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get pushBannerClose;
+
+  /// No description provided for @newsEmailsOptInLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email me what\'s new in QuizzBuilder (new features, new themes). You can unsubscribe at any time.'**
+  String get newsEmailsOptInLabel;
+
+  /// No description provided for @emailsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Emails'**
+  String get emailsSection;
+
+  /// No description provided for @newsEmailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'News by email'**
+  String get newsEmailsTitle;
+
+  /// No description provided for @newsEmailsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New features and new themes, occasionally.'**
+  String get newsEmailsSubtitle;
+
+  /// No description provided for @newsEmailsSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save this choice. Please try again later.'**
+  String get newsEmailsSaveError;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get privacyPolicy;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

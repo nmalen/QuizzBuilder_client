@@ -55,6 +55,7 @@ class AuthService {
     required String password1,
     required String password2,
     String? invitationCode,
+    bool newsEmailsOptIn = false,
   }) async {
     try {
       // Never log the request body: it carries the password.
@@ -72,6 +73,9 @@ class AuthService {
               // Optional invitation code (duel): sent only when filled in.
               if (invitationCode != null && invitationCode.isNotEmpty)
                 'invitation_code': invitationCode,
+              // Explicit consent to news e-mails: always sent, false when the
+              // box was left unticked.
+              'news_emails_opt_in': newsEmailsOptIn,
             }),
           )
           .timeout(
@@ -389,6 +393,59 @@ class AuthService {
     await _secureStorage.delete(key: _accessTokenKey);
     await _secureStorage.delete(key: _refreshTokenKey);
     await _prefs.remove(_userKey);
+  }
+
+  /// Reads the news e-mails choice (`news_emails_enabled`) of the signed-in
+  /// user. Returns `{'success': true, 'enabled': bool}`, or
+  /// `{'success': false}` when the answer is missing, refused or malformed.
+  Future<Map<String, dynamic>> fetchNewsEmailsEnabled() =>
+      _newsEmailsRequest('GET');
+
+  /// Saves the news e-mails choice. Sends **only** `news_emails_enabled`:
+  /// the same endpoint also changes `username` and `email`, which this call
+  /// must never carry. Same result shape as [fetchNewsEmailsEnabled].
+  Future<Map<String, dynamic>> setNewsEmailsEnabled(bool enabled) =>
+      _newsEmailsRequest('PATCH', body: {'news_emails_enabled': enabled});
+
+  Future<Map<String, dynamic>> _newsEmailsRequest(
+    String method, {
+    Map<String, Object?>? body,
+    bool retryAfterRefresh = true,
+  }) async {
+    try {
+      final headers = await getAuthHeaders();
+      final uri = Uri.parse('$baseUrl${ApiConfig.authUserEndpoint}');
+      final response =
+          await (method == 'PATCH'
+                  ? http.patch(uri, headers: headers, body: jsonEncode(body))
+                  : http.get(uri, headers: headers))
+              .timeout(
+                ApiConfig.connectionTimeout,
+                onTimeout: () => throw TimeoutException('Connection timeout'),
+              );
+
+      if (response.statusCode == 401 && retryAfterRefresh) {
+        if (await refreshAccessToken()) {
+          return await _newsEmailsRequest(
+            method,
+            body: body,
+            retryAfterRefresh: false,
+          );
+        }
+      }
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final enabled = data is Map ? data['news_emails_enabled'] : null;
+        if (enabled is bool) {
+          return {'success': true, 'enabled': enabled};
+        }
+      }
+      return {'success': false, 'status_code': response.statusCode};
+    } catch (e) {
+      debugPrint('[NEWS_EMAILS] $method failed: ${e.runtimeType}');
+      return {'success': false};
+    }
   }
 
   /// Request account deletion for the authenticated user.

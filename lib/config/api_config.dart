@@ -24,6 +24,8 @@ class ApiConfig {
   static const String authLoginEndpoint = '/auth/login/';
   static const String authLogoutEndpoint = '/auth/logout/';
   static const String authAccountDeletionEndpoint = '/auth/account-deletion/';
+  /// Current user: GET reads the profile, PATCH changes it.
+  static const String authUserEndpoint = '/auth/user/';
     static const String authPasswordResetEndpoint = '/auth/password/reset/';
   static const String authRefreshEndpoint = '/auth/refresh/';
   static const String authVerifyEmailEndpoint =

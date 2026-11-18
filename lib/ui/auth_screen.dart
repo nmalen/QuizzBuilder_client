@@ -31,6 +31,10 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _obscurePassword = true;
   bool _obscurePassword2 = true;
   bool _isLogin = true;
+  // Explicit, optional consent to news e-mails (sign-up only). Always starts
+  // unticked; read into a local before the registration call, because the
+  // router swaps this screen for the splash while the request runs.
+  bool _newsEmailsOptIn = false;
   final _formKey = GlobalKey<FormState>();
 
   String _localized(BuildContext context, String en, String fr) {
@@ -284,12 +288,14 @@ class _AuthScreenState extends State<AuthScreen> {
       final invitationCode = normalizeInvitationCode(
         _invitationController.text,
       );
+      final newsEmailsOptIn = _newsEmailsOptIn;
       final success = await authProvider.register(
         email: _emailController.text.trim(),
         username: _usernameController.text.trim(),
         password1: _passwordController.text,
         password2: _password2Controller.text,
         invitationCode: invitationCode.isEmpty ? null : invitationCode,
+        newsEmailsOptIn: newsEmailsOptIn,
       );
       // The server now holds the code: forget the one kept from a link, so it
       // is not used a second time after sign-in.
@@ -335,6 +341,7 @@ class _AuthScreenState extends State<AuthScreen> {
               _passwordController.clear();
               _password2Controller.clear();
               _invitationController.clear();
+              _newsEmailsOptIn = false;
             });
             debugPrint(
               '[AuthScreen] calling _showSnack with success message: "$message"',
@@ -1030,7 +1037,63 @@ class _AuthScreenState extends State<AuthScreen> {
                                           letterSpacing: 0.2,
                                         ),
                                       ),
-                                      const SizedBox(height: 24),
+                                      const SizedBox(height: 16),
+
+                                      // News e-mails consent (Register only,
+                                      // optional, unticked by default)
+                                      // A plain row, not a ListTile: a ListTile
+                                      // under-measures its wrapped label inside
+                                      // the sliver and overflows the form.
+                                      InkWell(
+                                        onTap: authProvider.isLoading
+                                            ? null
+                                            : () => setState(
+                                                () => _newsEmailsOptIn =
+                                                    !_newsEmailsOptIn,
+                                              ),
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Checkbox(
+                                              key: const Key('newsEmailsOptIn'),
+                                              value: _newsEmailsOptIn,
+                                              onChanged: authProvider.isLoading
+                                                  ? null
+                                                  : (value) => setState(
+                                                      () => _newsEmailsOptIn =
+                                                          value ?? false,
+                                                    ),
+                                              checkColor: Theme.of(
+                                                context,
+                                              ).primaryColor,
+                                              activeColor: Colors.white,
+                                              side: const BorderSide(
+                                                color: Colors.white70,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 12,
+                                                ),
+                                                child: Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.newsEmailsOptInLabel,
+                                                  style: const TextStyle(
+                                                    color: Colors.white70,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
                                     ],
 
                                     // Submit Button
@@ -1111,6 +1174,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                               _usernameController.clear();
                                               _password2Controller.clear();
                                               _invitationController.clear();
+                                              _newsEmailsOptIn = false;
                                               // Switching to sign-up: put back
                                               // the code received by a link.
                                               final pending =
