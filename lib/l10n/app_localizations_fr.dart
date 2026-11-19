@@ -1467,7 +1467,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get newsEmailsTitle => 'Nouveautés par e-mail';
 
   @override
-  String get newsEmailsSubtitle => 'Nouvelles fonctions et nouveaux thèmes, rarement.';
+  String get newsEmailsSubtitle => 'Recevez de manière très ponctuelle les nouvelles fonctions et les nouveaux thèmes.';
 
   @override
   String get newsEmailsSaveError => 'Impossible d\'enregistrer ce choix. Réessaie plus tard.';

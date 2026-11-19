@@ -409,11 +409,11 @@ void main() {
       expect(_en.newsEmailsTitle, 'News by email');
       expect(
         _fr.newsEmailsSubtitle,
-        'Nouvelles fonctions et nouveaux thèmes, rarement.',
+        'Recevez de manière très ponctuelle les nouvelles fonctions et les nouveaux thèmes.',
       );
       expect(
         _en.newsEmailsSubtitle,
-        'New features and new themes, occasionally.',
+        'Get new features and new themes by email, only very occasionally.',
       );
       expect(
         _fr.newsEmailsSaveError,
@@ -637,40 +637,42 @@ void main() {
         expect(raised, isEmpty);
       });
 
-      testWidgets('[$locale] settings: the new widgets stay inside the screen', (
-        tester,
-      ) async {
-        // The test font (Ahem) is wider than a real one: two rows that were
-        // already there (the web address, the contact e-mail) overflow in it
-        // at 320 pt, with or without this lot. So the check is on the new
-        // widgets' own geometry, not on the absence of any overflow.
-        final server = FakeDuelServer((_) => _user(enabled: true));
-        await _withServer(server, () async {
-          final previous = FlutterError.onError;
-          FlutterError.onError = (_) {};
-          try {
-            await _pumpSettings(
-              tester,
-              locale: locale,
-              size: const Size(320, 640),
-            );
-            for (final finder in [
-              find.byKey(_switchKey),
-              find.text(l.emailsSection),
-              find.text(l.newsEmailsTitle),
-              find.text(l.newsEmailsSubtitle),
-              find.text(l.privacyPolicy),
-            ]) {
-              await tester.ensureVisible(finder);
-              final rect = tester.getRect(finder);
-              expect(rect.left, greaterThanOrEqualTo(0), reason: '$finder');
-              expect(rect.right, lessThanOrEqualTo(320), reason: '$finder');
+      for (final width in [320.0, 375.0, 393.0]) {
+        testWidgets('[$locale] settings at ${width.toInt()}: the new widgets stay inside the screen', (
+          tester,
+        ) async {
+          // The test font (Ahem) is wider than a real one: two rows that were
+          // already there (the web address, the contact e-mail) overflow in it
+          // at 320 pt, with or without this lot. So the check is on the new
+          // widgets' own geometry, not on the absence of any overflow.
+          final server = FakeDuelServer((_) => _user(enabled: true));
+          await _withServer(server, () async {
+            final previous = FlutterError.onError;
+            FlutterError.onError = (_) {};
+            try {
+              await _pumpSettings(
+                tester,
+                locale: locale,
+                size: Size(width, 640),
+              );
+              for (final finder in [
+                find.byKey(_switchKey),
+                find.text(l.emailsSection),
+                find.text(l.newsEmailsTitle),
+                find.text(l.newsEmailsSubtitle),
+                find.text(l.privacyPolicy),
+              ]) {
+                await tester.ensureVisible(finder);
+                final rect = tester.getRect(finder);
+                expect(rect.left, greaterThanOrEqualTo(0), reason: '$finder');
+                expect(rect.right, lessThanOrEqualTo(width), reason: '$finder');
+              }
+            } finally {
+              FlutterError.onError = previous;
             }
-          } finally {
-            FlutterError.onError = previous;
-          }
+          });
         });
-      });
+      }
     }
   });
 }

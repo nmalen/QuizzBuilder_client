@@ -2576,7 +2576,7 @@ abstract class AppLocalizations {
   /// No description provided for @newsEmailsSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'New features and new themes, occasionally.'**
+  /// **'Get new features and new themes by email, only very occasionally.'**
   String get newsEmailsSubtitle;
 
   /// No description provided for @newsEmailsSaveError.

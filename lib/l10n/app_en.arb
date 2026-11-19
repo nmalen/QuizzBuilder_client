@@ -1191,7 +1191,7 @@
   "newsEmailsOptInLabel": "Email me what's new in QuizzBuilder (new features, new themes). You can unsubscribe at any time.",
   "emailsSection": "Emails",
   "newsEmailsTitle": "News by email",
-  "newsEmailsSubtitle": "New features and new themes, occasionally.",
+  "newsEmailsSubtitle": "Get new features and new themes by email, only very occasionally.",
   "newsEmailsSaveError": "Couldn't save this choice. Please try again later.",
   "privacyPolicy": "Privacy policy"
 }
